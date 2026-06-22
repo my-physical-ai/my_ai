@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>프로젝트 진행 계획 (수정) — 피지컬 AI 성공·실패 분석과 대응전략</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#16181d;
+  --paper:#f3efe6;
+  --paper2:#ece6d8;
+  --line:#d9d1bf;
+  --muted:#6f6857;
+  --red:#b23a2e;
+  --red-soft:#f0d9d3;
+  --blue:#1f5673;
+  --blue-soft:#d6e3ea;
+  --gold:#b8893a;
+  --green:#3f6b4c;
+  --green-soft:#d8e4da;
+  --mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--paper);color:var(--ink);line-height:1.8;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 1.5rem}
+.serif{font-family:'Gowun Batang',serif}
+.mono{font-family:var(--mono)}
+
+/* HERO */
+header{position:relative;padding:4.5rem 0 3rem;border-bottom:3px double var(--ink);overflow:hidden}
+header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:22px 22px;opacity:.45}
+.h-inner{position:relative}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.3em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:1.2rem}
+h1{font-family:'Gowun Batang',serif;font-size:clamp(2rem,5vw,3.3rem);font-weight:700;line-height:1.22;margin-bottom:1rem}
+h1 .u{background:linear-gradient(transparent 62%,var(--red-soft) 62%);padding:0 .1em}
+.lede{font-size:1.04rem;color:var(--muted);max-width:660px}
+.meta-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.8rem}
+.chip{font-family:var(--mono);font-size:.72rem;font-weight:500;padding:.4rem .85rem;border:1px solid var(--line);border-radius:2px;background:rgba(255,255,255,.45)}
+
+/* WHY 박스 (도입 메시지) */
+.why{background:var(--ink);color:var(--paper);border-radius:5px;padding:2rem 2.2rem;margin-top:2.2rem;position:relative;overflow:hidden}
+.why::before{content:'?';font-family:'Gowun Batang',serif;position:absolute;font-size:11rem;font-weight:700;color:rgba(255,255,255,.05);right:1.2rem;top:50%;transform:translateY(-50%);line-height:1}
+.why .wk{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:.7rem;position:relative}
+.why h2{font-family:'Gowun Batang',serif;font-size:1.5rem;font-weight:700;line-height:1.4;margin-bottom:1rem;position:relative}
+.why p{font-size:.95rem;color:#d7d2c4;position:relative;max-width:680px}
+.why ul{list-style:none;margin-top:1rem;position:relative}
+.why li{padding:.45rem 0 .45rem 1.6rem;position:relative;font-size:.93rem;color:#e8e3d6;line-height:1.65}
+.why li::before{content:'→';position:absolute;left:0;color:var(--gold);font-weight:700}
+.why li b{color:#fff}
+
+/* SECTION */
+section{padding:3.2rem 0;border-bottom:1px solid var(--line)}
+.eyebrow{display:flex;align-items:center;gap:.7rem;margin-bottom:1.3rem}
+.eyebrow .no{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--paper);background:var(--ink);width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0}
+.eyebrow h2{font-family:'Gowun Batang',serif;font-size:1.6rem;font-weight:700;line-height:1.2}
+.sec-lede{color:var(--muted);font-size:.95rem;max-width:710px;margin-bottom:1.8rem;margin-left:2.7rem}
+@media(max-width:600px){.sec-lede{margin-left:0}}
+
+/* 필수요소 안내 배너 */
+.req{display:flex;gap:.8rem;align-items:flex-start;background:var(--blue-soft);border:1px solid #b9cdd8;border-radius:4px;padding:1rem 1.2rem;margin:0 0 1.6rem 2.7rem;font-size:.86rem;color:#274652}
+@media(max-width:600px){.req{margin-left:0}}
+.req .rb{font-family:var(--mono);font-size:.66rem;font-weight:700;letter-spacing:.06em;background:var(--blue);color:#fff;padding:.2rem .5rem;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:.1rem}
+
+/* 사례 카드 */
+.cases{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-left:0}
+@media(max-width:720px){.cases{grid-template-columns:1fr}}
+.case{border:1px solid var(--line);border-top:4px solid;border-radius:3px;padding:1.3rem 1.4rem;background:#fff}
+.case.s{border-top-color:var(--green)}
+.case.m{border-top-color:var(--gold)}
+.case .ctag{font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
+.case.s .ctag{color:var(--green)}
+.case.m .ctag{color:var(--gold)}
+.case h4{font-family:'Gowun Batang',serif;font-size:1.18rem;font-weight:700;margin-bottom:.15rem}
+.case .field{font-size:.78rem;color:var(--muted);margin-bottom:.7rem}
+.case .nums{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem}
+.case .num{font-family:var(--mono);font-size:.72rem;font-weight:700;background:var(--paper2);border:1px solid var(--line);border-radius:2px;padding:.2rem .5rem;color:var(--ink)}
+.case p{font-size:.86rem;color:#3c3a33;line-height:1.6}
+.case .lesson{margin-top:.7rem;font-size:.82rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:.6rem}
+.case .lesson b{color:var(--ink)}
+
+/* 5+5 포인트 */
+.points{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:720px){.points{grid-template-columns:1fr}}
+.pcol h3{font-family:'Gowun Batang',serif;font-size:1.2rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.6rem;margin-bottom:.5rem;border-bottom:2px solid}
+.pcol.biz h3{border-color:var(--blue);color:var(--blue)}
+.pcol.tech h3{border-color:var(--green);color:var(--green)}
+.pitem{display:flex;gap:.7rem;padding:.7rem 0;border-bottom:1px dashed var(--line)}
+.pitem:last-child{border-bottom:none}
+.pitem .pn{font-family:var(--mono);font-size:.85rem;font-weight:700;flex-shrink:0;width:1.5rem}
+.pcol.biz .pn{color:var(--blue)}
+.pcol.tech .pn{color:var(--green)}
+.pitem .pt{font-weight:700;font-size:.9rem;margin-bottom:.1rem}
+.pitem .pd{font-size:.82rem;color:var(--muted);line-height:1.55}
+
+/* 타임라인 (발표/토론) */
+.timeline{margin-left:.4rem;border-left:2px solid var(--ink);padding-left:0}
+.tstep{position:relative;padding:0 0 1.4rem 2rem}
+.tstep:last-child{padding-bottom:0}
+.tstep::before{content:'';position:absolute;left:-7px;top:.35rem;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2.5px solid var(--ink)}
+.tstep.live::before{background:var(--red);border-color:var(--red)}
+.tstep .tt-time{font-family:var(--mono);font-size:.74rem;font-weight:700;color:var(--red);letter-spacing:.05em}
+.tstep .tt-title{font-weight:700;font-size:1rem;margin:.1rem 0 .3rem}
+.tstep .tt-desc{font-size:.88rem;color:var(--muted);line-height:1.6}
+
+/* 대응전략 — 팀/개인 */
+.stance{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.5rem}
+@media(max-width:720px){.stance{grid-template-columns:1fr}}
+.scard{border:1px solid var(--line);border-left:4px solid;border-radius:3px;padding:1.3rem 1.4rem;background:#fff}
+.scard.team{border-left-color:var(--blue)}
+.scard.indiv{border-left-color:var(--red)}
+.scard .sh{font-family:'Gowun Batang',serif;font-size:1.15rem;font-weight:700;margin-bottom:.2rem;display:flex;align-items:center;gap:.4rem}
+.scard .ssub{font-size:.82rem;color:var(--muted);margin-bottom:.9rem}
+.scard ul{list-style:none}
+.scard li{padding:.35rem 0 .35rem 1.3rem;position:relative;font-size:.87rem;color:#3c3a33;line-height:1.55}
+.scard.team li::before{content:'▪';position:absolute;left:.1rem;color:var(--blue)}
+.scard.indiv li::before{content:'▪';position:absolute;left:.1rem;color:var(--red)}
+
+/* 제출물 표 */
+table{width:100%;border-collapse:collapse;font-size:.88rem;background:#fff;border:1px solid var(--line);margin-top:.5rem}
+th{background:var(--ink);color:var(--paper);text-align:left;padding:.75rem 1rem;font-size:.8rem;font-weight:700}
+td{padding:.7rem 1rem;border-top:1px solid var(--line);color:#3c3a33;vertical-align:top}
+td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+tr:nth-child(even) td{background:var(--paper2)}
+
+/* callout */
+.callout{background:#fff;border:1px solid var(--ink);border-radius:3px;padding:1.4rem 1.6rem;margin-top:1.2rem;position:relative}
+.callout::before{content:'"';font-family:'Gowun Batang',serif;position:absolute;top:-.4rem;left:.8rem;font-size:3.4rem;color:var(--red-soft);line-height:1}
+.callout p{font-family:'Gowun Batang',serif;font-size:1.08rem;line-height:1.65;padding-left:1.6rem}
+.callout .by{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:.6rem;padding-left:1.6rem}
+
+footer{padding:2.4rem 0 3rem;text-align:center;color:var(--muted);font-size:.82rem;font-family:var(--mono)}
+@media print{header::before,.why::before{display:none}section,.cases,.points{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap h-inner">
+    <div class="kicker">Project Plan · Revised</div>
+    <h1 class="serif">피지컬 AI는 왜 실패하고,<br><span class="u">어떻게 성공하는가</span></h1>
+    <p class="lede">두 팀이 성공요인·실패요인을 나눠 분석하고, 기업 실전 사례로 검증한 뒤, 사업·기술 핵심을 압축해 발표·토론합니다. 마지막엔 팀과 개인 각각의 대응전략을 세웁니다.</p>
+    <div class="meta-row">
+      <span class="chip">⏱ 발표 10분 · 토론 10분</span>
+      <span class="chip">🏢 기업 실전 사례 4개</span>
+      <span class="chip">💼 사업 5 · ⚙️ 기술 5</span>
+      <span class="chip">🎯 팀 입장 + 개인 입장</span>
+    </div>
+
+    <div class="why">
+      <div class="wk">왜 이 토론이 중요한가</div>
+      <h2 class="serif">"AI가 다 만들어주는데, 왜 우리가 토론하나요?"</h2>
+      <p>바로 그래서 중요합니다. AI가 생산을 맡을수록, 사람의 일은 <b>무엇을 만들지 정하고 · 만들어진 것이 맞는지 검증하고 · 사람들의 합의를 이끄는</b> 쪽으로 옮겨갑니다. 이 토론은 정확히 그 세 가지를 연습하는 자리입니다.</p>
+      <ul>
+        <li><b>질문은 사람이 던진다.</b> IBM Watson($4B)·Tesla가 실패한 건 기술이 약해서가 아니라 "정말 필요한가, 데이터는 준비됐나"를 묻지 않아서였다. AI에게 시키기 전에, 옳은 질문을 정하는 게 사람의 일이다.</li>
+        <li><b>검증·반박이 차별화다.</b> 모두가 같은 AI를 쓰는 시대, 답을 그대로 쓰는 사람과 "이 가정이 틀렸다"를 짚는 사람의 격차가 벌어진다. 성공 vs 실패 팀의 공방이 그 검증 근육을 만든다.</li>
+        <li><b>합의는 AI가 못 한다.</b> 팀과 개인의 입장을 조율해 하나의 전략으로 모으는 일은 사람 사이의 몫이다. 현장 도입 실패의 진짜 원인도 대개 기술이 아니라 조직의 합의 부재였다.</li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<!-- 1. 팀 구성 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow"><span class="no">1</span><h2 class="serif">팀 구성 — 성공 vs 실패</h2></div>
+    <p class="sec-lede">A팀은 성공요인, B팀은 실패요인을 맡아 상반된 관점에서 분석합니다. 한 팀이 발표하면 다른 팀이 즉석에서 반론하는 교차 토론 방식입니다.</p>
+    <div class="stance">
+      <div class="scard team" style="border-left-color:var(--green)">
+        <div class="sh serif" style="color:var(--green)">🟢 A팀 · 성공요인</div>
+        <div class="ssub">성공 사례에서 반복되는 결정적 요인을 근거와 함께 도출</div>
+        <ul>
+          <li>성공한 현장은 모델 외에 무엇을 먼저 갖췄나?</li>
+          <li>데이터·관제·인프라가 성과에 어떻게 기여했나?</li>
+          <li>산업이 달라도 통하는 공통 패턴은?</li>
+        </ul>
+      </div>
+      <div class="scard indiv">
+        <div class="sh serif" style="color:var(--red)">🔴 B팀 · 실패요인</div>
+        <div class="ssub">실패 사례에서 되풀이되는 구조적 원인을 진단</div>
+        <ul>
+          <li>왜 80~87% AI 프로젝트가 무너졌나?</li>
+          <li>"모델만 좋으면 된다"는 착각은 어디서 깨졌나?</li>
+          <li>파일럿은 됐는데 스케일은 왜 실패했나?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. 기업 실전 사례 4개 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow"><span class="no">2</span><h2 class="serif">기업 실전 사례연구 — 4개 추가</h2></div>
+    <p class="sec-lede">제공 자료의 사례(IBM Watson·Walmart·Tesla)에 더해, 최신 기업 실전 사례 4개를 분석에 추가합니다. 숫자로 검증된 실제 도입 결과로 발표의 설득력을 높입니다.</p>
+    <div class="req"><span class="rb">필수 ①</span><div>발표자료에는 아래 4개 기업 사례가 반드시 포함되어야 합니다. 각 팀은 자기 관점(성공/실패)에서 이 사례들을 재해석해 발표합니다.</div></div>
+    <div class="cases">
+      <div class="case s">
+        <div class="ctag">성공 · 물류</div>
+        <h4 class="serif">Amazon</h4>
+        <div class="field">창고 로봇 + 생성형 AI 관제 (Deep Fleet)</div>
+        <div class="nums"><span class="num">로봇 100만 대</span><span class="num">이동 10%↓</span><span class="num">70만 명 재교육</span></div>
+        <p>2012년 Kiva 인수로 시작해 100만 대 로봇을 운영하며, Deep Fleet AI로 로봇 이동량을 10% 줄였다. 핵심은 로봇 자체가 아니라 <b>데이터로 전체 fleet을 실시간 조율</b>한 것.</p>
+        <div class="lesson"><b>교훈</b> — 사람과 로봇을 대립이 아닌 협업(cobot)으로 두고, 인력 재교육에 투자한 점이 지속 가능성을 만들었다.</div>
+      </div>
+      <div class="case s">
+        <div class="ctag">성공 · 제조</div>
+        <h4 class="serif">BMW × Figure</h4>
+        <div class="field">자동차 공장 휴머노이드 로봇 (Spartanburg)</div>
+        <div class="nums"><span class="num">X3 3만 대</span><span class="num">부품 9만 개</span><span class="num">정확도 99%+</span></div>
+        <p>10개월간 휴머노이드 Figure 02가 차체 판금 부품을 정밀 배치하며 X3 3만 대 생산을 지원, 배치 정확도 99% 이상을 달성했다. <b>실험실이 아닌 실가동 라인</b>에서 입증한 첫 사례.</p>
+        <div class="lesson"><b>교훈</b> — "사람 우선" 전략. 로봇이 반복·위험 작업을 맡고 사람은 판단·복잡 공정에 집중하도록 역할을 재배치했다.</div>
+      </div>
+      <div class="case s">
+        <div class="ctag">성공 · 농업</div>
+        <h4 class="serif">John Deere</h4>
+        <div class="field">See & Spray 비전 AI + 자율주행 트랙터</div>
+        <div class="nums"><span class="num">500만 에이커</span><span class="num">제초제 50%↓</span><span class="num">데이터 3.3억 에이커</span></div>
+        <p>카메라가 초당 2,500ft²를 스캔해 잡초만 골라 분사, 2025년 500만 에이커에서 제초제를 약 50% 절감했다. 진짜 해자는 장비가 아니라 <b>수십 년 쌓인 데이터 플라이휠</b>.</p>
+        <div class="lesson"><b>교훈</b> — 데이터가 쌓일수록 모델이 좋아지고, 좋아진 제품이 다시 데이터를 부른다. 데이터 선순환이 경쟁사가 못 따라오는 차별화.</div>
+      </div>
+      <div class="case m">
+        <div class="ctag">양면 · 자율주행</div>
+        <h4 class="serif">Waymo</h4>
+        <div class="field">완전자율 로보택시 (Phoenix·SF 등)</div>
+        <div class="nums"><span class="num">주당 50만 회</span><span class="num">중상사고 90%↓</span><span class="num">규제·엣지케이스 과제</span></div>
+        <p>주당 50만 회 유료 주행, 인간 대비 중상 사고를 크게 줄이며 상업화에 성공했다. 동시에 스쿨버스 주변 오작동·갇힘 대응 등으로 <b>규제·엣지케이스라는 숙제</b>도 안고 있다.</p>
+        <div class="lesson"><b>교훈</b> — 성공과 미해결 과제가 공존. "안전성 입증 → 신뢰 → 확장"의 순서와, 예외 상황 관제·복구 체계의 중요성을 동시에 보여준다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 사업·기술 핵심 각 5개 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow"><span class="no">3</span><h2 class="serif">사업 측면 · 기술 측면 — 각 5개로 압축</h2></div>
+    <p class="sec-lede">사례에서 얻은 통찰을 발표에서 흩뿌리지 말고, 사업과 기술 두 축으로 각각 5개 핵심만 뽑아 전개합니다. "많이"가 아니라 "정확히 5개"가 발표를 날카롭게 만듭니다.</p>
+    <div class="req"><span class="rb">필수 ②</span><div>발표자료는 사업 측면 5개, 기술 측면 5개로 핵심을 압축해 전개해야 합니다. 아래는 사례에서 도출한 기준점이며, 각 팀이 자기 관점으로 채웁니다.</div></div>
+    <div class="points">
+      <div class="pcol biz">
+        <h3 class="serif">💼 사업 측면 핵심 5</h3>
+        <div class="pitem"><div class="pn">B1</div><div><div class="pt">데이터가 진짜 자산</div><div class="pd">John Deere처럼 쌓인 데이터가 경쟁사가 못 넘는 해자가 된다.</div></div></div>
+        <div class="pitem"><div class="pn">B2</div><div><div class="pt">사람 우선 · 재교육</div><div class="pd">Amazon·BMW — 인력 대체가 아니라 역할 재배치가 지속성을 만든다.</div></div></div>
+        <div class="pitem"><div class="pn">B3</div><div><div class="pt">측정 가능한 ROI</div><div class="pd">"좋아진다"가 아니라 이동 10%↓·제초제 50%↓처럼 숫자로 증명한다.</div></div></div>
+        <div class="pitem"><div class="pn">B4</div><div><div class="pt">단계적 도입</div><div class="pd">파일럿→검증→확장. 전면 도입은 Tesla식 과잉 자동화 위험.</div></div></div>
+        <div class="pitem"><div class="pn">B5</div><div><div class="pt">신뢰가 곧 시장</div><div class="pd">Waymo — 안전성 입증으로 쌓은 신뢰가 확장의 전제 조건이다.</div></div></div>
+      </div>
+      <div class="pcol tech">
+        <h3 class="serif">⚙️ 기술 측면 핵심 5</h3>
+        <div class="pitem"><div class="pn">T1</div><div><div class="pt">데이터 인프라 먼저</div><div class="pd">모델보다 수집·표준화·저장 파이프라인이 선행돼야 한다.</div></div></div>
+        <div class="pitem"><div class="pn">T2</div><div><div class="pt">관제(Control Tower)</div><div class="pd">로봇 동작을 작업오더·예외·추적성과 연결해야 운영 가치가 된다.</div></div></div>
+        <div class="pitem"><div class="pn">T3</div><div><div class="pt">센서·비전 인식</div><div class="pd">카메라·라이다 등으로 현장을 정확히 인지하는 것이 출발점.</div></div></div>
+        <div class="pitem"><div class="pn">T4</div><div><div class="pt">예외·복구 처리</div><div class="pd">Waymo의 엣지케이스처럼, 안 될 때 복구하는 체계가 핵심.</div></div></div>
+        <div class="pitem"><div class="pn">T5</div><div><div class="pt">HW·SW·Data 통합</div><div class="pd">근육·두뇌·경험이 하나의 운영체계로 묶일 때 비로소 작동.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 발표·토론 운영 (10+10) -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow"><span class="no">4</span><h2 class="serif">발표 10분 · 토론 10분 — 운영 타임라인</h2></div>
+    <p class="sec-lede">한 팀당 발표 10분, 토론 10분으로 진행합니다. 발표는 사례·사업5·기술5를 압축해 전달하고, 토론은 상대 팀과의 교차 공방으로 채웁니다.</p>
+    <div class="timeline">
+      <div class="tstep live">
+        <div class="tt-time">00:00 – 10:00 · 발표 (10분)</div>
+        <div class="tt-title">분석 발표</div>
+        <div class="tt-desc">도입(왜 중요한가 30초) → 기업 사례 4개 핵심(4분) → 사업 5·기술 5(4분) → 우리 팀의 결론(1.5분). 슬라이드는 한 장당 메시지 하나.</div>
+      </div>
+      <div class="tstep live">
+        <div class="tt-time">10:00 – 20:00 · 토론 (10분)</div>
+        <div class="tt-title">교차 토론</div>
+        <div class="tt-desc">상대 팀 반론·질문(4분) → 우리 팀 응답·재반박(4분) → 청중·진행자 질문(2분). 모든 주장은 사례·수치로 뒷받침한다.</div>
+      </div>
+      <div class="tstep">
+        <div class="tt-time">이후 · 별도 30분</div>
+        <div class="tt-title">팀별 논의 → 대응전략 수정</div>
+        <div class="tt-desc">발표·토론에서 나온 지적을 반영해, 팀 입장과 개인 입장의 대응전략을 다듬어 제출한다.</div>
+      </div>
+    </div>
+    <div class="req" style="margin-left:0;margin-top:1.4rem"><span class="rb">토론 규칙</span><div>① 근거 우선(느낌 금지) · ② 표면이 아닌 구조까지 · ③ 사람이 아닌 논리를 공격 · ④ 이기기보다 더 나은 전략에 함께 도달.</div></div>
+  </div>
+</section>
+
+<!-- 5. 앞으로 어떻게 — 팀/개인 입장 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow"><span class="no">5</span><h2 class="serif">앞으로 어떻게 해야 하는가 — 팀 입장 · 개인 입장</h2></div>
+    <p class="sec-lede">분석으로 끝내지 않습니다. "그래서 우리는 무엇을 할 것인가"를 두 층위로 답합니다. 팀으로서의 공동 전략과, 나 개인으로서의 실행 계획을 함께 제시합니다.</p>
+    <div class="req"><span class="rb">필수 ③</span><div>발표자료의 마지막은 반드시 "앞으로의 대응전략"으로 닫아야 하며, 팀 입장과 개인별 입장을 각각 담아야 합니다.</div></div>
+    <div class="stance">
+      <div class="scard team">
+        <div class="sh serif" style="color:var(--blue)">👥 팀 입장</div>
+        <div class="ssub">우리 팀이 합의한 공동 대응전략</div>
+        <ul>
+          <li>데이터·인프라를 모델보다 먼저 — 무엇을 어떻게 표준화·축적할 것인가</li>
+          <li>관제 체계 설계 — 동작을 업무·추적성과 어떻게 연결할 것인가</li>
+          <li>파일럿→스케일 — 확장 게이트와 KPI를 어떻게 정의할 것인가</li>
+          <li>사람 우선 — 도입 시 인력 역할을 어떻게 재배치할 것인가</li>
+        </ul>
+      </div>
+      <div class="scard indiv">
+        <div class="sh serif" style="color:var(--red)">🙋 개인 입장</div>
+        <div class="ssub">나 개인의 진로·역량 대응 (취업/연구)</div>
+        <ul>
+          <li>나는 피지컬 AI 어느 직무·연구 주제를 향할 것인가</li>
+          <li>그곳에서 통할 나의 강점·무기는 무엇인가</li>
+          <li>무엇으로(포트폴리오·논문) 나를 증명할 것인가</li>
+          <li>오늘부터 시작할 한 걸음과 단계별 로드맵은</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <p>AI가 답을 만드는 시대에, 사람은 질문을 정하고 · 답을 검증하고 · 합의를 만든다. 이 발표와 토론이 그 연습이다.</p>
+      <div class="by">— 프로젝트의 한 줄 메시지</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. 제출물 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow"><span class="no">6</span><h2 class="serif">제출물</h2></div>
+    <p class="sec-lede">발표자료와 함께, 토론 후 다듬은 대응전략을 제출합니다.</p>
+    <table>
+      <thead><tr><th>단계</th><th>제출물</th><th>필수 포함</th></tr></thead>
+      <tbody>
+        <tr><td>발표자료</td><td>분석 발표 슬라이드</td><td>기업 사례 4개 · 사업 5 · 기술 5 · 대응전략(팀/개인)</td></tr>
+        <tr><td>토론</td><td>교차 토론 응답 메모</td><td>상대 반론에 대한 근거 기반 응답</td></tr>
+        <tr><td>대응전략</td><td>수정 전략서 (팀 + 개인)</td><td>토론 반영 변경점 · 팀 공동전략 · 개인 로드맵</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Physical AI Education Series · 프로젝트 진행 계획(수정) · 발표 10분 + 토론 10분 · 기업 사례 4 + 사업5·기술5 + 팀/개인 대응전략
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Physical AI 융합 교육 — 제1강·제2강</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#06b6d4;
+  --accent2:#0891b2;
+  --glow:rgba(6,182,212,0.25);
+  --bg:#080c10;
+  --card:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.08);
+  --text:#e2e8f0;
+  --muted:#64748b;
+  --nav-h:58px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;overflow-x:hidden}
+
+/* ── PROGRESS BAR ── */
+#progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--accent),#7c3aed);z-index:9999;transition:width 0.1s}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:900;height:var(--nav-h);background:rgba(8,12,16,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:0;overflow-x:auto;width:100%;justify-content:center}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-btn{flex:0 0 auto;display:flex;align-items:center;gap:0.4rem;padding:0.55rem 1.1rem;border-radius:6px;font-size:0.82rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--muted);white-space:nowrap;transition:all 0.2s;letter-spacing:0.02em}
+.nav-btn:hover{color:white;background:rgba(255,255,255,0.06)}
+.nav-btn.active{color:var(--accent);background:rgba(6,182,212,0.12)}
+
+/* ── SECTIONS ── */
+section{scroll-margin-top:var(--nav-h)}
+.container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+
+/* ── HERO MAIN ── */
+.hero-main{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#020510 0%,#060d1a 40%,#0a1628 70%,#050c1a 100%)}
+.hero-grid{position:absolute;inset:0;opacity:0.12;
+  background-image:linear-gradient(rgba(6,182,212,0.08) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(6,182,212,0.08) 1px,transparent 1px);
+  background-size:60px 60px}
+.hero-orb1{position:absolute;width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(6,182,212,0.12) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-40%,-50%)}
+.hero-orb2{position:absolute;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,58,237,0.1) 0%,transparent 70%);
+  top:20%;right:10%}
+.hero-content{position:relative;z-index:1;text-align:center;padding:2rem 1.5rem;max-width:900px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;
+  border:1px solid rgba(6,182,212,0.35);border-radius:30px;margin-bottom:2rem;
+  color:var(--accent);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;background:rgba(6,182,212,0.08)}
+.hero-badge .dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:blink 1.4s ease-in-out infinite}
+.hero-title{font-size:clamp(2.8rem,7vw,5.5rem);font-weight:900;color:white;line-height:1.1;letter-spacing:-0.03em;margin-bottom:1.5rem}
+.hero-title em{background:linear-gradient(135deg,var(--accent),#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:clamp(1rem,2vw,1.25rem);color:rgba(255,255,255,0.5);max-width:600px;margin:0 auto 3rem}
+.hero-stats{display:flex;flex-wrap:wrap;gap:2rem;justify-content:center}
+.hs{text-align:center}
+.hs-num{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.hs-lbl{font-size:0.75rem;color:var(--muted);margin-top:0.3rem}
+
+/* ── CHAPTER HERO ── */
+.ch-hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.ch-hero-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.5) 100%)}
+.ch-hero-content{position:relative;z-index:1;padding:2rem 1.5rem;max-width:1000px;margin:0 auto;width:100%}
+.ch-num-badge{font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.ch-hero-title{font-size:clamp(2rem,5vw,3.8rem);font-weight:900;color:white;line-height:1.2;margin-bottom:1rem}
+.ch-hero-sub{font-size:1.05rem;color:rgba(255,255,255,0.65);max-width:600px;line-height:1.75;margin-bottom:2.5rem}
+.spot-card{position:relative;border-radius:16px;overflow:hidden;height:max(160px,22vh);
+  border:1px solid rgba(255,255,255,0.12);margin-top:2rem;
+  display:flex;flex-direction:column;justify-content:flex-end;padding:1.25rem}
+.spot-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,0.75) 100%)}
+.spot-emoji{font-size:clamp(5rem,13vw,9.5rem);position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);z-index:0;opacity:0.85}
+.spot-info{position:relative;z-index:1;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap}
+.spot-flag{font-size:1.5rem}
+.spot-name{font-size:1rem;font-weight:700;color:white}
+.spot-divider{width:1px;height:16px;background:rgba(255,255,255,0.3)}
+.spot-stat{font-size:0.78rem;color:rgba(255,255,255,0.7)}
+
+/* ── CONTENT SECTIONS ── */
+.sec{padding:6rem 0;position:relative}
+.sec-dark{background:var(--bg)}
+.sec-darker{background:#050810}
+.sec-mid{background:#0a0e16}
+.sec-label{display:inline-flex;align-items:center;gap:0.5rem;padding:0.3rem 0.85rem;border-radius:999px;
+  font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+  background:rgba(6,182,212,0.12);color:var(--accent);margin-bottom:1rem;border:1px solid rgba(6,182,212,0.2)}
+.sec-title{font-size:clamp(1.6rem,3.5vw,2.5rem);font-weight:900;color:white;line-height:1.25;margin-bottom:0.75rem}
+.sec-sub{color:var(--muted);font-size:0.97rem;max-width:640px;line-height:1.8;margin-bottom:2.5rem}
+.sec-divider{width:48px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--accent),#7c3aed);margin-bottom:2.5rem}
+
+/* ── GLASS CARDS ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.g-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;
+  backdrop-filter:blur(10px);transition:transform 0.3s,border-color 0.3s,box-shadow 0.3s}
+.g-card:hover{transform:translateY(-4px);border-color:rgba(6,182,212,0.3);box-shadow:0 0 30px rgba(6,182,212,0.08)}
+.g-card-icon{width:48px;height:48px;border-radius:12px;background:rgba(6,182,212,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.5rem}
+.g-card-icon.purple{background:rgba(124,58,237,0.15)}
+.g-card-icon.green{background:rgba(5,150,105,0.18)}
+.g-card-icon.amber{background:rgba(245,158,11,0.18)}
+.g-card-icon.red{background:rgba(220,38,38,0.15)}
+.g-card-title{font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.6rem}
+.g-card-desc{color:#94a3b8;line-height:1.75;font-size:0.9rem}
+
+/* ── STAT BLOCKS ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;text-align:center}
+.stat-item{padding:2rem 1rem;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-radius:16px}
+.stat-num{font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--accent),#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.stat-lbl{font-size:0.85rem;color:var(--muted);margin-top:0.5rem;font-weight:600}
+.stat-desc{font-size:0.78rem;color:#475569;margin-top:0.25rem}
+
+/* ── FLOW STRIP ── */
+.flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0.5rem;
+  padding:2rem;background:rgba(255,255,255,0.02);border-radius:16px;margin:1.5rem 0;
+  border:1px solid var(--border)}
+.flow-node{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;
+  padding:1rem;text-align:center;min-width:100px;flex:0 0 auto}
+.flow-node .fn-icon{font-size:1.6rem;margin-bottom:0.35rem}
+.flow-node .fn-title{font-weight:700;font-size:0.85rem;color:white}
+.flow-node .fn-desc{font-size:0.75rem;color:var(--muted);margin-top:0.2rem;line-height:1.4}
+.flow-arr{color:var(--muted);font-size:1rem;flex-shrink:0;font-weight:300}
+
+/* ── COMPARE GRID ── */
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2px;border-radius:16px;overflow:hidden;margin:1.5rem 0}
+.cmp-card{background:#0d1117;padding:0}
+.cmp-head{padding:1.5rem;text-align:center}
+.cmp-head h4{color:white;font-size:1rem;margin-top:0.35rem}
+.cmp-head .c-icon{font-size:1.8rem}
+.cmp-body{padding:0.75rem 1.25rem}
+.cmp-row{display:flex;justify-content:space-between;padding:0.6rem 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem}
+.cmp-row:last-child{border-bottom:none}
+.cmp-lbl{color:var(--muted)}
+.cmp-val{font-weight:600;color:var(--text)}
+
+/* ── FAIL / SUCCESS BLOCKS ── */
+.case-block{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.case-block.fail{border-left:4px solid #dc2626}
+.case-block.fail2{border-left:4px solid #7c3aed}
+.case-block.fail3{border-left:4px solid #d97706}
+.case-block.fail4{border-left:4px solid #0891b2}
+.case-block.fail5{border-left:4px solid #be185d}
+.case-block.suc{border-left:4px solid #059669}
+.case-block.suc2{border-left:4px solid var(--accent)}
+.case-block.suc3{border-left:4px solid #0891b2}
+.case-block.suc4{border-left:4px solid #7c3aed}
+.case-block.suc5{border-left:4px solid #059669}
+.case-tag{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem}
+.case-title{font-size:1rem;font-weight:700;color:white;margin-bottom:0.5rem;line-height:1.5}
+.case-body{font-size:0.88rem;color:#94a3b8;line-height:1.8}
+.badge-row{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem}
+.badge{padding:0.25rem 0.8rem;border-radius:999px;font-size:0.75rem;font-weight:700}
+.bd-cyan{background:rgba(6,182,212,0.15);color:var(--accent);border:1px solid rgba(6,182,212,0.25)}
+.bd-green{background:rgba(5,150,105,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.25)}
+.bd-red{background:rgba(220,38,38,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.25)}
+.bd-purple{background:rgba(124,58,237,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.25)}
+.bd-amber{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.25)}
+
+/* ── CALLOUT ── */
+.callout{display:flex;gap:0.75rem;padding:1rem 1.25rem;border-radius:10px;align-items:flex-start;margin-top:1rem}
+.callout-icon{font-size:1.1rem;flex-shrink:0;padding-top:0.1rem}
+.callout-body{font-size:0.88rem;line-height:1.7;color:#94a3b8}
+.ct-warn{background:rgba(245,158,11,0.08);border-left:3px solid #d97706}
+.ct-tip{background:rgba(5,150,105,0.08);border-left:3px solid #059669}
+.ct-info{background:rgba(6,182,212,0.08);border-left:3px solid var(--accent)}
+
+/* ── ARCH LAYERS ── */
+.arch{display:flex;flex-direction:column;align-items:center;gap:0;padding:1.5rem;
+  background:rgba(255,255,255,0.02);border-radius:16px;margin:1.5rem 0;border:1px solid var(--border)}
+.arch-layer{width:100%;max-width:700px;border:1px solid var(--border);border-radius:12px;
+  padding:1rem 1.25rem;background:rgba(255,255,255,0.03)}
+.arch-lbl{font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.5rem}
+.arch-boxes{display:flex;gap:0.5rem;flex-wrap:wrap}
+.arch-box{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:7px;padding:0.3rem 0.8rem;font-size:0.83rem;color:var(--text)}
+.arch-conn{color:var(--muted);font-size:0.95rem;padding:0.3rem 0;text-align:center;width:100%;max-width:700px}
+
+/* ── QUOTE ── */
+.quote-block{background:linear-gradient(135deg,#0c1220,#0f1929);border:1px solid rgba(6,182,212,0.15);
+  border-radius:20px;padding:2.5rem;margin:2rem 0;position:relative;overflow:hidden}
+.quote-block::before{content:'\201C';position:absolute;top:-1rem;left:1.5rem;
+  font-size:8rem;color:rgba(6,182,212,0.06);font-family:Georgia,serif;line-height:1}
+.quote-text{font-size:1.1rem;line-height:1.9;font-style:italic;color:var(--text);position:relative;z-index:1;margin-bottom:1rem}
+.quote-author{font-size:0.82rem;color:var(--accent);font-weight:700}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding-left:2rem;margin:1.5rem 0}
+.tl::before{content:'';position:absolute;left:0.45rem;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent),#7c3aed)}
+.tl-item{position:relative;padding-bottom:1.5rem}
+.tl-item::before{content:'';position:absolute;left:-1.65rem;top:0.3rem;width:12px;height:12px;
+  border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 0 2px var(--accent)}
+.tl-yr{font-size:0.73rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.05em}
+.tl-t{font-weight:700;font-size:0.95rem;color:white}
+.tl-d{font-size:0.85rem;color:var(--muted);margin-top:0.2rem}
+
+/* ── PILLAR GRID ── */
+.pillar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin:1.5rem 0}
+.pillar-card{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:16px;
+  padding:1.75rem;text-align:center;transition:transform 0.2s,box-shadow 0.2s}
+.pillar-card:hover{transform:translateY(-4px);box-shadow:0 0 30px rgba(6,182,212,0.08)}
+.pillar-num{font-size:0.7rem;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:0.5rem}
+.pillar-icon{font-size:2.2rem;margin-bottom:0.75rem}
+.pillar-title{font-weight:700;font-size:0.95rem;color:white;margin-bottom:0.35rem}
+.pillar-desc{font-size:0.82rem;color:var(--muted);line-height:1.65}
+
+/* ── STEP STRIP ── */
+.step-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:1.5rem 0}
+.step-item{padding:1.5rem 1rem;text-align:center;border-right:1px solid var(--border)}
+.step-item:last-child{border-right:none}
+.step-num{font-size:0.68rem;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.4rem}
+.step-icon{font-size:1.5rem;margin-bottom:0.4rem}
+.step-title{font-weight:700;font-size:0.82rem;color:white;margin-bottom:0.2rem}
+.step-sub{font-size:0.74rem;color:var(--muted)}
+
+/* ── CORNER SLIDES ── */
+
+/* 💡 think-corner (amber/gold) */
+.think-corner{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1c1000 0%,#2d1a00 35%,#3d2400 65%,#1a1000 100%);
+  position:relative;overflow:hidden}
+.think-corner .tc-orb{position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,158,11,0.18) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%)}
+.think-corner .tc-content{position:relative;z-index:1;text-align:center;max-width:800px;padding:2.5rem 1.5rem}
+.tc-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1.25rem;
+  border:1px solid rgba(245,158,11,0.4);border-radius:30px;
+  color:#fbbf24;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+  background:rgba(245,158,11,0.1);margin-bottom:1.5rem}
+.tc-icon{font-size:5rem;margin-bottom:1.5rem;animation:float 3s ease-in-out infinite}
+.tc-title{font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:900;color:#fef3c7;line-height:1.3;margin-bottom:1.25rem}
+.tc-sub{font-size:1rem;color:rgba(253,230,138,0.7);max-width:600px;margin:0 auto 2.5rem;line-height:1.8}
+.tc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;text-align:left}
+.tc-card{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:14px;padding:1.25rem}
+.tc-card-q{font-size:0.78rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem}
+.tc-card-text{font-size:0.9rem;color:rgba(253,230,138,0.85);line-height:1.7}
+
+/* ❓ question-corner (deep blue) */
+.question-corner{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#02071a 0%,#060e2a 40%,#080f22 70%,#020712 100%);
+  position:relative;overflow:hidden}
+.qc-bg-q{position:absolute;font-size:28vw;font-weight:900;color:rgba(99,102,241,0.05);
+  top:50%;left:50%;transform:translate(-50%,-50%);line-height:1;user-select:none;pointer-events:none}
+.qc-content{position:relative;z-index:1;max-width:900px;padding:2.5rem 1.5rem;width:100%}
+.qc-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1.25rem;
+  border:1px solid rgba(99,102,241,0.4);border-radius:30px;
+  color:#818cf8;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+  background:rgba(99,102,241,0.1);margin-bottom:1.5rem}
+.qc-title{font-size:clamp(1.8rem,4.5vw,3rem);font-weight:900;color:white;line-height:1.3;margin-bottom:1rem}
+.qc-sub{font-size:1rem;color:rgba(129,140,248,0.75);margin-bottom:2.5rem;line-height:1.8}
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.qc-card{background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.18);border-radius:14px;padding:1.5rem;
+  display:flex;gap:0.75rem;align-items:flex-start}
+.qc-num{font-size:1.8rem;font-weight:900;color:rgba(99,102,241,0.35);line-height:1;flex-shrink:0}
+.qc-text{font-size:0.92rem;color:#cbd5e1;line-height:1.75;font-weight:500}
+
+/* 🌿 team-discussion (emerald) */
+.team-discussion{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#01140e 0%,#032b1c 40%,#042d1e 70%,#011008 100%);
+  position:relative;overflow:hidden}
+.td-orb{position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(16,185,129,0.14) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%)}
+.td-content{position:relative;z-index:1;max-width:950px;padding:2.5rem 1.5rem;width:100%}
+.td-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1.25rem;
+  border:1px solid rgba(16,185,129,0.4);border-radius:30px;
+  color:#34d399;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+  background:rgba(16,185,129,0.1);margin-bottom:1.5rem}
+.td-hashtag{font-size:0.78rem;font-weight:900;color:rgba(52,211,153,0.5);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem}
+.td-title{font-size:clamp(1.8rem,4.5vw,3rem);font-weight:900;color:white;line-height:1.3;margin-bottom:0.75rem}
+.td-opinion{font-size:1rem;color:rgba(52,211,153,0.75);margin-bottom:2.5rem;line-height:1.8}
+.td-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.td-card{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.18);border-radius:14px;padding:1.5rem}
+.td-q-num{font-size:0.72rem;font-weight:900;color:#34d399;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem}
+.td-q-text{font-size:0.92rem;color:#a7f3d0;line-height:1.75}
+
+/* 🎓 closing-corner (navy + gold) */
+.closing-corner{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#02060f 0%,#060c1c 35%,#0a1228 65%,#030812 100%);
+  position:relative;overflow:hidden}
+.cc-orb-gold{position:absolute;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,158,11,0.12) 0%,transparent 70%);
+  bottom:-10%;right:-5%}
+.cc-orb-blue{position:absolute;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(6,182,212,0.1) 0%,transparent 70%);
+  top:10%;left:-5%}
+.cc-content{position:relative;z-index:1;text-align:center;max-width:900px;padding:2.5rem 1.5rem}
+.cc-icon{font-size:4.5rem;margin-bottom:1.5rem;animation:float 3s ease-in-out infinite}
+.cc-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1.25rem;
+  border:1px solid rgba(245,158,11,0.35);border-radius:30px;
+  color:#fbbf24;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+  background:rgba(245,158,11,0.08);margin-bottom:1.5rem}
+.cc-title{font-size:clamp(2rem,5vw,3.8rem);font-weight:900;color:white;line-height:1.2;margin-bottom:1.25rem}
+.cc-title em{background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cc-sub{font-size:1rem;color:rgba(255,255,255,0.5);max-width:550px;margin:0 auto 2.5rem;line-height:1.8}
+.cc-points{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;text-align:left;margin-bottom:2.5rem}
+.cc-point{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:14px;padding:1.25rem;
+  display:flex;gap:0.75rem;align-items:flex-start}
+.cc-point-num{font-size:1.6rem;font-weight:900;color:rgba(245,158,11,0.3);line-height:1;flex-shrink:0}
+.cc-point-text{font-size:0.88rem;color:rgba(254,243,199,0.75);line-height:1.7}
+.cc-big{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:900;color:white;margin-bottom:0.75rem}
+.cc-final{font-size:0.88rem;color:rgba(245,158,11,0.7)}
+
+/* ── FLOATING TOC ── */
+#toc-btn{position:fixed;bottom:1.5rem;right:1.5rem;z-index:800;
+  width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.25);
+  color:var(--accent);font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(12px);transition:all 0.2s}
+#toc-btn:hover{background:rgba(6,182,212,0.25)}
+#toc-panel{position:fixed;bottom:4.5rem;right:1.5rem;z-index:800;
+  background:rgba(10,14,22,0.95);border:1px solid rgba(6,182,212,0.2);
+  border-radius:12px;padding:0.75rem;width:200px;max-height:60vh;overflow-y:auto;
+  display:none;backdrop-filter:blur(16px)}
+#toc-panel a{display:block;padding:0.45rem 0.75rem;border-radius:7px;
+  font-size:0.78rem;color:var(--muted);text-decoration:none;transition:all 0.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toc-panel a:hover,#toc-panel a.toc-active{color:white;background:rgba(6,182,212,0.12)}
+#toc-panel.open{display:block}
+
+/* ── AOS ── */
+.aos{opacity:0;transform:translateY(50px);transition:opacity 0.8s ease,transform 0.8s ease}
+.aos.visible{opacity:1;transform:translateY(0)}
+.aos-left{opacity:0;transform:translateX(-50px);transition:opacity 0.8s ease,transform 0.8s ease}
+.aos-left.visible{opacity:1;transform:translateX(0)}
+.aos-scale{opacity:0;transform:scale(0.85);transition:opacity 0.6s ease,transform 0.6s ease}
+.aos-scale.visible{opacity:1;transform:scale(1)}
+.d1{transition-delay:0.1s}.d2{transition-delay:0.2s}.d3{transition-delay:0.35s}.d4{transition-delay:0.5s}.d5{transition-delay:0.65s}
+
+/* ── MISC ── */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.tag-row{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.25rem}
+.tag{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.7);padding:0.28rem 0.85rem;border-radius:999px;font-size:0.78rem}
+.highlight{color:var(--accent);font-weight:700}
+.white{color:white;font-weight:700}
+strong{color:white}
+
+@media(max-width:768px){
+  .ch-hero-title{font-size:2rem}
+  .tc-title,.qc-title,.td-title,.cc-title{font-size:2rem}
+  .step-strip{grid-template-columns:repeat(2,1fr)}
+  .flow{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div id="progress-bar"></div>
+
+<!-- ═══════════ NAVIGATION ═══════════ -->
+<nav id="main-nav">
+  <div class="nav-inner">
+    <button class="nav-btn" data-ch="1" onclick="navTo('ch1')">⚡ Physical AI란?</button>
+    <button class="nav-btn" data-ch="2" onclick="navTo('ch2')">❌ 실패 사례</button>
+    <button class="nav-btn" data-ch="3" onclick="navTo('ch3')">✅ 성공 & FCLA</button>
+    <button class="nav-btn" data-ch="4" onclick="navTo('ch4')">🤖 5단계 커리큘럼</button>
+    <button class="nav-btn" data-ch="5" onclick="navTo('ch5')">🚀 나만의 AI</button>
+  </div>
+</nav>
+
+<!-- ═══════════ HERO MAIN ═══════════ -->
+<section id="hero" data-ch="0">
+  <div class="hero-main">
+    <div class="hero-grid"></div>
+    <div class="hero-orb1"></div>
+    <div class="hero-orb2"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Physical AI 융합 교육 시리즈
+      </div>
+      <div class="tag-row" style="justify-content:center">
+        <span class="tag">🤖 Physical AI</span>
+        <span class="tag">🏭 스마트팩토리</span>
+        <span class="tag">📊 데이터 경영</span>
+        <span class="tag">🌿 FCLA</span>
+        <span class="tag">🔗 HW+SW+Data</span>
+      </div>
+      <h1 class="hero-title">Physical AI가<br><em>현장을 바꾼다</em></h1>
+      <p class="hero-sub">왜 도입은 실패하고, 어떻게 성공하는가<br>제1강 · 제2강 완전 정복 실전 과정</p>
+      <div class="hero-stats">
+        <div class="hs"><div class="hs-num">2강</div><div class="hs-lbl">커리큘럼</div></div>
+        <div class="hs"><div class="hs-num">5건</div><div class="hs-lbl">실패 사례</div></div>
+        <div class="hs"><div class="hs-num">5건</div><div class="hs-lbl">성공 사례</div></div>
+        <div class="hs"><div class="hs-num">5단계</div><div class="hs-lbl">실전 커리큘럼</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 1 : Physical AI란 무엇인가?
+═══════════════════════════════════════════ -->
+
+<!-- CH1 HERO -->
+<section id="ch1" data-ch="1">
+  <div class="ch-hero" id="ch1-hero">
+    <div class="ch-hero-overlay"></div>
+    <div class="ch-hero-content">
+      <div class="ch-num-badge">── CHAPTER 1 ──</div>
+      <h1 class="ch-hero-title">Physical AI란<br>무엇인가?</h1>
+      <p class="ch-hero-sub">AI가 디지털에서 나와 물리 세계로 들어가는 순간<br>제1강 핵심 개념 완전 정복</p>
+      <div class="spot-card" id="spot1">
+        <span class="spot-emoji" id="spot1-emoji"></span>
+        <div class="spot-info">
+          <span class="spot-flag" id="spot1-flag"></span>
+          <span class="spot-name" id="spot1-name"></span>
+          <span class="spot-divider"></span>
+          <span class="spot-stat" id="spot1-stat"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S02: Physical AI 정의 -->
+<section id="s-def" data-ch="1" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">📡 개념 정의</div>
+    <h2 class="sec-title aos d1">Physical AI란 무엇인가?</h2>
+    <div class="sec-divider aos d2"></div>
+    <div class="card-grid">
+      <div class="g-card aos d1">
+        <div class="g-card-icon">🤖</div>
+        <div class="g-card-title">Physical AI 정의</div>
+        <div class="g-card-desc">AI가 <strong>물리적 세계와 상호작용</strong>하는 시스템. 로봇·자율주행·드론·스마트팩토리가 대표 사례. 디지털 세계를 벗어나 <strong>현실 세상을 직접 인지하고 행동</strong>한다.</div>
+      </div>
+      <div class="g-card aos d2">
+        <div class="g-card-icon purple">⚙️</div>
+        <div class="g-card-title">왜 지금인가?</div>
+        <div class="g-card-desc">생성형 AI가 언어를 다루는 단계에서 <strong>물리 세계를 다루는 단계</strong>로 진화 중. Jensen Huang(NVIDIA CEO)이 "Physical AI는 다음 산업혁명"이라고 선언한 이유.</div>
+      </div>
+      <div class="g-card aos d3">
+        <div class="g-card-icon green">🏭</div>
+        <div class="g-card-title">제조 현장 적용</div>
+        <div class="g-card-desc">센서가 데이터를 수집하고, AI가 패턴을 학습하며, 로봇이 최적 행동을 실행. <strong>HW(근육) + SW(두뇌) + Data(경험)</strong>의 삼위일체가 필요하다.</div>
+      </div>
+      <div class="g-card aos d4">
+        <div class="g-card-icon amber">📈</div>
+        <div class="g-card-title">시장 규모</div>
+        <div class="g-card-desc">글로벌 Physical AI 시장은 2030년까지 <strong>연평균 23% 성장</strong> 전망. 제조·물류·의료·농업 전반에 걸친 패러다임 전환이 이미 시작됐다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S03: 3계층 구조 -->
+<section id="s-arch" data-ch="1" class="sec sec-darker">
+  <div class="container">
+    <div class="sec-label aos">🏗️ 아키텍처</div>
+    <h2 class="sec-title aos d1">3계층 구조 — 엣지 → 관제 → 클라우드</h2>
+    <p class="sec-sub aos d2">Physical AI 시스템은 현장부터 클라우드까지 3단계로 연결된다. 각 계층의 역할을 이해해야 전체 그림이 보인다.</p>
+    <div class="sec-divider aos d2"></div>
+    <div class="arch aos d3">
+      <div class="arch-layer" style="border-color:rgba(6,182,212,0.4)">
+        <div class="arch-lbl" style="color:#06b6d4">☁️ Level 3 — 클라우드 (AI 학습·최적화)</div>
+        <div class="arch-boxes">
+          <div class="arch-box">AI 모델 학습</div>
+          <div class="arch-box">데이터 레이크</div>
+          <div class="arch-box">시뮬레이션</div>
+          <div class="arch-box">경영 BI</div>
+        </div>
+      </div>
+      <div class="arch-conn">↕ 양방향 통신</div>
+      <div class="arch-layer" style="border-color:rgba(124,58,237,0.4)">
+        <div class="arch-lbl" style="color:#a78bfa">🖥️ Level 2 — 관제 (수집·분석·대시보드)</div>
+        <div class="arch-boxes">
+          <div class="arch-box">MQTT 브로커</div>
+          <div class="arch-box">InfluxDB</div>
+          <div class="arch-box">Grafana</div>
+          <div class="arch-box">알람 시스템</div>
+          <div class="arch-box">OEE 분석</div>
+        </div>
+      </div>
+      <div class="arch-conn">↕ 실시간 연결</div>
+      <div class="arch-layer" style="border-color:rgba(16,185,129,0.4)">
+        <div class="arch-lbl" style="color:#34d399">🤖 Level 1 — 엣지 (현장 로봇·센서)</div>
+        <div class="arch-boxes">
+          <div class="arch-box">SO-ARM101 로봇팔</div>
+          <div class="arch-box">LeKiwi</div>
+          <div class="arch-box">RealSense 카메라</div>
+          <div class="arch-box">진동·온도·전류 센서</div>
+          <div class="arch-box">ROS2</div>
+        </div>
+      </div>
+    </div>
+    <div class="callout ct-info aos d4">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>핵심 원리:</strong> 엣지에서 수집된 데이터가 관제 서버에서 분석되고, 클라우드에서 AI가 학습한 결과가 다시 엣지 로봇으로 내려온다. 이 <strong>순환이 빠를수록 AI는 더 똑똑해진다.</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- S04: 데이터에 의한 경영 -->
+<section id="s-data-mgmt" data-ch="1" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">📊 데이터 경영</div>
+    <h2 class="sec-title aos d1">데이터에 의한 경영 — 4가지 데이터 유형</h2>
+    <p class="sec-sub aos d2">공장에서 수집해야 할 데이터는 목적에 따라 4가지로 나뉜다. 어떤 데이터를 왜 모으는지 알아야 경영이 된다.</p>
+    <div class="sec-divider aos d2"></div>
+    <div class="card-grid">
+      <div class="g-card aos d1">
+        <div class="g-card-icon">⚙️</div>
+        <div class="g-card-title">운영 데이터 (Operational)</div>
+        <div class="g-card-desc">설비 가동률, 생산량, 불량률, 사이클 타임. <strong>OEE = 가동률 × 성능률 × 품질률</strong>. 현장의 기초 체력을 측정하는 지표.</div>
+      </div>
+      <div class="g-card aos d2">
+        <div class="g-card-icon purple">🔍</div>
+        <div class="g-card-title">품질 데이터 (Quality)</div>
+        <div class="g-card-desc">불량 유형별 분포, 검사 이미지, 치수 측정값. 비전 AI가 초당 수백 장을 판정. <strong>불량 유출 제로</strong>를 목표로 한다.</div>
+      </div>
+      <div class="g-card aos d3">
+        <div class="g-card-icon green">🔔</div>
+        <div class="g-card-title">예지보전 데이터 (Predictive)</div>
+        <div class="g-card-desc">설비 진동·온도·전류 이상 패턴. 고장 나기 전에 알람. <strong>계획 정비로 전환</strong>하여 비계획 다운타임 제로 목표.</div>
+      </div>
+      <div class="g-card aos d4">
+        <div class="g-card-icon amber">📈</div>
+        <div class="g-card-title">전략 데이터 (Strategic)</div>
+        <div class="g-card-desc">생산 원가·에너지 비용·인건비 대비 자동화 ROI. <strong>"어느 공정에 AI를 먼저 투자해야 하는가"</strong>를 데이터로 결정.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S05: 데이터 경영 플라이휠 -->
+<section id="s-flywheel" data-ch="1" class="sec sec-mid">
+  <div class="container">
+    <div class="sec-label aos">♻️ 선순환 구조</div>
+    <h2 class="sec-title aos d1">데이터 경영 플라이휠</h2>
+    <p class="sec-sub aos d2">이 순환이 돌아갈수록 AI는 더 똑똑해지고, 경영자는 더 빠르게 결정하며, 공장은 스스로 개선된다.</p>
+    <div class="sec-divider aos d2"></div>
+    <div class="flow aos d3">
+      <div class="flow-node">
+        <div class="fn-icon">🏭</div>
+        <div class="fn-title">현장 수집</div>
+        <div class="fn-desc">센서·로봇·카메라</div>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node">
+        <div class="fn-icon">🧠</div>
+        <div class="fn-title">AI 학습·분석</div>
+        <div class="fn-desc">패턴·이상 감지</div>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node">
+        <div class="fn-icon">📊</div>
+        <div class="fn-title">대시보드</div>
+        <div class="fn-desc">경영진 가시화</div>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node">
+        <div class="fn-icon">💡</div>
+        <div class="fn-title">의사결정</div>
+        <div class="fn-desc">데이터 기반 전략</div>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node">
+        <div class="fn-icon">✅</div>
+        <div class="fn-title">현장 개선</div>
+        <div class="fn-desc">실행·피드백</div>
+      </div>
+      <div class="flow-arr" style="color:var(--accent);font-weight:700">↩</div>
+    </div>
+    <div class="quote-block aos d4">
+      <p class="quote-text">데이터가 쌓이는 공장은 시간이 지날수록 경쟁자가 따라잡을 수 없는 격차를 만든다.<br>AI는 현장 데이터가 학습으로 되돌아오는 순환 구조가 완성될 때 비로소 산업이 된다.</p>
+      <div class="quote-author">— FCLA 교육 철학</div>
+    </div>
+  </div>
+</section>
+
+<!-- S06: 왜 어려운가 -->
+<section id="s-why-hard" data-ch="1" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">⚠️ 근본 원인 분석</div>
+    <h2 class="sec-title aos d1">왜 기존 회사들은 Physical AI 적용이 어려운가?</h2>
+    <p class="sec-sub aos d2">3가지 근본 원인 — HW 부족 · SW 융합 부족 · 데이터 실전 부족</p>
+    <div class="sec-divider aos d2"></div>
+    <div class="card-grid">
+      <div class="g-card aos d1" style="border-color:rgba(220,38,38,0.2)">
+        <div class="g-card-icon red">⚙️</div>
+        <div class="g-card-title" style="color:#f87171">문제 1 — 하드웨어 역량 부족</div>
+        <div class="g-card-desc">AI 알고리즘만 알아서는 로봇이 움직이지 않는다. 모터 제어·센서 배선·통신 프로토콜 등 <strong>물리적 시스템을 직접 만져본 경험</strong>이 없으면 현장에서 막힌다.<br><br><em style="color:rgba(248,113,113,0.7)">"코드는 돌아가는데 모터가 안 움직여요" — 80%가 HW 문제</em></div>
+      </div>
+      <div class="g-card aos d2" style="border-color:rgba(124,58,237,0.2)">
+        <div class="g-card-icon purple">💻</div>
+        <div class="g-card-title" style="color:#a78bfa">문제 2 — SW 융합 능력 부족</div>
+        <div class="g-card-desc">ROS2·Python·AI 모델·웹 서버·DB를 <strong>연결하는 능력</strong>을 가르치는 교육이 거의 없다. 각 기술은 알아도 통합 구현에서 막힌다.<br><br><em style="color:rgba(167,139,250,0.7)">"AI 모델은 만들었는데 현장에 어떻게 넣죠?" — SW 융합 공백</em></div>
+      </div>
+      <div class="g-card aos d3" style="border-color:rgba(245,158,11,0.2)">
+        <div class="g-card-icon amber">📊</div>
+        <div class="g-card-title" style="color:#fbbf24">문제 3 — 데이터 실전 경험 부족</div>
+        <div class="g-card-desc">현장 데이터를 <strong>어떻게 수집하고, 어디에 저장하고, 어떻게 활용</strong>하는지 모른다. 교과서적 AI는 배웠지만 실전 경험 없는 이론은 현장에서 무력하다.<br><br><em style="color:rgba(251,191,36,0.7)">"데이터가 있는데 뭘 해야 할지 모르겠어요" — 실전 공백</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S07: 기존 교육 vs FCLA -->
+<section id="s-fcla-diff" data-ch="1" class="sec sec-darker">
+  <div class="container">
+    <div class="sec-label aos">🔄 비교 분석</div>
+    <h2 class="sec-title aos d1">기존 교육 vs FCLA 차별성</h2>
+    <div class="sec-divider aos d2"></div>
+    <div class="cmp-grid aos d2">
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:linear-gradient(135deg,#1f2937,#374151)">
+          <div class="c-icon">❌</div>
+          <h4>기존 교육의 문제</h4>
+        </div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-lbl">방식</span><span class="cmp-val">AI 이론 강의만</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">구성</span><span class="cmp-val">HW / SW / Data 분리</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">형태</span><span class="cmp-val">개인 학습</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">실습</span><span class="cmp-val">완성된 예제 따라하기</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">종료 후</span><span class="cmp-val">관계 종료</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">현장 적용</span><span class="cmp-val">스스로 해야 함</span></div>
+        </div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:linear-gradient(135deg,#064e3b,#059669)">
+          <div class="c-icon">✅</div>
+          <h4>FCLA 교육 차별성</h4>
+        </div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-lbl">방식</span><span class="cmp-val highlight">HW+SW+Data 융합 실전</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">구성</span><span class="cmp-val highlight">로봇 조립→AI→데이터 통합</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">형태</span><span class="cmp-val highlight">팀 프로젝트 + AI 도구</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">실습</span><span class="cmp-val highlight">내 공장 문제 직접 해결</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">종료 후</span><span class="cmp-val highlight">한동대와 지속 협력</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">현장 적용</span><span class="cmp-val highlight">Action Learning 공동 수행</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout ct-info aos d4">
+      <div class="callout-icon">🏛️</div>
+      <div class="callout-body"><strong>왜 관리자급이 먼저 들어야 하는가:</strong> 현장 실무자가 아무리 좋은 PoC를 만들어도, 경영진이 방향을 모르면 투자도 확산도 불가능하다. 리더십 교육에서 CEO/COO/CTO가 "Physical AI가 왜 필요한지, 어디에 투자해야 하는지"를 이해해야 1~5단계 실무 교육의 성과가 조직 차원에서 실현된다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- S08: 💡 THINK CORNER -->
+<section id="s-think" data-ch="1">
+  <div class="think-corner">
+    <div class="tc-orb"></div>
+    <div class="tc-content">
+      <div class="tc-badge">💡 토의 코너</div>
+      <div class="tc-icon">💡</div>
+      <h2 class="tc-title">여러분 어떻게 생각하시나요?</h2>
+      <p class="tc-sub">Physical AI 도입 — 여러분의 현장 현실은 어떤가요?<br>솔직하게 한 번 생각해봅시다</p>
+      <div class="tc-cards">
+        <div class="tc-card aos d1">
+          <div class="tc-card-q">💭 질문 1</div>
+          <div class="tc-card-text">우리 회사에 지금 AI를 도입한다면, 가장 큰 장벽은 무엇일까요? HW 역량, SW 통합, 아니면 데이터?</div>
+        </div>
+        <div class="tc-card aos d2">
+          <div class="tc-card-q">💭 질문 2</div>
+          <div class="tc-card-text">데이터 경영 플라이휠을 우리 현장에 돌리기 위해 지금 당장 시작할 수 있는 첫 번째 행동은 무엇인가요?</div>
+        </div>
+        <div class="tc-card aos d3">
+          <div class="tc-card-q">💭 질문 3</div>
+          <div class="tc-card-text">Physical AI는 "기술 문제"인가요, "경영 문제"인가요? 여러분의 현장 경험으로 말씀해주세요.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 2 : 실패 사례 분석
+═══════════════════════════════════════════ -->
+
+<!-- CH2 HERO -->
+<section id="ch2" data-ch="2">
+  <div class="ch-hero" id="ch2-hero">
+    <div class="ch-hero-overlay"></div>
+    <div class="ch-hero-content">
+      <div class="ch-num-badge">── CHAPTER 2 ──</div>
+      <h1 class="ch-hero-title">왜 도입은<br>실패하는가?</h1>
+      <p class="ch-hero-sub">국내 제조 현장에서 반복되는 5가지 실패 패턴<br>기술 실패 3건 + 경영 실패 2건 심층 분석</p>
+      <div class="spot-card" id="spot2">
+        <span class="spot-emoji" id="spot2-emoji"></span>
+        <div class="spot-info">
+          <span class="spot-flag" id="spot2-flag"></span>
+          <span class="spot-name" id="spot2-name"></span>
+          <span class="spot-divider"></span>
+          <span class="spot-stat" id="spot2-stat"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S10: 기술 실패 1~3 -->
+<section id="s-fail-tech" data-ch="2" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">🔴 기술 실패 사례</div>
+    <h2 class="sec-title aos d1">기술 실패 3건 — 같은 실수의 반복</h2>
+    <div class="sec-divider aos d2"></div>
+
+    <div class="case-block fail aos d2">
+      <div class="case-tag" style="color:#f87171">🔴 기술 실패 1 — 중견 전자부품 제조사 (비전 검사 AI)</div>
+      <div class="case-title">실험실 정확도 99%, 현장 정확도 43% — 조명 변수 하나가 3억원 프로젝트를 무너뜨렸다</div>
+      <div class="case-body">3억원 투자, 6개월 개발. PCB 불량 판정 AI 도입. 현장 적용 2주 만에 가동 중단. 실험실 표준 조명 아래 학습된 모델이 공장 형광등·외부광 간섭에서 완전히 무너졌다.</div>
+      <div class="badge-row">
+        <span class="badge bd-red">3억원 투자</span>
+        <span class="badge bd-red">실험실 99% → 현장 43%</span>
+        <span class="badge bd-red">2주 만에 중단</span>
+      </div>
+      <div class="callout ct-warn">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-body"><strong>핵심 교훈:</strong> AI 모델 학습 데이터는 반드시 <strong>실제 현장 조건</strong>(조명·온도·먼지·진동)에서 수집해야 한다. 실험실 데이터로 학습한 모델은 현장에서 전혀 다른 AI가 된다.</div>
+      </div>
+    </div>
+
+    <div class="case-block fail2 aos d3">
+      <div class="case-tag" style="color:#a78bfa">🟣 기술 실패 2 — 자동차 부품 협력사 (예지보전 AI)</div>
+      <div class="case-title">데이터 인프라 없이 AI부터 도입 — "센서도 없는데 무엇을 예측합니까?"</div>
+      <div class="case-body">정부 스마트팩토리 지원사업으로 예지보전 AI 소프트웨어 도입. 설비에 센서가 전혀 없는 상태. MQTT·TSDB·OPC UA 같은 데이터 수집 인프라 없이 AI 소프트웨어만 설치. 학습할 데이터가 없어 개점휴업. 정부 보조금 1억5천만원 사실상 낭비.</div>
+      <div class="arch" style="padding:1rem">
+        <div class="arch-layer" style="border-color:rgba(220,38,38,0.3)">
+          <div class="arch-lbl" style="color:#f87171">❌ 실패한 도입 순서</div>
+          <div class="arch-boxes">
+            <div class="arch-box">AI 소프트웨어 설치</div>
+            <div class="arch-box">대시보드 구축</div>
+            <div class="arch-box" style="color:#f87171">→ 데이터 없음 → 가동 불가</div>
+          </div>
+        </div>
+        <div class="arch-conn">↓ 올바른 순서</div>
+        <div class="arch-layer" style="border-color:rgba(16,185,129,0.3)">
+          <div class="arch-lbl" style="color:#34d399">✅ FCLA 올바른 순서</div>
+          <div class="arch-boxes">
+            <div class="arch-box">① 센서 설치</div>
+            <div class="arch-box">② MQTT 수집</div>
+            <div class="arch-box">③ TSDB 저장</div>
+            <div class="arch-box">④ AI 학습</div>
+            <div class="arch-box">⑤ 대시보드</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="case-block fail3 aos d4">
+      <div class="case-tag" style="color:#fbbf24">🟡 기술 실패 3 — 식품 포장 중소기업 (협동 로봇)</div>
+      <div class="case-title">현장 작업자 저항 + KPI 미설정 — 5천만원짜리 로봇이 3개월 만에 수동으로 복귀</div>
+      <div class="case-body">협동 로봇 2대를 5천만원에 도입했지만 3개월 만에 수동 조작으로 복귀. ① 현장 작업자들이 로봇 조작법 교육 전혀 없음 ② 제품 규격 바뀌어도 재설정 담당자 없음 ③ 경영진이 명확한 KPI 미설정.</div>
+      <div class="badge-row">
+        <span class="badge bd-red">교육 인원 0명</span>
+        <span class="badge bd-red">KPI 미설정</span>
+        <span class="badge bd-red">3개월 만에 수동 복귀</span>
+        <span class="badge bd-red">5천만원 사실상 폐기</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S11: 경영 실패 1~2 -->
+<section id="s-fail-mgmt" data-ch="2" class="sec sec-darker">
+  <div class="container">
+    <div class="sec-label aos">🔴 경영 실패 사례</div>
+    <h2 class="sec-title aos d1">경영 실패 2건 — 기술은 됐는데 경영이 실패한 케이스</h2>
+    <div class="sec-divider aos d2"></div>
+
+    <div class="case-block fail4 aos d2">
+      <div class="case-tag" style="color:#67e8f9">🔵 경영 실패 1 — 중소 금속가공업체 (AI 도입 후 조직 붕괴)</div>
+      <div class="case-title">AI가 성공하자 숙련 공원들이 집단 이직 — "기술은 됐는데 사람이 다 떠났습니다"</div>
+      <div class="case-body">비전 AI 품질 검사 도입 성공. 불량률 47% 감소. 그러나 경영진이 "AI 도입 = 인력 감축" 메시지를 명확히 하지 않은 채 애매하게 소통. 결과적으로 현장 숙련 공원 23명 중 15명이 불안감에 6개월 내 이직. AI는 잘 돌아가도 운영할 사람이 없어 공장 가동률 오히려 하락.</div>
+      <div class="cmp-grid" style="margin-top:1rem">
+        <div class="cmp-card">
+          <div class="cmp-head" style="background:linear-gradient(135deg,#064e3b,#059669)">
+            <div class="c-icon">✅</div><h4>기술적 성과</h4>
+          </div>
+          <div class="cmp-body">
+            <div class="cmp-row"><span class="cmp-lbl">불량률</span><span class="cmp-val highlight">-47% 감소</span></div>
+            <div class="cmp-row"><span class="cmp-lbl">검사 속도</span><span class="cmp-val highlight">3.2배 향상</span></div>
+            <div class="cmp-row"><span class="cmp-lbl">AI 정확도</span><span class="cmp-val highlight">96.8%</span></div>
+          </div>
+        </div>
+        <div class="cmp-card">
+          <div class="cmp-head" style="background:linear-gradient(135deg,#7f1d1d,#dc2626)">
+            <div class="c-icon">❌</div><h4>경영적 결과</h4>
+          </div>
+          <div class="cmp-body">
+            <div class="cmp-row"><span class="cmp-lbl">숙련 인력 이직</span><span class="cmp-val" style="color:#f87171">15명/23명</span></div>
+            <div class="cmp-row"><span class="cmp-lbl">공장 가동률</span><span class="cmp-val" style="color:#f87171">-28% 하락</span></div>
+            <div class="cmp-row"><span class="cmp-lbl">납기 지연</span><span class="cmp-val" style="color:#f87171">연속 4개월</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="callout ct-warn">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-body"><strong>핵심 교훈:</strong> AI는 사람을 없애는 것이 아니라 <strong>사람이 더 가치 있는 일을 하도록 돕는 것</strong>임을 경영진이 먼저 선언해야 한다. 인력 재배치 로드맵과 소통 전략을 기술 도입 전에 수립해야 한다.</div>
+      </div>
+    </div>
+
+    <div class="case-block fail5 aos d3">
+      <div class="case-tag" style="color:#f9a8d4">🩷 경영 실패 2 — 중견 플라스틱 성형업체 (AI 투자 ROI 미검증)</div>
+      <div class="case-title">PoC 없이 전사 도입 — 3년간 8억원 투자, 측정 가능한 성과 없음</div>
+      <div class="case-body">경쟁사가 스마트팩토리를 한다는 소식에 급하게 SI 업체와 계약. 별도의 PoC(개념 검증) 없이 전사 도입. 도입 3년 후 감사 결과: OEE 측정 자체를 안 하고 있었고, ROI 계산 기준도 없었다.</div>
+      <div class="stat-row" style="margin-top:1rem">
+        <div class="stat-item aos d1">
+          <div class="stat-num" style="background:linear-gradient(135deg,#dc2626,#f87171);-webkit-background-clip:text;-webkit-text-fill-color:transparent">8억원</div>
+          <div class="stat-lbl">3년간 투자 총액</div>
+        </div>
+        <div class="stat-item aos d2">
+          <div class="stat-num" style="background:linear-gradient(135deg,#dc2626,#f87171);-webkit-background-clip:text;-webkit-text-fill-color:transparent">0건</div>
+          <div class="stat-lbl">측정된 ROI 성과</div>
+        </div>
+        <div class="stat-item aos d3">
+          <div class="stat-num" style="background:linear-gradient(135deg,#dc2626,#f87171);-webkit-background-clip:text;-webkit-text-fill-color:transparent">없음</div>
+          <div class="stat-lbl">사전 PoC 여부</div>
+        </div>
+      </div>
+      <div class="callout ct-warn">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-body"><strong>핵심 교훈:</strong> AI 도입은 반드시 <strong>① 현장 문제 명확화 → ② PoC 효과 검증 → ③ ROI 기준 설정 → ④ 전사 확대</strong> 순서를 지켜야 한다. "AI 도입 = 혁신"이 아니라 "AI로 어떤 KPI를 몇 % 개선할 것인가"가 먼저다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S12: ❓ QUESTION CORNER -->
+<section id="s-question" data-ch="2">
+  <div class="question-corner">
+    <div class="qc-bg-q">?</div>
+    <div class="qc-content">
+      <div class="qc-badge">❓ 질문 코너</div>
+      <h2 class="qc-title">5가지 실패에서<br>찾은 공통점은?</h2>
+      <p class="qc-sub">기술이 실패한 게 아니었다 — 준비가 없었고, 순서가 틀렸고, 사람을 잊었다<br>각 질문에 대한 여러분의 답을 생각해보세요</p>
+      <div class="qc-grid">
+        <div class="qc-card aos d1">
+          <div class="qc-num">Q1</div>
+          <div class="qc-text">5가지 실패 사례에서 가장 공통적으로 발견되는 실수는 무엇인가요?</div>
+        </div>
+        <div class="qc-card aos d2">
+          <div class="qc-num">Q2</div>
+          <div class="qc-text">기술 실패와 경영 실패 중 어느 쪽이 더 치명적이라고 생각하시나요? 그 이유는?</div>
+        </div>
+        <div class="qc-card aos d3">
+          <div class="qc-num">Q3</div>
+          <div class="qc-text">이 실패들을 사전에 예방하기 위해 경영자가 가장 먼저 해야 할 한 가지 행동은?</div>
+        </div>
+        <div class="qc-card aos d4">
+          <div class="qc-num">Q4</div>
+          <div class="qc-text">우리 회사에서 비슷한 실수를 할 가능성이 가장 높은 영역은 어디인가요?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 3 : 성공 사례 & FCLA 철학
+═══════════════════════════════════════════ -->
+
+<!-- CH3 HERO -->
+<section id="ch3" data-ch="3">
+  <div class="ch-hero" id="ch3-hero">
+    <div class="ch-hero-overlay"></div>
+    <div class="ch-hero-content">
+      <div class="ch-num-badge">── CHAPTER 3 ──</div>
+      <h1 class="ch-hero-title">어떻게 성공하는가?<br>FCLA 철학</h1>
+      <p class="ch-hero-sub">올바른 순서와 전략으로 도입했을 때의 결과<br>기술 성공 3건 + 경영 성공 2건 + FCLA 4기둥</p>
+      <div class="spot-card" id="spot3">
+        <span class="spot-emoji" id="spot3-emoji"></span>
+        <div class="spot-info">
+          <span class="spot-flag" id="spot3-flag"></span>
+          <span class="spot-name" id="spot3-name"></span>
+          <span class="spot-divider"></span>
+          <span class="spot-stat" id="spot3-stat"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S13: FCLA 철학 -->
+<section id="s-fcla" data-ch="3" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">🌿 교육 철학</div>
+    <h2 class="sec-title aos d1">FCLA 교육 철학 — 4개의 기둥</h2>
+    <p class="sec-sub aos d2">Field-Connected Learning Approach — 교실과 현장을 연결하고, 팀이 함께 만들며 검증하는 학습 방법론</p>
+    <div class="sec-divider aos d2"></div>
+    <div class="quote-block aos d3">
+      <p class="quote-text">피지컬 AI는 혼자 배우는 기술이 아니라, 팀이 함께 만들고 현장에서 검증하는 실전입니다.<br>AI는 데이터가 학습으로 되돌아오는 순환 구조가 완성될 때 비로소 산업이 됩니다.</p>
+      <div class="quote-author">— FCLA 교육 핵심 철학</div>
+    </div>
+    <div class="pillar-grid">
+      <div class="pillar-card aos d1">
+        <div class="pillar-num">PILLAR 1</div>
+        <div class="pillar-icon">📚</div>
+        <div class="pillar-title">신기술 팀 콘텐츠</div>
+        <div class="pillar-desc">Physical AI·로봇·관제 시스템 등 신기술을 팀 단위로 학습. 개인이 아닌 팀이 AI 리터러시를 갖춘다</div>
+      </div>
+      <div class="pillar-card aos d2">
+        <div class="pillar-num">PILLAR 2</div>
+        <div class="pillar-icon">🏭</div>
+        <div class="pillar-title">현장 연결 프로젝트</div>
+        <div class="pillar-desc">배운 기술을 자신의 공장에 연결. 이론→현장 적용의 순환. 교육 중에 이미 현장 PoC가 시작된다</div>
+      </div>
+      <div class="pillar-card aos d3">
+        <div class="pillar-num">PILLAR 3</div>
+        <div class="pillar-icon">🔧</div>
+        <div class="pillar-title">하이테크 협력 도구</div>
+        <div class="pillar-desc">ChatGPT·Claude AI·로봇·대시보드 등 첨단 도구를 활용한 협력 학습. AI가 팀원으로 참여</div>
+      </div>
+      <div class="pillar-card aos d4">
+        <div class="pillar-num">PILLAR 4</div>
+        <div class="pillar-icon">🎓</div>
+        <div class="pillar-title">현장 멘토 팀 평가</div>
+        <div class="pillar-desc">재직자 경험 = 최고의 교재. 팀이 서로 가르치고 평가하는 수평 구조. 현장 문제가 곧 교육 과제</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S14: 기술 성공 1~3 -->
+<section id="s-suc-tech" data-ch="3" class="sec sec-darker">
+  <div class="container">
+    <div class="sec-label aos">✅ 기술 성공 사례</div>
+    <h2 class="sec-title aos d1">기술 성공 3건 — 올바른 순서의 결과</h2>
+    <div class="sec-divider aos d2"></div>
+
+    <div class="case-block suc aos d2">
+      <div class="case-tag" style="color:#34d399">✅ 기술 성공 1 — 반도체 부품 중소기업 (비전 AI 품질 검사)</div>
+      <div class="case-title">현장 데이터 6개월 수집 후 AI 학습 — 불량률 73% 감소, 연간 8억원 비용 절감</div>
+      <div class="case-body">① 먼저 3개월간 현장 조명·카메라 위치를 표준화, ② 실제 공장 환경에서 6개월간 OK/NG 데이터 2만8천장 수집, ③ 해당 데이터로만 YOLO 모델 파인튜닝. 2년차에는 수집된 트렌드 데이터로 공정 조건 최적화까지 달성.</div>
+      <div class="badge-row">
+        <span class="badge bd-green">불량률 -73%</span>
+        <span class="badge bd-green">정확도 98.7%</span>
+        <span class="badge bd-green">연간 절감 8억원</span>
+        <span class="badge bd-green">불량 유출 0.03%</span>
+      </div>
+      <div class="callout ct-tip">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-body"><strong>성공 요인:</strong> 실험실이 아닌 <strong>실제 현장 조건 데이터</strong>로 학습. 1개 라인 PoC → 전사 확대 단계적 접근.</div>
+      </div>
+    </div>
+
+    <div class="case-block suc2 aos d3">
+      <div class="case-tag" style="color:var(--accent)">✅ 기술 성공 2 — 자동차 시트 제조사 (MQTT 기반 예지보전)</div>
+      <div class="case-title">데이터 인프라부터 구축 — 비계획 다운타임 89% 감소, OEE 71% → 89%</div>
+      <div class="case-body">① 전 설비에 진동·온도·전류 센서 부착, ② MQTT 브로커와 InfluxDB로 데이터 파이프라인 구축, ③ 6개월치 정상 운전 데이터로 이상감지 기준선 학습. 주요 설비 3대에서 고장 예조를 72시간 전에 감지, 계획 정비로 전환.</div>
+      <div class="badge-row">
+        <span class="badge bd-cyan">OEE 71%→89%</span>
+        <span class="badge bd-cyan">다운타임 -89%</span>
+        <span class="badge bd-cyan">72시간 전 고장 예측</span>
+      </div>
+      <div class="callout ct-tip">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-body"><strong>성공 요인:</strong> <strong>HW 인프라(센서) → 데이터 파이프라인 → AI 학습</strong> 올바른 순서 준수. Grafana 대시보드로 경영진이 매일 아침 현황 확인하는 문화 형성.</div>
+      </div>
+    </div>
+
+    <div class="case-block suc3 aos d4">
+      <div class="case-tag" style="color:#67e8f9">✅ 기술 성공 3 — 식품 포장 중소기업 (협동 로봇 재도입 성공)</div>
+      <div class="case-title">실패 후 재도입 — 명확한 KPI + 작업자 교육 병행으로 생산성 2.3배 향상</div>
+      <div class="case-body">앞서 소개된 실패 기업이 2년 후 재도입에 성공. ① 경영진이 "포장 속도 1.5배, 오작동률 2% 이하" KPI 먼저 공표, ② 현장 작업자 중 희망자 4명을 로봇 운영 전담 직무로 전환하고 3개월 교육, ③ 제품 규격 변경 시 작업자가 직접 재설정할 수 있는 간소화 UI 개발.</div>
+      <div class="badge-row">
+        <span class="badge bd-cyan">생산성 2.3배</span>
+        <span class="badge bd-cyan">오작동 0.8%</span>
+        <span class="badge bd-cyan">작업자 직무 전환 성공</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S15: 경영 성공 1~2 -->
+<section id="s-suc-mgmt" data-ch="3" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">✅ 경영 성공 사례</div>
+    <h2 class="sec-title aos d1">경영 성공 2건 — 데이터가 조직을 바꾼다</h2>
+    <div class="sec-divider aos d2"></div>
+
+    <div class="case-block suc4 aos d2">
+      <div class="case-tag" style="color:#a78bfa">✅ 경영 성공 1 — 중견 사출성형 업체 (데이터 경영 전환)</div>
+      <div class="case-title">OEE 대시보드 하나로 전사 의사결정 체계 전환 — 영업이익률 3.2%p 개선</div>
+      <div class="case-body">매출 230억원 사출성형 업체. 전 설비 MQTT 데이터를 InfluxDB에 실시간 저장하고, Grafana 대시보드로 CEO·생산팀장·품질팀장이 같은 데이터를 매일 아침 확인. 3개월 만에 회의에서 "그것 같은데요"가 사라지고 "이번 주 데이터 보면"으로 시작하는 문화 형성. 불필요한 야간 초과근무 17% 감소, 에너지 비용 12% 절감.</div>
+      <div class="badge-row">
+        <span class="badge bd-purple">영업이익률 +3.2%p</span>
+        <span class="badge bd-purple">초과근무 -17%</span>
+        <span class="badge bd-purple">에너지 비용 -12%</span>
+        <span class="badge bd-purple">데이터 경영 문화 정착</span>
+      </div>
+      <div class="callout ct-tip">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-body"><strong>성공 요인:</strong> CEO부터 현장 팀장까지 <strong>같은 데이터를 같은 시간에 보는 것</strong>이 조직 문화를 바꿨다. 기술이 아니라 <strong>데이터를 보는 습관</strong>이 경영 혁신의 핵심이었다.</div>
+      </div>
+    </div>
+
+    <div class="case-block suc5 aos d3">
+      <div class="case-tag" style="color:#34d399">✅ 경영 성공 2 — 소형 가전 부품 제조사 (PoC 기반 단계적 확대)</div>
+      <div class="case-title">1개 라인 PoC로 ROI 검증 → 전사 확대 → 정부 R&D 5억원 유치</div>
+      <div class="case-body">경영진이 처음부터 "전사 도입 전에 1개 라인으로 6개월 PoC를 먼저 한다"고 선언. PoC 목표: 불량률 30% 감소, 투자 회수 12개월 이내. 6개월 후: 불량률 41% 감소, 투자 회수 9개월 예상. 이 데이터를 근거로 나머지 3개 라인 확대 투자 결정. 더 나아가 중소벤처기업부 스마트제조 R&D 과제로 5억원 정부 지원금 확보.</div>
+      <div class="badge-row">
+        <span class="badge bd-green">불량률 -41%</span>
+        <span class="badge bd-green">ROI 회수 9개월</span>
+        <span class="badge bd-green">정부 R&D 5억원 유치</span>
+        <span class="badge bd-green">전사 확대 완료</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S16: 🌿 TEAM DISCUSSION CORNER -->
+<section id="s-team-disc" data-ch="3">
+  <div class="team-discussion">
+    <div class="td-orb"></div>
+    <div class="td-content">
+      <div class="td-badge"># 팀별 토의 코너</div>
+      <div class="td-hashtag"># 토의주제</div>
+      <h2 class="td-title">내 공장에 PoC를<br>적용한다면?</h2>
+      <p class="td-opinion">성공 사례들을 분석했습니다. 이제 우리 이야기를 해봅시다.<br>여러분 의견은 어떠신가요?</p>
+      <div class="td-grid">
+        <div class="td-card aos d1">
+          <div class="td-q-num">Q1</div>
+          <div class="td-q-text">성공 사례 5건의 공통적인 핵심 성공 요인을 3가지로 정리한다면 무엇인가요?</div>
+        </div>
+        <div class="td-card aos d2">
+          <div class="td-q-num">Q2</div>
+          <div class="td-q-text">우리 팀(공장)에서 6개월 PoC를 시작한다면, 어떤 공정에서 어떤 KPI를 목표로 잡겠습니까?</div>
+        </div>
+        <div class="td-card aos d3">
+          <div class="td-q-num">Q3</div>
+          <div class="td-q-text">데이터 경영으로 전환하기 위해 경영진과 현장 작업자 모두를 설득하는 방법은 무엇인가요?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 4 : 5단계 실전 커리큘럼
+═══════════════════════════════════════════ -->
+
+<!-- CH4 HERO -->
+<section id="ch4" data-ch="4">
+  <div class="ch-hero" id="ch4-hero">
+    <div class="ch-hero-overlay"></div>
+    <div class="ch-hero-content">
+      <div class="ch-num-badge">── CHAPTER 4 ──</div>
+      <h1 class="ch-hero-title">5단계 실전<br>커리큘럼</h1>
+      <p class="ch-hero-sub">로봇을 직접 조립하고, AI를 올리고, 데이터를 모아<br>내 공장에 적용하는 80h/120h/160h 과정</p>
+      <div class="spot-card" id="spot4">
+        <span class="spot-emoji" id="spot4-emoji"></span>
+        <div class="spot-info">
+          <span class="spot-flag" id="spot4-flag"></span>
+          <span class="spot-name" id="spot4-name"></span>
+          <span class="spot-divider"></span>
+          <span class="spot-stat" id="spot4-stat"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S17: 커리큘럼 개요 -->
+<section id="s-curr-overview" data-ch="4" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">📋 커리큘럼 개요</div>
+    <h2 class="sec-title aos d1">제2강 — 나만의 Physical AI 커리큘럼</h2>
+    <p class="sec-sub aos d2">HW + SW + Data 3축을 연결하는 5단계 실전 학습. 재직자도 병행 가능한 주 10시간 과정.</p>
+    <div class="sec-divider aos d2"></div>
+    <div class="stat-row">
+      <div class="stat-item aos d1">
+        <div class="stat-num">80h</div>
+        <div class="stat-lbl">8주 기본</div>
+        <div class="stat-desc">금3h + 토7h × 8주</div>
+      </div>
+      <div class="stat-item aos d2">
+        <div class="stat-num">120h</div>
+        <div class="stat-lbl">12주 표준</div>
+        <div class="stat-desc">단계별 실습 확대</div>
+      </div>
+      <div class="stat-item aos d3">
+        <div class="stat-num">160h</div>
+        <div class="stat-lbl">16주 심화</div>
+        <div class="stat-desc">VLA·SLAM·디지털트윈</div>
+      </div>
+      <div class="stat-item aos d4">
+        <div class="stat-num">10h</div>
+        <div class="stat-lbl">주당 수업</div>
+        <div class="stat-desc">재직자 병행 가능</div>
+      </div>
+    </div>
+    <div class="flow aos" style="margin-top:2rem">
+      <div class="flow-node"><div class="fn-icon">👔</div><div class="fn-title">0단계</div><div class="fn-desc">리더십<br>1주·10h</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node"><div class="fn-icon">🔧</div><div class="fn-title">1단계</div><div class="fn-desc">HW+SW+Data<br>1주·10h</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node"><div class="fn-icon">🤖</div><div class="fn-title">2단계</div><div class="fn-desc">모방학습<br>2주·20h</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node"><div class="fn-icon">👁️</div><div class="fn-title">3단계</div><div class="fn-desc">카메라+비전<br>1주·10h</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node"><div class="fn-icon">📊</div><div class="fn-title">4단계</div><div class="fn-desc">관제 시스템<br>2주·20h</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node"><div class="fn-icon">🏭</div><div class="fn-title">5단계</div><div class="fn-desc">Action Learning<br>2주·20h</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- S18: 1~2단계 -->
+<section id="s-step12" data-ch="4" class="sec sec-darker">
+  <div class="container">
+    <div class="sec-label aos">⚙️ 1단계 · 2단계</div>
+    <h2 class="sec-title aos d1">1단계 HW+SW+Data 융합 · 2단계 모방학습</h2>
+    <div class="sec-divider aos d2"></div>
+    <div class="card-grid">
+      <div class="g-card aos d1">
+        <div class="g-card-icon">🔧</div>
+        <div class="g-card-title">1단계 — HW+SW+Data 융합 (1주·10h)</div>
+        <div class="g-card-desc">
+          <strong>금요일:</strong> Physical AI 변화와 미래 대응 전략. 3계층 구조(엣지→관제→클라우드). ROS2 기본개념<br><br>
+          <strong>토 오전:</strong> SO-ARM101 팀별 조립. 6개 STS3215 서보 모터 ID 설정, 캘리브레이션, USB 시리얼 통신 확인<br><br>
+          <strong>토 오후:</strong> Python으로 관절 제어. 기본 Pick & Place. ChatGPT/Claude로 "내 공장의 문제 정의서" 작성
+        </div>
+      </div>
+      <div class="g-card aos d2">
+        <div class="g-card-icon purple">🤖</div>
+        <div class="g-card-title">2단계 — 모방학습 한팔 로봇 (2주·20h)</div>
+        <div class="g-card-desc">
+          <strong>Week 1:</strong> 리더-팔로워 체험(역할 교대: 조작자/모니터/기록자). 블록 정렬 미션 50 에피소드 수집. 팀별 타임어택 경쟁<br><br>
+          <strong>Week 2:</strong> 수집 데이터로 ACT 모델 학습. 자율 동작 성공률 팀별 비교. ChatGPT/Claude로 학습 결과 분석 보고서 작성<br><br>
+          <em style="color:rgba(167,139,250,0.7)">텔레오퍼레이션 → 데이터 수집 → ACT 학습 → 자율 동작의 전 과정 체험</em>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S19: 3~5단계 -->
+<section id="s-step345" data-ch="4" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">📊 3단계 · 4단계 · 5단계</div>
+    <h2 class="sec-title aos d1">비전 QC · 관제 시스템 · Action Learning</h2>
+    <div class="sec-divider aos d2"></div>
+    <div class="card-grid">
+      <div class="g-card aos d1">
+        <div class="g-card-icon green">👁️</div>
+        <div class="g-card-title">3단계 — 카메라+RealSense 비전 QC (1주·10h)</div>
+        <div class="g-card-desc">
+          <strong>팔 부착 RGB 카메라:</strong> 로봇팔 손목 부착, 물체 인식·색상 판별, USB 연결(Pi)<br><br>
+          <strong>RealSense RGB-D:</strong> 본체 전방 부착, 깊이·거리 측정, USB 3.0 별도 PC 권장<br><br>
+          <em style="color:rgba(52,211,153,0.7)">⚠️ Pi에서 카메라 2대 + 모터 동시 처리 시 USB 대역폭 포화 주의</em>
+        </div>
+      </div>
+      <div class="g-card aos d2">
+        <div class="g-card-icon">📊</div>
+        <div class="g-card-title">4단계 — 관제 시스템 (2주·20h)</div>
+        <div class="g-card-desc">
+          <strong>Week 1:</strong> Mosquitto 브로커 설치. 로봇/센서 데이터를 MQTT 토픽으로 전송<br><br>
+          <strong>Week 2:</strong> InfluxDB + Grafana OEE 실시간 시각화. 알람 규칙 설정. 팀별 대시보드 디자인 경쟁<br><br>
+          <strong>OEE = 가동률(A) × 성능률(P) × 품질률(Q)</strong>
+        </div>
+      </div>
+      <div class="g-card aos d3">
+        <div class="g-card-icon amber">🏭</div>
+        <div class="g-card-title">5단계 — Action Learning (2주·20h)</div>
+        <div class="g-card-desc">
+          <strong>진단:</strong> 한동대 연구원 합류 + 현장 문제 정의 + 솔루션 설계<br><br>
+          <strong>PoC 구현:</strong> 현장 적용 + 데이터 수집 + KPI 측정<br><br>
+          <strong>발표:</strong> Before/After 비교 + 경영진 앞 최종 발표 + 투자 의사결정
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 5 : 나만의 AI & 마무리
+═══════════════════════════════════════════ -->
+
+<!-- CH5 HERO -->
+<section id="ch5" data-ch="5">
+  <div class="ch-hero" id="ch5-hero">
+    <div class="ch-hero-overlay"></div>
+    <div class="ch-hero-content">
+      <div class="ch-num-badge">── CHAPTER 5 ──</div>
+      <h1 class="ch-hero-title">나만의 AI 프로젝트<br>교육과정 선택</h1>
+      <p class="ch-hero-sub">1단계 첫날부터 시작해 5단계에서 완성되는 나만의 Physical AI 포트폴리오<br>8주 · 12주 · 16주 — 재직자 상황에 맞게 선택</p>
+      <div class="spot-card" id="spot5">
+        <span class="spot-emoji" id="spot5-emoji"></span>
+        <div class="spot-info">
+          <span class="spot-flag" id="spot5-flag"></span>
+          <span class="spot-name" id="spot5-name"></span>
+          <span class="spot-divider"></span>
+          <span class="spot-stat" id="spot5-stat"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S20: 나만의 AI 프로젝트 스레드 -->
+<section id="s-my-ai" data-ch="5" class="sec sec-dark">
+  <div class="container">
+    <div class="sec-label aos">🎯 전 과정 관통 스레드</div>
+    <h2 class="sec-title aos d1">나만의 AI 프로젝트 — 5단계 완성</h2>
+    <p class="sec-sub aos d2">1단계 첫날부터 시작해 5단계에서 완성되는 나만의 Physical AI 포트폴리오</p>
+    <div class="sec-divider aos d2"></div>
+    <div class="step-strip">
+      <div class="step-item">
+        <div class="step-num">Step 1</div>
+        <div class="step-icon">🔧</div>
+        <div class="step-title">현장 문제 정의서</div>
+        <div class="step-sub">AI로 풀 문제 선정</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 2</div>
+        <div class="step-icon">🤖</div>
+        <div class="step-title">AI 솔루션 설계</div>
+        <div class="step-sub">모방학습 적용 방안</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 3</div>
+        <div class="step-icon">👁️</div>
+        <div class="step-title">인식 프로토타입</div>
+        <div class="step-sub">비전 QC 적용</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 4</div>
+        <div class="step-icon">📊</div>
+        <div class="step-title">데이터 대시보드</div>
+        <div class="step-sub">KPI 시각화</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">Step 5</div>
+        <div class="step-icon">🏭</div>
+        <div class="step-title">현장 Before/After</div>
+        <div class="step-sub">나만의 AI 포트폴리오</div>
+      </div>
+    </div>
+    <div class="card-grid" style="margin-top:2rem">
+      <div class="g-card aos d1">
+        <div class="g-card-icon green">🔄</div>
+        <div class="g-card-title">데이터 파이프라인 지속 가동</div>
+        <div class="g-card-desc">교육이 끝나도 현장 데이터는 계속 쌓인다. MQTT→TSDB 파이프라인이 24시간 자동으로 데이터를 모은다.</div>
+      </div>
+      <div class="g-card aos d2">
+        <div class="g-card-icon">🔁</div>
+        <div class="g-card-title">AI 재학습·고도화</div>
+        <div class="g-card-desc">새 데이터가 쌓일수록 모델을 재학습한다. 계절·품종·설비 노후화에 맞춰 AI가 스스로 진화한다.</div>
+      </div>
+      <div class="g-card aos d3">
+        <div class="g-card-icon purple">🎁</div>
+        <div class="g-card-title">포트폴리오 자산화</div>
+        <div class="g-card-desc">나만의 AI 프로젝트가 완성되면 회사의 기술 자산이 된다. 정부 R&D 신청·투자 유치의 근거가 된다.</div>
+      </div>
+      <div class="g-card aos d4">
+        <div class="g-card-icon amber">🤝</div>
+        <div class="g-card-title">한동대 지속 협력</div>
+        <div class="g-card-desc">교육 종료 후에도 연구팀과 협력이 유지된다. 새 문제가 생기면 함께 해결하고 공동 R&D 신청을 진행한다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S21: 8주/12주/16주 비교 -->
+<section id="s-compare" data-ch="5" class="sec sec-darker">
+  <div class="container">
+    <div class="sec-label aos">📅 교육과정 비교</div>
+    <h2 class="sec-title aos d1">8주 / 12주 / 16주 — 재직자 맞춤 선택</h2>
+    <div class="sec-divider aos d2"></div>
+    <div class="cmp-grid aos d3">
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:linear-gradient(135deg,#064e3b,#059669)">
+          <div class="c-icon">📅</div>
+          <h4>8주 기본 과정 (80h)</h4>
+        </div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-lbl">0단계</span><span class="cmp-val">리더십 교육 1주</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">1단계</span><span class="cmp-val">HW+SW+Data 1주</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">2단계</span><span class="cmp-val">모방학습 2주</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">3단계</span><span class="cmp-val">카메라+비전 1주</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">4단계</span><span class="cmp-val">관제 시스템 2주</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">5단계</span><span class="cmp-val">Action Learning 2주</span></div>
+        </div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:linear-gradient(135deg,#1e3a8a,#2563eb)">
+          <div class="c-icon">📚</div>
+          <h4>12주 표준 과정 (120h)</h4>
+        </div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-lbl">1단계+</span><span class="cmp-val">ROS2 토픽/서비스 심화</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">2단계+</span><span class="cmp-val">양팔(LeKiwi) 체험</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">3단계+</span><span class="cmp-val">3D 포인트 클라우드</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">4단계+</span><span class="cmp-val">ACS2·Node-RED 심화</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">5단계+</span><span class="cmp-val">현장 방문·PoC 고도화</span></div>
+        </div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:linear-gradient(135deg,#4c1d95,#7c3aed)">
+          <div class="c-icon">🔬</div>
+          <h4>16주 심화 과정 (160h)</h4>
+        </div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-lbl">1단계+</span><span class="cmp-val">URDF·Gazebo 시뮬레이션</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">2단계+</span><span class="cmp-val">VLA 모델·Diffusion Policy</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">3단계+</span><span class="cmp-val">LiDAR·SLAM·3D 매핑</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">4단계+</span><span class="cmp-val">Digital Twin·예지보전</span></div>
+          <div class="cmp-row"><span class="cmp-lbl">5단계+</span><span class="cmp-val">정부지원 사업 기획서</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S22: 🎓 CLOSING CORNER -->
+<section id="s-closing" data-ch="5">
+  <div class="closing-corner">
+    <div class="cc-orb-gold"></div>
+    <div class="cc-orb-blue"></div>
+    <div class="cc-content">
+      <div class="cc-badge">🎓 마무리 코너</div>
+      <div class="cc-icon">🎓</div>
+      <h2 class="cc-title">교육이 끝나는 날이<br><em>시작입니다</em></h2>
+      <p class="cc-sub">오늘 배운 것을 현장에 연결하는 순간, 여러분은 이미 Physical AI 리더입니다</p>
+      <div class="cc-points">
+        <div class="cc-point aos d1">
+          <div class="cc-point-num">01</div>
+          <div class="cc-point-text"><strong style="color:white">데이터 순환이 경쟁력</strong>이다. 현장 데이터가 쌓이는 공장은 시간이 갈수록 따라잡을 수 없는 격차를 만든다.</div>
+        </div>
+        <div class="cc-point aos d2">
+          <div class="cc-point-num">02</div>
+          <div class="cc-point-text"><strong style="color:white">순서가 성패를 가른다</strong>. HW 인프라 → 데이터 파이프라인 → AI 학습의 올바른 순서를 반드시 지켜야 한다.</div>
+        </div>
+        <div class="cc-point aos d3">
+          <div class="cc-point-num">03</div>
+          <div class="cc-point-text"><strong style="color:white">사람이 먼저다</strong>. AI 도입 성공의 핵심은 기술이 아니라 경영진의 명확한 선언과 현장 작업자와의 신뢰다.</div>
+        </div>
+      </div>
+      <div class="cc-big aos d4">수고하셨습니다! 🎉</div>
+      <div class="cc-final aos d5">Physical AI FCLA 교육 · 한동대학교 협력 · HW + SW + DATA 융합 실전</div>
+    </div>
+  </div>
+</section>
+
+<!-- FLOATING TOC -->
+<button id="toc-btn" onclick="toggleToc()">☰</button>
+<div id="toc-panel">
+  <a href="#" onclick="navTo('hero');return false">⚡ 시작</a>
+  <a href="#" onclick="navTo('ch1');return false">📡 Physical AI란?</a>
+  <a href="#" onclick="navTo('s-def');return false"> ∟ 정의</a>
+  <a href="#" onclick="navTo('s-arch');return false"> ∟ 3계층 구조</a>
+  <a href="#" onclick="navTo('s-data-mgmt');return false"> ∟ 데이터 경영</a>
+  <a href="#" onclick="navTo('s-flywheel');return false"> ∟ 플라이휠</a>
+  <a href="#" onclick="navTo('s-why-hard');return false"> ∟ 왜 어려운가</a>
+  <a href="#" onclick="navTo('s-fcla-diff');return false"> ∟ FCLA 차별성</a>
+  <a href="#" onclick="navTo('s-think');return false"> ∟ 💡 토의 코너</a>
+  <a href="#" onclick="navTo('ch2');return false">❌ 실패 사례</a>
+  <a href="#" onclick="navTo('s-fail-tech');return false"> ∟ 기술 실패 3건</a>
+  <a href="#" onclick="navTo('s-fail-mgmt');return false"> ∟ 경영 실패 2건</a>
+  <a href="#" onclick="navTo('s-question');return false"> ∟ ❓ 질문 코너</a>
+  <a href="#" onclick="navTo('ch3');return false">✅ 성공 & FCLA</a>
+  <a href="#" onclick="navTo('s-fcla');return false"> ∟ FCLA 철학</a>
+  <a href="#" onclick="navTo('s-suc-tech');return false"> ∟ 기술 성공 3건</a>
+  <a href="#" onclick="navTo('s-suc-mgmt');return false"> ∟ 경영 성공 2건</a>
+  <a href="#" onclick="navTo('s-team-disc');return false"> ∟ 🌿 팀 토의</a>
+  <a href="#" onclick="navTo('ch4');return false">🤖 5단계 커리큘럼</a>
+  <a href="#" onclick="navTo('s-curr-overview');return false"> ∟ 개요</a>
+  <a href="#" onclick="navTo('s-step12');return false"> ∟ 1·2단계</a>
+  <a href="#" onclick="navTo('s-step345');return false"> ∟ 3·4·5단계</a>
+  <a href="#" onclick="navTo('ch5');return false">🚀 나만의 AI</a>
+  <a href="#" onclick="navTo('s-my-ai');return false"> ∟ AI 프로젝트</a>
+  <a href="#" onclick="navTo('s-compare');return false"> ∟ 8·12·16주</a>
+  <a href="#" onclick="navTo('s-closing');return false"> ∟ 🎓 마무리</a>
+</div>
+
+<script>
+/* ── TOURIST SPOTS 100선 ── */
+const TOURIST_SPOTS=[
+  {name:'파리 에펠탑',flag:'🇫🇷',icon:'🗼',gradient:'linear-gradient(160deg,#1a1a2e,#16213e,#c9a227)',accent:'#c9a227',stat:'연간 방문객 700만 명 · 세계 유료 관광지 1위'},
+  {name:'로마 콜로세움',flag:'🇮🇹',icon:'🏛️',gradient:'linear-gradient(160deg,#3d1a00,#8b4513,#d4a056)',accent:'#d4a056',stat:'연간 방문객 760만 명 · 세계 7대 불가사의'},
+  {name:'뉴욕 자유의 여신상',flag:'🇺🇸',icon:'🗽',gradient:'linear-gradient(160deg,#0a1628,#1a3a4a,#7ec8c8)',accent:'#7ec8c8',stat:'연간 방문객 480만 명 · 미국의 상징'},
+  {name:'도쿄 도쿄타워',flag:'🇯🇵',icon:'🗾',gradient:'linear-gradient(160deg,#1a0a0a,#3d0000,#ff6b35)',accent:'#ff6b35',stat:'연간 방문객 300만 명 · 아시아 관광 1위 도시'},
+  {name:'런던 빅벤',flag:'🇬🇧',icon:'🏰',gradient:'linear-gradient(160deg,#0d1117,#1c2840,#4a90d9)',accent:'#4a90d9',stat:'연간 방문객 1,900만 명 · 유럽 최다 관광도시'},
+  {name:'바르셀로나 사그라다 파밀리아',flag:'🇪🇸',icon:'⛪',gradient:'linear-gradient(160deg,#1a0d2e,#2d1b69,#f4a261)',accent:'#f4a261',stat:'연간 방문객 400만 명 · 미완성 최고의 건축물'},
+  {name:'두바이 부르즈 할리파',flag:'🇦🇪',icon:'🏙️',gradient:'linear-gradient(160deg,#0a0a1a,#1a1a3e,#ffd700)',accent:'#ffd700',stat:'연간 방문객 1,500만 명 · 세계 최고층 828m'},
+  {name:'싱가포르 마리나베이샌즈',flag:'🇸🇬',icon:'🌆',gradient:'linear-gradient(160deg,#001a2e,#003366,#00b4d8)',accent:'#00b4d8',stat:'연간 방문객 1,340만 명 · 아시아 허브 도시'},
+  {name:'방콕 왓포 사원',flag:'🇹🇭',icon:'🛕',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 2,200만 명 · 아시아 불교 성지'},
+  {name:'마추픽추',flag:'🇵🇪',icon:'🏔️',gradient:'linear-gradient(160deg,#0d1f0d,#1a3d1a,#90ee90)',accent:'#90ee90',stat:'연간 방문객 120만 명 · 인류 7대 불가사의'},
+  {name:'시드니 오페라하우스',flag:'🇦🇺',icon:'🎭',gradient:'linear-gradient(160deg,#001428,#002855,#00b4ff)',accent:'#00b4ff',stat:'연간 방문객 1,060만 명 · 20세기 건축 최고작'},
+  {name:'프라하 구시가지 광장',flag:'🇨🇿',icon:'🏯',gradient:'linear-gradient(160deg,#1a1200,#2d2000,#cc9900)',accent:'#cc9900',stat:'연간 방문객 800만 명 · 유럽의 동화 속 도시'},
+  {name:'상하이 와이탄',flag:'🇨🇳',icon:'🌇',gradient:'linear-gradient(160deg,#0a0a1a,#1a1a3e,#ff4500)',accent:'#ff4500',stat:'연간 방문객 6,800만 명 · 세계 최다 관광도시'},
+  {name:'이스탄불 아야소피아',flag:'🇹🇷',icon:'🕌',gradient:'linear-gradient(160deg,#1a0d00,#3d1f00,#ff8c00)',accent:'#ff8c00',stat:'연간 방문객 1,200만 명 · 동서 문명의 교차점'},
+  {name:'교토 금각사',flag:'🇯🇵',icon:'⛩️',gradient:'linear-gradient(160deg,#0d1a0d,#1a3d1a,#ffd700)',accent:'#ffd700',stat:'연간 방문객 1,450만 명 · 일본 전통 문화의 심장'},
+  {name:'베니스 산마르코 광장',flag:'🇮🇹',icon:'🚤',gradient:'linear-gradient(160deg,#001428,#002855,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 390만 명 · 물 위의 도시'},
+  {name:'암스테르담 운하',flag:'🇳🇱',icon:'🌷',gradient:'linear-gradient(160deg,#0d1428,#1a2855,#ff6b9d)',accent:'#ff6b9d',stat:'연간 방문객 2,000만 명 · 튤립과 자유의 도시'},
+  {name:'뮌헨 노이슈반슈타인 성',flag:'🇩🇪',icon:'🏰',gradient:'linear-gradient(160deg,#0a0a1a,#1a1a4e,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 140만 명 · 동화 속 성'},
+  {name:'부다페스트 어부의 요새',flag:'🇭🇺',icon:'🏯',gradient:'linear-gradient(160deg,#1a0d00,#3d1f00,#ff9500)',accent:'#ff9500',stat:'연간 방문객 500만 명 · 다뉴브강의 진주'},
+  {name:'리스본 제로니무스 수도원',flag:'🇵🇹',icon:'⛪',gradient:'linear-gradient(160deg,#001428,#002855,#00aaff)',accent:'#00aaff',stat:'연간 방문객 450만 명 · 대항해시대의 영광'},
+  {name:'홍콩 빅토리아 피크',flag:'🇭🇰',icon:'🌃',gradient:'linear-gradient(160deg,#0a0028,#1a0055,#7b2fff)',accent:'#7b2fff',stat:'연간 방문객 2,340만 명 · 동양의 진주'},
+  {name:'빈 오페라 하우스',flag:'🇦🇹',icon:'🎼',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 1,400만 명 · 클래식 음악의 수도'},
+  {name:'마드리드 프라도 미술관',flag:'🇪🇸',icon:'🎨',gradient:'linear-gradient(160deg,#1a0000,#3d0000,#ff6666)',accent:'#ff6666',stat:'연간 방문객 600만 명 · 세계 3대 미술관'},
+  {name:'베를린 브란덴부르크 문',flag:'🇩🇪',icon:'🏛️',gradient:'linear-gradient(160deg,#0d0d0d,#2d2d2d,#aaaaaa)',accent:'#aaaaaa',stat:'연간 방문객 1,000만 명 · 통일의 상징'},
+  {name:'취리히 구 시가지',flag:'🇨🇭',icon:'🏔️',gradient:'linear-gradient(160deg,#001428,#002855,#40e0d0)',accent:'#40e0d0',stat:'연간 방문객 400만 명 · 세계 금융의 중심'},
+  {name:'코펜하겐 인어공주 동상',flag:'🇩🇰',icon:'🧜',gradient:'linear-gradient(160deg,#001428,#003366,#00b4d8)',accent:'#00b4d8',stat:'연간 방문객 900만 명 · 북유럽 동화의 도시'},
+  {name:'스톡홀름 구 시가지',flag:'🇸🇪',icon:'🏛️',gradient:'linear-gradient(160deg,#001428,#003366,#ffd700)',accent:'#ffd700',stat:'연간 방문객 1,200만 명 · 노벨상의 도시'},
+  {name:'더블린 트리니티 칼리지',flag:'🇮🇪',icon:'📚',gradient:'linear-gradient(160deg,#0d1f0d,#1a3d1a,#90ee90)',accent:'#90ee90',stat:'연간 방문객 400만 명 · 켈틱 문화의 심장'},
+  {name:'에딘버러 성',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',icon:'🏰',gradient:'linear-gradient(160deg,#0d0d2e,#1a1a55,#9999ff)',accent:'#9999ff',stat:'연간 방문객 200만 명 · 스코틀랜드의 왕좌'},
+  {name:'아테네 파르테논 신전',flag:'🇬🇷',icon:'🏛️',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 500만 명 · 서양 문명의 발원지'},
+  {name:'카이로 기자 피라미드',flag:'🇪🇬',icon:'🔺',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#f5deb3)',accent:'#f5deb3',stat:'연간 방문객 1,500만 명 · 인류 최고의 건축물'},
+  {name:'모로코 마라케시',flag:'🇲🇦',icon:'🕌',gradient:'linear-gradient(160deg,#1a0000,#3d0a00,#ff4500)',accent:'#ff4500',stat:'연간 방문객 290만 명 · 사하라의 붉은 도시'},
+  {name:'요르단 페트라',flag:'🇯🇴',icon:'🏜️',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#c96b00)',accent:'#c96b00',stat:'연간 방문객 100만 명 · 장밋빛 암석의 도시'},
+  {name:'이스라엘 예루살렘',flag:'🇮🇱',icon:'✡️',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 400만 명 · 세계 3대 종교 성지'},
+  {name:'케냐 마사이마라',flag:'🇰🇪',icon:'🦁',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 20만 명 · 아프리카 최고의 사파리'},
+  {name:'탄자니아 킬리만자로',flag:'🇹🇿',icon:'🏔️',gradient:'linear-gradient(160deg,#0d1428,#1a2855,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 5만 명 · 아프리카 최고봉 5895m'},
+  {name:'남아공 케이프타운',flag:'🇿🇦',icon:'🏔️',gradient:'linear-gradient(160deg,#001428,#002855,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 250만 명 · 두 대양이 만나는 곳'},
+  {name:'멕시코 치첸이차',flag:'🇲🇽',icon:'🏛️',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 250만 명 · 마야 문명의 유산'},
+  {name:'쿠바 아바나 구 시가지',flag:'🇨🇺',icon:'🎺',gradient:'linear-gradient(160deg,#1a0000,#3d0000,#ffd700)',accent:'#ffd700',stat:'연간 방문객 120만 명 · 시간이 멈춘 도시'},
+  {name:'브라질 이구아수 폭포',flag:'🇧🇷',icon:'💧',gradient:'linear-gradient(160deg,#0d1f0d,#003300,#00ff7f)',accent:'#00ff7f',stat:'연간 방문객 150만 명 · 세계 최대 폭포'},
+  {name:'아르헨티나 부에노스아이레스',flag:'🇦🇷',icon:'💃',gradient:'linear-gradient(160deg,#001428,#003366,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 340만 명 · 남미의 파리'},
+  {name:'칠레 파타고니아',flag:'🇨🇱',icon:'🏔️',gradient:'linear-gradient(160deg,#0d1428,#001a3d,#40e0d0)',accent:'#40e0d0',stat:'연간 방문객 80만 명 · 지구 끝의 절경'},
+  {name:'인도 타지마할',flag:'🇮🇳',icon:'🕌',gradient:'linear-gradient(160deg,#0a0a1a,#1a1a4e,#fffdd0)',accent:'#fffdd0',stat:'연간 방문객 700만 명 · 사랑의 기념비'},
+  {name:'발리 울루와투 사원',flag:'🇮🇩',icon:'🛕',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 650만 명 · 신들의 섬'},
+  {name:'베트남 하롱베이',flag:'🇻🇳',icon:'⛵',gradient:'linear-gradient(160deg,#001428,#002855,#00aaff)',accent:'#00aaff',stat:'연간 방문객 900만 명 · 바다의 계림'},
+  {name:'캄보디아 앙코르와트',flag:'🇰🇭',icon:'🛕',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 260만 명 · 세계 최대 종교 건축물'},
+  {name:'스리랑카 시기리야',flag:'🇱🇰',icon:'🦁',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#ff8c00)',accent:'#ff8c00',stat:'연간 방문객 200만 명 · 하늘의 요새'},
+  {name:'네팔 에베레스트 베이스캠프',flag:'🇳🇵',icon:'⛰️',gradient:'linear-gradient(160deg,#0d1428,#1a2855,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 4만 명 · 세계의 지붕'},
+  {name:'아이슬란드 오로라',flag:'🇮🇸',icon:'🌌',gradient:'linear-gradient(160deg,#001428,#002855,#00ff7f)',accent:'#00ff7f',stat:'연간 방문객 210만 명 · 오로라와 빙하의 나라'},
+  {name:'뉴질랜드 밀포드 사운드',flag:'🇳🇿',icon:'🏔️',gradient:'linear-gradient(160deg,#0d1f0d,#1a3d1a,#40e0d0)',accent:'#40e0d0',stat:'연간 방문객 70만 명 · 세계 8대 절경'},
+  {name:'캐나다 나이아가라 폭포',flag:'🇨🇦',icon:'💧',gradient:'linear-gradient(160deg,#001428,#002855,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 1,200만 명 · 북미 최대 폭포'},
+  {name:'미국 그랜드 캐니언',flag:'🇺🇸',icon:'🏜️',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#ff6b35)',accent:'#ff6b35',stat:'연간 방문객 600만 명 · 지구의 역사책'},
+  {name:'멕시코 칸쿤',flag:'🇲🇽',icon:'🏖️',gradient:'linear-gradient(160deg,#001428,#002855,#00e5ff)',accent:'#00e5ff',stat:'연간 방문객 450만 명 · 카리브해의 낙원'},
+  {name:'포르토 두에로강',flag:'🇵🇹',icon:'🍷',gradient:'linear-gradient(160deg,#1a0000,#3d0a00,#ff6b35)',accent:'#ff6b35',stat:'연간 방문객 200만 명 · 포트와인의 고향'},
+  {name:'모나코 몬테카를로',flag:'🇲🇨',icon:'🎰',gradient:'linear-gradient(160deg,#0a0a1a,#1a1a4e,#ffd700)',accent:'#ffd700',stat:'연간 방문객 340만 명 · 세계 최고 부자 도시'},
+  {name:'산토리니 이아 마을',flag:'🇬🇷',icon:'🏛️',gradient:'linear-gradient(160deg,#001428,#003366,#40e0d0)',accent:'#40e0d0',stat:'연간 방문객 200만 명 · 에게해의 흰 집'},
+  {name:'두브로브니크 구 시가지',flag:'🇭🇷',icon:'🏯',gradient:'linear-gradient(160deg,#001428,#002855,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 130만 명 · 아드리아해의 진주'},
+  {name:'타이페이 101타워',flag:'🇹🇼',icon:'🏙️',gradient:'linear-gradient(160deg,#0a0a1a,#1a1a4e,#00e5ff)',accent:'#00e5ff',stat:'연간 방문객 1,000만 명 · 아시아의 실리콘밸리'},
+  {name:'세부 초콜릿 힐스',flag:'🇵🇭',icon:'🌿',gradient:'linear-gradient(160deg,#0d1f0d,#1a3d1a,#7fff00)',accent:'#7fff00',stat:'연간 방문객 180만 명 · 7,641개 섬의 나라'},
+  {name:'피지 낭길라 비치',flag:'🇫🇯',icon:'🏝️',gradient:'linear-gradient(160deg,#001428,#002855,#00e5ff)',accent:'#00e5ff',stat:'연간 방문객 90만 명 · 남태평양의 천국'},
+  {name:'몰디브 수상 방갈로',flag:'🇲🇻',icon:'🌊',gradient:'linear-gradient(160deg,#001428,#002855,#40e0d0)',accent:'#40e0d0',stat:'연간 방문객 170만 명 · 인도양의 에덴'},
+  {name:'마오리 로토루아',flag:'🇳🇿',icon:'🌋',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#ff6b35)',accent:'#ff6b35',stat:'연간 방문객 350만 명 · 지열 온천과 원주민 문화'},
+  {name:'그루지야 트빌리시',flag:'🇬🇪',icon:'🏯',gradient:'linear-gradient(160deg,#1a0d00,#3d1f00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 700만 명 · 와인의 발원지'},
+  {name:'아르메니아 가르니 신전',flag:'🇦🇲',icon:'🏛️',gradient:'linear-gradient(160deg,#1a0000,#3d0000,#ff8c00)',accent:'#ff8c00',stat:'연간 방문객 150만 명 · 코카서스의 숨겨진 보석'},
+  {name:'카자흐스탄 알마티',flag:'🇰🇿',icon:'🏔️',gradient:'linear-gradient(160deg,#0d1428,#1a2855,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 100만 명 · 중앙아시아의 관문'},
+  {name:'우즈베키스탄 사마르칸트',flag:'🇺🇿',icon:'🕌',gradient:'linear-gradient(160deg,#001428,#003366,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 150만 명 · 실크로드의 심장'},
+  {name:'몽골 고비 사막',flag:'🇲🇳',icon:'🐫',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 50만 명 · 칭기즈칸의 땅'},
+  {name:'라오스 루앙프라방',flag:'🇱🇦',icon:'🛕',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#ff8c00)',accent:'#ff8c00',stat:'연간 방문객 80만 명 · 메콩강의 고요한 성지'},
+  {name:'미얀마 바간 불탑',flag:'🇲🇲',icon:'🎈',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 60만 명 · 3000개 불탑의 평원'},
+  {name:'타지키스탄 파미르 고원',flag:'🇹🇯',icon:'⛰️',gradient:'linear-gradient(160deg,#0d1428,#1a2855,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 10만 명 · 세계의 지붕'},
+  {name:'쿠웨이트 알 하만 타워',flag:'🇰🇼',icon:'🏙️',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 50만 명 · 걸프의 석유 왕국'},
+  {name:'오만 무스카트',flag:'🇴🇲',icon:'🕌',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#ff8c00)',accent:'#ff8c00',stat:'연간 방문객 360만 명 · 아라비아의 숨은 보석'},
+  {name:'카타르 도하',flag:'🇶🇦',icon:'🏙️',gradient:'linear-gradient(160deg,#0a0a1a,#1a1a4e,#8b0000)',accent:'#8b0000',stat:'연간 방문객 390만 명 · 미래 도시'},
+  {name:'바레인 수도 마나마',flag:'🇧🇭',icon:'🌊',gradient:'linear-gradient(160deg,#001428,#002855,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 120만 명 · 진주의 도시'},
+  {name:'스코틀랜드 하이랜드',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',icon:'🏔️',gradient:'linear-gradient(160deg,#0d1428,#1a2855,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 190만 명 · 위스키와 황야'},
+  {name:'크로아티아 플리트비체 호수',flag:'🇭🇷',icon:'🌊',gradient:'linear-gradient(160deg,#0d1f0d,#1a3d1a,#40e0d0)',accent:'#40e0d0',stat:'연간 방문객 130만 명 · 에메랄드 계단 호수'},
+  {name:'슬로베니아 블레드 호수',flag:'🇸🇮',icon:'🏔️',gradient:'linear-gradient(160deg,#0d1428,#1a2855,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 120만 명 · 알프스의 보석'},
+  {name:'에스토니아 탈린 구 시가지',flag:'🇪🇪',icon:'🏰',gradient:'linear-gradient(160deg,#0d0d2e,#1a1a55,#9999ff)',accent:'#9999ff',stat:'연간 방문객 380만 명 · 중세가 살아있는 도시'},
+  {name:'라트비아 리가',flag:'🇱🇻',icon:'🏛️',gradient:'linear-gradient(160deg,#1a0000,#3d0000,#ff8c00)',accent:'#ff8c00',stat:'연간 방문객 200만 명 · 발트해의 파리'},
+  {name:'리투아니아 빌뉴스',flag:'🇱🇹',icon:'🏯',gradient:'linear-gradient(160deg,#0d1f0d,#1a3d1a,#ffd700)',accent:'#ffd700',stat:'연간 방문객 190만 명 · 바로크의 도시'},
+  {name:'핀란드 라플란드',flag:'🇫🇮',icon:'🌌',gradient:'linear-gradient(160deg,#001428,#002855,#00ff7f)',accent:'#00ff7f',stat:'연간 방문객 350만 명 · 산타의 고향'},
+  {name:'노르웨이 피요르드',flag:'🇳🇴',icon:'⛰️',gradient:'linear-gradient(160deg,#0d1428,#1a2855,#40e0d0)',accent:'#40e0d0',stat:'연간 방문객 600만 명 · 세계 최고의 자연 절경'},
+  {name:'아일랜드 모허 절벽',flag:'🇮🇪',icon:'🌊',gradient:'linear-gradient(160deg,#001428,#003366,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 140만 명 · 대서양의 끝'},
+  {name:'포르투갈 알가르베',flag:'🇵🇹',icon:'🏖️',gradient:'linear-gradient(160deg,#001428,#002855,#ffd700)',accent:'#ffd700',stat:'연간 방문객 380만 명 · 유럽 최고의 해변'},
+  {name:'몰타 발레타',flag:'🇲🇹',icon:'🏰',gradient:'linear-gradient(160deg,#1a1200,#3d2b00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 200만 명 · 지중해의 황금 도시'},
+  {name:'룩셈부르크 시내',flag:'🇱🇺',icon:'🏰',gradient:'linear-gradient(160deg,#001428,#003366,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 120만 명 · 유럽의 심장'},
+  {name:'리히텐슈타인 파두츠 성',flag:'🇱🇮',icon:'🏰',gradient:'linear-gradient(160deg,#0d0d2e,#1a1a55,#9999ff)',accent:'#9999ff',stat:'연간 방문객 60만 명 · 세계 최소 공국'},
+  {name:'산마리노 구아이타 성채',flag:'🇸🇲',icon:'🏰',gradient:'linear-gradient(160deg,#001428,#003366,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 300만 명 · 세계 최고(古) 공화국'},
+  {name:'튀르키예 카파도키아',flag:'🇹🇷',icon:'🎈',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#ff8c00)',accent:'#ff8c00',stat:'연간 방문객 350만 명 · 열기구와 요정 굴뚝'},
+  {name:'이탈리아 아말피 해안',flag:'🇮🇹',icon:'🌊',gradient:'linear-gradient(160deg,#001428,#003366,#4db8ff)',accent:'#4db8ff',stat:'연간 방문객 250만 명 · 지중해 절벽 마을'},
+  {name:'프랑스 프로방스 라벤더 밭',flag:'🇫🇷',icon:'💜',gradient:'linear-gradient(160deg,#1a001a,#3d003d,#cc66ff)',accent:'#cc66ff',stat:'연간 방문객 180만 명 · 보라빛 향기의 땅'},
+  {name:'스위스 루체른 호수',flag:'🇨🇭',icon:'🏔️',gradient:'linear-gradient(160deg,#001428,#002855,#87ceeb)',accent:'#87ceeb',stat:'연간 방문객 520만 명 · 알프스의 심장'},
+  {name:'오스트리아 잘츠부르크',flag:'🇦🇹',icon:'🎼',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#ffd700)',accent:'#ffd700',stat:'연간 방문객 340만 명 · 모차르트의 도시'},
+  {name:'폴란드 크라쿠프 구 시가지',flag:'🇵🇱',icon:'🏰',gradient:'linear-gradient(160deg,#1a0000,#3d0000,#ff8c00)',accent:'#ff8c00',stat:'연간 방문객 600만 명 · 중세 유럽의 살아있는 역사'},
+  {name:'그리스 코린트 운하',flag:'🇬🇷',icon:'⚓',gradient:'linear-gradient(160deg,#001428,#003366,#40e0d0)',accent:'#40e0d0',stat:'연간 방문객 120만 명 · 두 바다를 잇는 기적'},
+  {name:'스페인 그라나다 알함브라 궁전',flag:'🇪🇸',icon:'🏯',gradient:'linear-gradient(160deg,#1a0800,#3d1a00,#ff6b35)',accent:'#ff6b35',stat:'연간 방문객 270만 명 · 마지막 이슬람 왕국의 유산'}
+];
+
+/* ── Fisher-Yates 셔플 ── */
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* ── 챕터 히어로 배경 주입 ── */
+const shuffled=shuffle(TOURIST_SPOTS);
+function setSpot(cardId,emojiId,flagId,nameId,statId,bgId,idx){
+  const s=shuffled[idx];
+  const hero=document.getElementById(bgId);
+  if(hero)hero.style.background=s.gradient;
+  const card=document.getElementById(cardId);
+  if(card)card.style.background=s.gradient;
+  const el=id=>document.getElementById(id);
+  if(el(emojiId))el(emojiId).textContent=s.icon;
+  if(el(flagId))el(flagId).textContent=s.flag;
+  if(el(nameId))el(nameId).textContent=s.name;
+  if(el(statId))el(statId).textContent=s.stat;
+}
+setSpot('spot1','spot1-emoji','spot1-flag','spot1-name','spot1-stat','ch1-hero',0);
+setSpot('spot2','spot2-emoji','spot2-flag','spot2-name','spot2-stat','ch2-hero',1);
+setSpot('spot3','spot3-emoji','spot3-flag','spot3-name','spot3-stat','ch3-hero',2);
+setSpot('spot4','spot4-emoji','spot4-flag','spot4-name','spot4-stat','ch4-hero',3);
+setSpot('spot5','spot5-emoji','spot5-flag','spot5-name','spot5-stat','ch5-hero',4);
+
+/* ── PROGRESS BAR ── */
+window.addEventListener('scroll',()=>{
+  const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  document.getElementById('progress-bar').style.width=pct+'%';
+});
+
+/* ── NAV ACTIVE ── */
+const allSections=Array.from(document.querySelectorAll('section[data-ch]'));
+window.addEventListener('scroll',()=>{
+  const navH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'));
+  let curCh='0';
+  allSections.forEach(s=>{
+    if(s.getBoundingClientRect().top<=navH+20) curCh=s.dataset.ch;
+  });
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.ch===curCh);
+  });
+  // TOC active
+  allSections.forEach(s=>{
+    const link=document.querySelector(`#toc-panel a[onclick*="${s.id}"]`);
+    if(link) link.classList.toggle('toc-active',s.getBoundingClientRect().top<=navH+30);
+  });
+},{passive:true});
+
+/* ── NAVIGATION ── */
+function navTo(id){
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ── FLOATING TOC ── */
+function toggleToc(){
+  document.getElementById('toc-panel').classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#toc-btn')&&!e.target.closest('#toc-panel'))
+    document.getElementById('toc-panel').classList.remove('open');
+});
+
+/* ── KEYBOARD / REMOTE NAVIGATION ── */
+(function(){
+  const getSections=()=>Array.from(document.querySelectorAll('section[id]'));
+  function getCurrentIndex(sections){
+    const navH=document.querySelector('nav')?.offsetHeight||58;
+    const viewMid=navH+(window.innerHeight-navH)/2;
+    let best=0;
+    for(let i=0;i<sections.length;i++){
+      const r=sections[i].getBoundingClientRect();
+      if(r.top<=viewMid) best=i;
+      else break;
+    }
+    return best;
+  }
+  let isScrolling=false;
+  function goTo(delta){
+    if(isScrolling) return;
+    const sections=getSections();
+    const idx=getCurrentIndex(sections);
+    const next=Math.max(0,Math.min(sections.length-1,idx+delta));
+    if(next===idx&&delta!==0) return;
+    isScrolling=true;
+    sections[next].scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(()=>{isScrolling=false;},1200);
+  }
+  document.addEventListener('keydown',e=>{
+    if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+    switch(e.key){
+      case 'ArrowRight': case 'ArrowDown': case 'PageDown': e.preventDefault(); goTo(1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': e.preventDefault(); goTo(-1); break;
+      case ' ': e.preventDefault(); goTo(e.shiftKey?-1:1); break;
+      case 'Home': e.preventDefault(); goTo(-999); break;
+      case 'End': e.preventDefault(); goTo(999); break;
+    }
+  });
+})();
+
+/* ── INTERSECTION OBSERVER AOS ── */
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+},{threshold:0.12});
+document.querySelectorAll('.aos,.aos-left,.aos-scale').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

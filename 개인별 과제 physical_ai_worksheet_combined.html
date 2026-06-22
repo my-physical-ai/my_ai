@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나의 피지컬 AI 구축 전략서 - 취업 · 연구 통합 워크시트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue: #2563EB; --blue-l: #DBEAFE;
+  --purple: #7C3AED; --purple-l: #EDE9FE;
+  --green: #059669; --green-l: #D1FAE5;
+  --orange: #D97706; --orange-l: #FEF3C7;
+  --pink: #DB2777;
+  --teal: #0D9488; --teal-l: #CCFBF1;
+  --indigo: #4F46E5; --indigo-l: #E0E7FF;
+  --ink: #0F172A; --ink2: #1E293B;
+  --paper: #FBFAF7;
+  --card: #FFFFFF;
+  --muted: #64748B; --border: #E2E8F0;
+}
+body {
+  font-family: 'Noto Sans KR', sans-serif; color: var(--ink2);
+  background:
+    radial-gradient(circle at 10% 6%, rgba(13,148,136,0.06), transparent 38%),
+    radial-gradient(circle at 90% 94%, rgba(79,70,229,0.06), transparent 38%),
+    var(--paper);
+  line-height: 1.7; min-height: 100vh;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+/* ===== 상단 바 ===== */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(251,250,247,0.92); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1.25rem; gap: 1rem; flex-wrap: wrap;
+}
+.topbar .brand { font-weight: 900; font-size: 1.05rem; color: var(--ink); display: flex; align-items: center; gap: 0.5rem; }
+.topbar .brand .dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 4px rgba(13,148,136,0.15); }
+.topbar .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.btn {
+  border: none; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 0.85rem;
+  padding: 0.5rem 0.95rem; border-radius: 10px; transition: transform 0.1s, box-shadow 0.2s;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+}
+.btn:active { transform: translateY(1px); }
+.btn-ghost { background: #fff; border: 1.5px solid var(--border); color: var(--ink2); }
+.btn-ghost:hover { border-color: var(--blue); color: var(--blue); }
+.btn-primary { background: var(--ink); color: #fff; }
+.btn-primary:hover { box-shadow: 0 6px 18px rgba(15,23,42,0.25); }
+.btn-sample { background: var(--teal-l); color: var(--teal); }
+.btn-sample.on { background: var(--teal); color: #fff; }
+
+/* ===== 진행률 ===== */
+.progress-wrap { padding: 0.85rem 0 0; }
+.progress-track { height: 10px; background: #ECE9E2; border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--teal), var(--blue), var(--indigo), var(--pink)); border-radius: 999px; transition: width 0.4s ease; }
+.progress-label { font-size: 0.82rem; color: var(--muted); margin-top: 0.4rem; text-align: right; }
+.progress-label b { color: var(--ink); }
+
+/* ===== 히어로 ===== */
+.hero { text-align: center; padding: 2.5rem 0 1rem; }
+.hero .eyebrow { display: inline-block; font-size: 0.78rem; letter-spacing: 0.16em; font-weight: 700; color: var(--indigo); background: var(--indigo-l); padding: 0.35rem 1rem; border-radius: 999px; text-transform: uppercase; }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.9rem); font-weight: 900; color: var(--ink); line-height: 1.2; margin-top: 1rem; letter-spacing: -0.02em; }
+.hero h1 .mark { background: linear-gradient(120deg, transparent 60%, rgba(245,200,90,0.55) 60%); padding: 0 0.15em; }
+.hero .lead { font-size: 1.03rem; color: var(--muted); margin-top: 1rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+
+/* 이름만 */
+.id-row { margin-top: 1.5rem; display: flex; justify-content: center; }
+.id-input {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  background: #fff; border: 2px solid var(--border); border-radius: 14px; padding: 0.5rem 0.7rem 0.5rem 1rem;
+}
+.id-input label { font-weight: 700; font-size: 0.9rem; color: var(--muted); white-space: nowrap; }
+.id-input input { border: none; outline: none; font-family: inherit; font-size: 1.1rem; font-weight: 700; color: var(--ink); width: 180px; background: transparent; text-align: center; }
+.id-input input::placeholder { color: #CBD5E1; font-weight: 400; }
+
+/* ===== 트랙 헤더 ===== */
+.track-header {
+  border-radius: 20px; padding: 1.6rem 1.8rem; margin: 2.5rem 0 1.5rem;
+  color: #fff; position: relative; overflow: hidden;
+}
+.track-header.job { background: linear-gradient(135deg, #0F766E, #14B8A6); }
+.track-header.research { background: linear-gradient(135deg, #4338CA, #6366F1); }
+.track-header::before { position: absolute; font-size: 7rem; opacity: 0.12; right: 1.2rem; top: 50%; transform: translateY(-50%); }
+.track-header.job::before { content: "🎯"; }
+.track-header.research::before { content: "🔬"; }
+.track-header .tlabel { font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; opacity: 0.9; }
+.track-header h2 { font-size: clamp(1.3rem, 3.5vw, 1.7rem); font-weight: 900; margin-top: 0.35rem; position: relative; }
+.track-header p { font-size: 0.92rem; opacity: 0.92; margin-top: 0.5rem; max-width: 640px; position: relative; }
+.track-header .mini-progress { margin-top: 0.9rem; display: flex; align-items: center; gap: 0.6rem; position: relative; }
+.track-header .mini-track { flex: 1; height: 7px; background: rgba(255,255,255,0.25); border-radius: 999px; overflow: hidden; max-width: 260px; }
+.track-header .mini-fill { height: 100%; width: 0%; background: #fff; border-radius: 999px; transition: width 0.4s ease; }
+.track-header .mini-label { font-size: 0.8rem; font-weight: 700; }
+
+/* ===== 핵심 개념 띠 ===== */
+.concept {
+  background: var(--ink); color: #E2E8F0; border-radius: 16px; padding: 1.3rem 1.6rem;
+  margin-bottom: 1.5rem; text-align: center; position: relative; overflow: hidden;
+}
+.concept .big { font-size: clamp(1rem, 2.6vw, 1.25rem); font-weight: 800; color: #fff; line-height: 1.55; position: relative; }
+.concept .big .b { color: #93C5FD; } .concept .big .g { color: #6EE7B7; }
+.concept.research .big .b { color: #A5B4FC; } .concept.research .big .g { color: #C4B5FD; }
+.concept p { color: #94A3B8; margin-top: 0.4rem; font-size: 0.88rem; position: relative; }
+
+/* ===== 단계 카드 ===== */
+.cards { display: flex; flex-direction: column; gap: 1.5rem; }
+.card {
+  background: var(--card); border-radius: 20px; overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.06);
+  border: 1px solid var(--border);
+}
+.card .head { padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 1.1rem; color: #fff; }
+.c1 .head { background: linear-gradient(135deg, #0F766E, #14B8A6); }
+.c2 .head { background: linear-gradient(135deg, #1D4ED8, #3B82F6); }
+.c3 .head { background: linear-gradient(135deg, #6D28D9, #8B5CF6); }
+.c4 .head { background: linear-gradient(135deg, #047857, #10B981); }
+.c5 .head { background: linear-gradient(135deg, #B45309, #F59E0B); }
+.c6 .head { background: linear-gradient(135deg, #BE185D, #EC4899); }
+.head .num { font-size: 2rem; font-weight: 900; line-height: 1; opacity: 0.85; min-width: 2.3rem; text-align: center; }
+.head .ttl h3 { font-size: 1.2rem; font-weight: 900; }
+.head .ttl .sub { font-size: 0.8rem; opacity: 0.9; margin-top: 0.1rem; }
+.head .status { margin-left: auto; font-size: 1.5rem; opacity: 0.45; transition: opacity 0.3s, transform 0.3s; }
+.head .status.done { opacity: 1; transform: scale(1.15); }
+
+.body { padding: 1.4rem 1.5rem; }
+.q { font-size: 1.03rem; font-weight: 800; margin-bottom: 0.4rem; }
+.c1 .q { color: var(--teal); } .c2 .q { color: var(--blue); } .c3 .q { color: var(--purple); }
+.c4 .q { color: var(--green); } .c5 .q { color: var(--orange); } .c6 .q { color: var(--pink); }
+.q::before { content: "✍ "; }
+.guide { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+
+/* 샘플 박스 */
+.sample {
+  display: none; border-left: 4px solid; border-radius: 0 12px 12px 0;
+  padding: 0.9rem 1.1rem; margin-bottom: 1rem; font-size: 0.91rem;
+}
+.sample.job { background: var(--teal-l); border-color: var(--teal); color: #134E4A; }
+.sample.research { background: var(--indigo-l); border-color: var(--indigo); color: #312E81; }
+.sample.show { display: block; }
+.sample .tag { font-weight: 800; font-size: 0.78rem; display: block; margin-bottom: 0.3rem; }
+.sample.job .tag::before { content: "💡 작성 예시 · 취업"; }
+.sample.research .tag::before { content: "💡 작성 예시 · 연구"; }
+.sample.job b { color: #0F766E; }
+.sample.research b { color: #4338CA; }
+
+/* 입력 영역 */
+textarea {
+  width: 100%; min-height: 90px; resize: vertical;
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 0.9rem 1.1rem; font-family: inherit; font-size: 1rem; line-height: 1.6; color: var(--ink2);
+  background: #FCFCFB; transition: border-color 0.2s, background 0.2s;
+}
+textarea:focus { outline: none; border-style: solid; border-color: var(--blue); background: #fff; }
+textarea::placeholder { color: #CBD5E1; }
+
+/* 못 채워도 OK */
+.okstrip {
+  background: var(--orange-l); border: 2px solid #FCD34D; border-radius: 16px;
+  padding: 1.1rem 1.4rem; margin: 1.5rem 0; text-align: center; color: #78350F; font-size: 0.95rem;
+}
+.okstrip b { font-size: 1.05rem; }
+
+/* 한 줄 요약 */
+.summary { border-radius: 20px; padding: 1.8rem; margin-top: 1.5rem; color: #fff; }
+.summary.job { background: linear-gradient(135deg, #0F172A, #0F766E); }
+.summary.research { background: linear-gradient(135deg, #0F172A, #4338CA); }
+.summary .lbl { font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 800; }
+.summary.job .lbl { color: #6EE7B7; }
+.summary.research .lbl { color: #C4B5FD; }
+.summary .sentence { font-size: 1.1rem; font-weight: 700; line-height: 2.05; margin-top: 0.8rem; }
+.summary .slot {
+  display: inline-block; min-width: 100px; border-bottom: 2px dashed rgba(255,255,255,0.4);
+  text-align: center; padding: 0 0.5rem; color: #FDE68A; font-weight: 800;
+}
+.summary .slot.filled { border-bottom-style: solid; }
+.summary.job .slot.filled { border-bottom-color: #6EE7B7; color: #fff; }
+.summary.research .slot.filled { border-bottom-color: #C4B5FD; color: #fff; }
+.summary b.hl { }
+.summary.job b.hl { color:#6EE7B7; }
+.summary.research b.hl { color:#C4B5FD; }
+
+/* 트랙 사이 구분 */
+.divider { height: 1px; background: var(--border); margin: 3rem 0 0; }
+
+/* 푸터 */
+.foot { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 2.5rem; }
+
+/* ===== 인쇄 ===== */
+@media print {
+  .topbar, .btn, .okstrip { display: none !important; }
+  body { background: #fff; }
+  .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+  .sample { display: block !important; }
+  textarea { border: 1px solid #999; min-height: 54px; }
+  .track-header { page-break-before: always; }
+  .track-header.job { page-break-before: avoid; }
+  .concept, .summary, .head, .track-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+@media (max-width: 600px) {
+  .head .num { font-size: 1.5rem; min-width: 1.7rem; }
+  .head .ttl h3 { font-size: 1rem; }
+  .id-input input { width: 150px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 상단 바 -->
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> 나의 피지컬 AI 구축 전략서</div>
+  <div class="actions">
+    <button class="btn btn-sample" id="sampleBtn" onclick="toggleSamples()">👀 작성 예시 보기</button>
+    <button class="btn btn-ghost" onclick="clearAll()">🗑 비우기</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨 인쇄 / PDF 저장</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 진행률 -->
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="bar"></div></div>
+    <div class="progress-label"><b id="cnt">0</b> / 12 칸 작성 완료 (취업 6 · 연구 6)</div>
+  </div>
+
+  <!-- 히어로 -->
+  <div class="hero">
+    <span class="eyebrow">My Physical AI Strategy</span>
+    <h1>나의 피지컬 AI,<br><span class="mark">취업</span>과 <span class="mark">연구</span> 두 길을 함께 설계해요</h1>
+    <p class="lead">피지컬 AI를 향한 나의 길은 하나가 아닙니다. 산업으로 가는 \u2018취업 트랙\u2019과 깊이 파고드는 \u2018연구 트랙\u2019을 모두 채워, 내 진로의 두 방향을 한 장에 정리해보세요. 두 트랙은 서로의 무기가 됩니다.</p>
+    <div class="id-row">
+      <div class="id-input">
+        <label for="name">🙋 이름</label>
+        <input type="text" id="name" placeholder="이름을 적어주세요" oninput="save()">
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 취업 트랙 ===== -->
+  <div class="track-header job">
+    <div class="tlabel">Track 1 · 취업</div>
+    <h2>🎯 산업 현장으로 — 취업 트랙</h2>
+    <p>피지컬 AI 산업이 원하는 인재로 나를 키워가는 전략입니다.</p>
+    <div class="mini-progress">
+      <span class="mini-label" id="jobMiniLabel">0 / 6</span>
+      <div class="mini-track"><div class="mini-fill" id="jobMiniFill"></div></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="big">피지컬 AI 산업이 원하는 <span class="b">진짜 인재</span>가 되도록<br><span class="g">나라는 사람을 데이터로 증명하며 키워가는 것</span></div>
+    <p>스펙을 채우는 게 아니라, \u201C이 사람은 현장에서 뭘 해낼 수 있다\u201D를 보여주는 일입니다.</p>
+  </div>
+
+  <div class="cards" id="cards-job"></div>
+
+  <div class="okstrip">
+    🙆 <b>지금 빈칸이 많아도 정상이에요!</b><br>
+    모르는 칸은 물음표(❓)로 — 그 빈칸이 멘토·선배·취업 상담에서 물어볼 나의 질문이 됩니다.
+  </div>
+
+  <div class="summary job">
+    <div class="lbl">📋 취업 트랙 한 줄 요약</div>
+    <div class="sentence">
+      나는 <span class="slot" id="js1">①가고 싶은 직무</span>가 되기 위해,
+      <span class="slot" id="js2">②나의 강점</span>을 무기로
+      <span class="slot" id="js3">③증명할 결과물</span>을 만들고,
+      <span class="slot" id="js5">⑤성공 기준</span>을 달성하는
+      <b class="hl">나만의 피지컬 AI 커리어 전략</b>을 세운다.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 연구 트랙 ===== -->
+  <div class="track-header research">
+    <div class="tlabel">Track 2 · 연구</div>
+    <h2>🔬 더 깊이 파고들기 — 연구 트랙</h2>
+    <p>피지컬 AI 연구원으로서 아직 풀리지 않은 문제를 밝혀내는 전략입니다.</p>
+    <div class="mini-progress">
+      <span class="mini-label" id="resMiniLabel">0 / 6</span>
+      <div class="mini-track"><div class="mini-fill" id="resMiniFill"></div></div>
+    </div>
+  </div>
+
+  <div class="concept research">
+    <div class="big">피지컬 AI에서 <span class="b">아직 풀리지 않은 문제</span>를 골라<br><span class="g">실험으로 증명해 새로운 지식으로 남기는 것</span></div>
+    <p>기술을 따라 하는 게 아니라, \u201C왜 안 되는가\u201D를 파고들어 한 칸을 더 밝히는 일입니다.</p>
+  </div>
+
+  <div class="cards" id="cards-research"></div>
+
+  <div class="okstrip">
+    🙆 <b>처음부터 완벽한 연구 주제는 없어요!</b><br>
+    모르는 칸은 물음표(❓)로 — 그 빈칸이 랩 미팅·세미나·논문 토론에서 던질 나의 연구 질문이 됩니다.
+  </div>
+
+  <div class="summary research">
+    <div class="lbl">📋 연구 트랙 한 줄 요약</div>
+    <div class="sentence">
+      나는 <span class="slot" id="rs1">①연구 주제</span> 영역에서
+      <span class="slot" id="rs2">②풀리지 않은 문제</span>를,
+      <span class="slot" id="rs3">③나의 접근</span>으로 실험해
+      <span class="slot" id="rs5">⑤연구 기여</span>를 남기는
+      <b class="hl">나만의 피지컬 AI 연구 전략</b>을 세운다.
+    </div>
+  </div>
+
+  <div class="foot">나의 피지컬 AI 구축 전략서 · 취업 + 연구 통합 — 먼저 혼자 채우고, 토론·멘토링·랩 미팅에서 다듬고, 발표 후 다시 고쳐 쓰는 살아있는 한 장</div>
+</div>
+
+<script>
+/* ===== 두 트랙 필드 정의 ===== */
+const JOB = {
+  prefix: "j", sampleCls: "job", slotDefaults: { js1:'①가고 싶은 직무', js2:'②나의 강점', js3:'③증명할 결과물', js5:'⑤성공 기준' },
+  fields: [
+    { cls:"c1", num:"①", icon:"🎯", title:"어떤 직무를 노릴까?", sub:"피지컬 AI 분야 목표 직무",
+      q:"피지컬 AI 분야에서 내가 가장 가고 싶은 직무 한 가지는?",
+      guide:"\u201CAI 쪽\u201D처럼 막연하게 말고 딱 하나로! 로봇 SW, 비전 인식, 자율주행, 센서·임베디드, 데이터/MLOps 등 구체적인 직무를 고르세요.",
+      ph:"예) ___ 회사의 ___ 직무",
+      sample:"<b>로봇 비전 인식 개발자</b> — 카메라로 물체를 인식해 로봇팔이 집도록 만드는 일. 자동화 설비·물류 로봇 회사를 목표로 한다.",
+      slot:"js1" },
+    { cls:"c2", num:"②", icon:"💪", title:"나의 무기는?", sub:"내가 가진 강점·경험",
+      q:"그 직무에서 통할 나의 강점·경험은 무엇인가요?",
+      guide:"이미 가진 것을 \u2018🧰배운 것 → 🛠만든 것 → 🤝함께한 것\u2019으로 적어보세요. 작아도 좋아요. 수업 과제·동아리·인턴 무엇이든.",
+      ph:"예) 🧰 ___ 를 배웠다 → 🛠 ___ 를 만들어봤다 → 🤝 ___ 경험이 있다",
+      sample:"🧰 Python·OpenCV·PyTorch 수강 → 🛠 라즈베리파이로 \u2018쓰레기 분류 카메라\u2019 미니 프로젝트 제작 → 🤝 캡스톤에서 팀 3명과 라인트레이서 로봇 완성. <b>실패해도 끝까지 돌려본 경험</b>이 강점.",
+      slot:"js2" },
+    { cls:"c3", num:"③", icon:"📦", title:"무엇으로 증명하나?", sub:"나를 보여줄 결과물",
+      q:"\u2018나는 할 수 있다\u2019를 회사에 무엇으로 보여줄까요?",
+      guide:"말로는 못 믿어요. 채용담당자가 \u2018볼 수 있는\u2019 결과물 — GitHub, 포트폴리오, 데모 영상, 공모전 수상, 자격증 등을 적으세요.",
+      ph:"예) ___ 를 GitHub / 영상 / 포트폴리오 로 공개",
+      sample:"미니 프로젝트 코드를 <b>GitHub에 정리</b> + 로봇이 물체 집는 <b>30초 데모 영상</b> + README에 \u2018문제→해결→결과\u2019 기록. 깃허브 잔디와 커밋 메시지로 꾸준함을 증명.",
+      slot:"js3" },
+    { cls:"c4", num:"④", icon:"📚", title:"어떻게 실력을 키우나?", sub:"학습·축적 방법",
+      q:"부족한 실력을 어떻게 채우고, 당장 시작할 한 걸음은?",
+      guide:"거창한 계획 말고 \u2018오늘 시작할 수 있는 것\u2019을 포함하세요. 강의·책·오픈소스·스터디·공모전 등 내 학습 루틴을 적어보세요.",
+      ph:"예) 우선 ___ 부터 시작 → ___ 로 실력 쌓고 → 계속 기록한다",
+      sample:"우선 <b>하루 1시간 ROS2 튜토리얼</b>부터 시작 → LeRobot·HuggingFace 오픈소스 따라 하기 → 매주 배운 걸 블로그/노션에 기록(축적 루프). 필요: 노트북·중고 부품·스터디 동료.",
+      slot:null },
+    { cls:"c5", num:"⑤", icon:"🏆", title:"무엇이 성공인가?", sub:"내 취업 성공 기준(숫자)",
+      q:"6개월 / 1년 뒤, 무엇이 → 얼마에서 → 얼마로 좋아지면 성공인가요?",
+      guide:"\u201C취업하면 좋겠다\u201D 말고 숫자·날짜로! \u201C지금 ○○인데 → 언제까지 ○○으로\u201D 형태로 적으면 진척을 확인할 수 있어요.",
+      ph:"예) ___ 이(가) ___ 에서 ___ 으로 (언제까지)",
+      sample:"프로젝트 <b>0개 → 3개</b>(6개월 내), 지원 가능 공고 \u2018막연함 → 명확한 10곳 리스트\u2019, 코딩테스트 정답률 <b>40% → 80%</b>, 1년 내 관련 직무 인턴/입사.",
+      slot:"js5" },
+    { cls:"c6", num:"⑥", icon:"🪜", title:"어떤 순서로 준비?", sub:"단계적 취업 로드맵",
+      q:"한 번에 말고, 어떤 단계로 차근차근 준비할까요?",
+      guide:"처음부터 대기업 합격을 노리지 않아요. \u2018기초→프로젝트→증명→지원\u2019처럼 단계를 밟는 계획을 적으세요.",
+      ph:"예) 1단계 ___ → 2단계 ___ → 3단계 ___",
+      sample:"1단계: 기초 강의·툴 익히기(1\uFF5E2개월) → 2단계: 미니 프로젝트 3개 + 포트폴리오 정리(3\uFF5E5개월) → 3단계: 인턴/공모전으로 실전 경험 → 4단계: 직무 맞춤 지원. <b>한 단계 끝낼 때마다 결과물을 남긴다.</b>",
+      slot:null },
+  ]
+};
+
+const RESEARCH = {
+  prefix: "r", sampleCls: "research", slotDefaults: { rs1:'①연구 주제', rs2:'②풀리지 않은 문제', rs3:'③나의 접근', rs5:'⑤연구 기여' },
+  fields: [
+    { cls:"c1", num:"①", icon:"🔬", title:"어떤 주제를 연구할까?", sub:"피지컬 AI 연구 영역",
+      q:"피지컬 AI에서 내가 깊이 파고들고 싶은 연구 주제 한 가지는?",
+      guide:"\u201C로봇 AI\u201D처럼 넓게 말고 좁히세요! VLA(Vision-Language-Action) 모델, 모방학습, sim-to-real, 멀티모달 센서 퓨전, 로봇 조작(manipulation) 등 구체적 주제를 고르세요.",
+      ph:"예) ___ 에서의 ___ 문제",
+      sample:"<b>로봇 조작에서의 sim-to-real 전이</b> — 시뮬레이션에서 학습한 정책이 실제 로봇팔에서 성능이 떨어지는 \u2018reality gap\u2019을 줄이는 연구. LeRobot·Isaac Sim 기반.",
+      slot:"rs1" },
+    { cls:"c2", num:"②", icon:"🧩", title:"무엇이 아직 안 풀렸나?", sub:"연구 갭 · 핵심 질문",
+      q:"그 주제에서 기존 연구가 \u2018아직 못 한 것\u2019, 내 연구 질문은?",
+      guide:"좋은 연구는 빈틈에서 시작해요. \u2018📖기존엔 이렇게 한다 → ❗그런데 이게 안 된다 → ❓그래서 나는 이걸 묻는다\u2019로 적어보세요.",
+      ph:"예) 📖 기존: ___ → ❗ 한계: ___ → ❓ 내 질문: ___",
+      sample:"📖 기존: 대량 실제 데이터로 정책 학습 → ❗ 한계: 실로봇 데이터 수집 비용이 크고 일반화가 약함 → ❓ 내 질문: <b>적은 실데이터 + 시뮬레이션으로 reality gap을 얼마나 줄일 수 있나?</b>",
+      slot:"rs2" },
+    { cls:"c3", num:"③", icon:"⚗️", title:"어떻게 접근하나?", sub:"방법론 · 실험 설계",
+      q:"그 질문을 풀기 위한 나의 접근 방법과 실험은?",
+      guide:"가설을 어떻게 검증할지 적으세요. 사용할 모델·데이터셋·시뮬레이터·평가 지표(metric), 그리고 비교할 baseline까지.",
+      ph:"예) ___ 모델/방법으로 → ___ 데이터로 → ___ 지표로 평가",
+      sample:"도메인 랜덤화 + 소량 실데이터 fine-tuning을 결합한 학습법 제안 → <b>SO-ARM101 실로봇 + Isaac Sim</b> 환경에서 검증 → 성공률·cycle time을 baseline(시뮬만 학습) 대비 비교.",
+      slot:"rs3" },
+    { cls:"c4", num:"④", icon:"🛠", title:"무엇이 필요하고 위험은?", sub:"자원 · 리스크 관리",
+      q:"연구에 필요한 자원과, 막힐 수 있는 위험은 무엇인가요?",
+      guide:"현실적으로! 필요한 장비·데이터·계산자원·협업, 그리고 \u2018안 되면 어쩌지\u2019 리스크와 대비책(plan B)을 적으세요.",
+      ph:"예) 필요: ___ / 위험: ___ / 대비: ___",
+      sample:"필요: GPU 서버·실로봇 장비·라벨링 시간. 위험: <b>실로봇 데이터가 너무 적어 학습 불안정</b>할 수 있음 → 대비: 공개 데이터셋(Open X-Embodiment)으로 사전학습 후 소량 fine-tuning.",
+      slot:null },
+    { cls:"c5", num:"⑤", icon:"🏅", title:"어떤 기여를 남기나?", sub:"연구 성과 기준",
+      q:"성공하면 학계·현장에 무엇을 → 얼마나 기여하나요?",
+      guide:"\u201C열심히 했다\u201D 말고 측정 가능한 기여로! 성능 향상 수치, 논문/학회 목표, 공개할 코드·데이터셋 등 \u2018남는 것\u2019을 적으세요.",
+      ph:"예) ___ 성능을 ___ 에서 ___ 으로 + ___ 논문/공개",
+      sample:"sim-to-real 성공률 <b>55% → 80%+</b> 달성, 실데이터 요구량 <b>1/5로 절감</b>, 국내 학회(예: ICROS) 논문 1편 + 재현 코드 GitHub 공개. 후속 연구가 쓸 수 있는 벤치마크 제공.",
+      slot:"rs5" },
+    { cls:"c6", num:"⑥", icon:"🗓", title:"어떤 순서로 연구?", sub:"단계별 연구 로드맵",
+      q:"한 번에 말고, 어떤 단계로 연구를 진행할까요?",
+      guide:"연구 기간을 단계로 쪼개세요. \u2018서베이→예비실험→본실험→논문\u2019처럼 마일스톤으로 적으면 마무리까지 그림이 보여요.",
+      ph:"예) 1단계 ___ → 2단계 ___ → 3단계 ___ → 4단계 ___",
+      sample:"1단계: 논문 서베이 + 환경 셋업(LeRobot/Isaac) → 2단계: 예비실험으로 가설 검증 → 3단계: 본실험·결과 분석 → 4단계: 논문 작성·투고. <b>매 단계 랩 미팅에서 중간 결과를 공유한다.</b>",
+      slot:null },
+  ]
+};
+
+const ALL = { job: JOB, research: RESEARCH };
+let samplesOn = false;
+
+function buildCards(trackKey, mountId) {
+  const T = ALL[trackKey];
+  const mount = document.getElementById(mountId);
+  T.fields.forEach((f, i) => {
+    const id = T.prefix + 'f' + (i+1);
+    const card = document.createElement('div');
+    card.className = 'card ' + f.cls;
+    card.innerHTML = `
+      <div class="head">
+        <div class="num">${f.num}</div>
+        <div class="ttl"><h3>${f.icon} ${f.title}</h3><div class="sub">${f.sub}</div></div>
+        <div class="status" id="st_${id}">○</div>
+      </div>
+      <div class="body">
+        <div class="q">${f.q}</div>
+        <div class="guide">${f.guide}</div>
+        <div class="sample ${T.sampleCls}" id="sm_${id}"><span class="tag"></span>${f.sample}</div>
+        <textarea id="${id}" placeholder="${f.ph}" data-slot="${f.slot||''}" data-track="${trackKey}" oninput="onInput('${id}')"></textarea>
+      </div>`;
+    mount.appendChild(card);
+  });
+}
+
+buildCards('job', 'cards-job');
+buildCards('research', 'cards-research');
+
+function toggleSamples() {
+  samplesOn = !samplesOn;
+  document.querySelectorAll('.sample').forEach(s => s.classList.toggle('show', samplesOn));
+  const b = document.getElementById('sampleBtn');
+  b.classList.toggle('on', samplesOn);
+  b.textContent = samplesOn ? '🙈 예시 숨기기' : '👀 작성 예시 보기';
+}
+
+function onInput(id) {
+  const ta = document.getElementById(id);
+  if (!ta) return;
+  const filled = ta.value.trim().length > 0;
+  const st = document.getElementById('st_' + id);
+  st.textContent = filled ? '✓' : '○';
+  st.classList.toggle('done', filled);
+  const slot = ta.dataset.slot;
+  const trackKey = ta.dataset.track;
+  if (slot) {
+    const el = document.getElementById(slot);
+    if (el) {
+      const v = ta.value.trim();
+      if (v) { el.textContent = v.length > 22 ? v.slice(0,22)+'…' : v; el.classList.add('filled'); }
+      else { el.textContent = ALL[trackKey].slotDefaults[slot]; el.classList.remove('filled'); }
+    }
+  }
+  updateProgress();
+  save();
+}
+
+function countTrack(trackKey) {
+  const T = ALL[trackKey];
+  let n = 0;
+  T.fields.forEach((f,i)=>{ const ta=document.getElementById(T.prefix+'f'+(i+1)); if(ta && ta.value.trim()) n++; });
+  return n;
+}
+
+function updateProgress() {
+  const jn = countTrack('job'), rn = countTrack('research');
+  // 미니 진행률
+  document.getElementById('jobMiniFill').style.width = (jn/6*100)+'%';
+  document.getElementById('jobMiniLabel').textContent = jn + ' / 6';
+  document.getElementById('resMiniFill').style.width = (rn/6*100)+'%';
+  document.getElementById('resMiniLabel').textContent = rn + ' / 6';
+  // 전체
+  const total = jn + rn;
+  document.getElementById('cnt').textContent = total;
+  document.getElementById('bar').style.width = (total/12*100)+'%';
+}
+
+function clearAll() {
+  if (!confirm('작성한 내용을 모두 지울까요? (취업·연구 모두)')) return;
+  ['job','research'].forEach(tk=>{
+    const T = ALL[tk];
+    T.fields.forEach((f,i)=>{ const ta=document.getElementById(T.prefix+'f'+(i+1)); if(ta){ta.value=''; onInput(T.prefix+'f'+(i+1));} });
+  });
+  document.getElementById('name').value='';
+  save();
+}
+
+let store = {};
+function save() {
+  store.name = document.getElementById('name').value;
+  ['job','research'].forEach(tk=>{
+    const T = ALL[tk];
+    T.fields.forEach((f,i)=>{ const ta=document.getElementById(T.prefix+'f'+(i+1)); if(ta) store[T.prefix+'f'+(i+1)] = ta.value; });
+  });
+}
+
+updateProgress();
+</script>
+</body>
+</html>

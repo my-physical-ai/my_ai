@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<!-- control-tower-physical-ai-edu.html — 관제시스템 중심 피지컬 AI 교육 설계 [2026-04-26] -->
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관제시스템 중심 피지컬 AI 교육 설계 — Control Tower as Differentiator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --indigo:#4338CA;--indigo-l:#E0E7FF;--indigo-d:#312E81;
+  --teal:#0891B2;--teal-l:#CFFAFE;--teal-d:#164E63;
+  --purple:#7C3AED;--purple-l:#EDE9FE;
+  --green:#059669;--green-l:#D1FAE5;
+  --orange:#EA580C;--orange-l:#FFEDD5;
+  --pink:#DB2777;--pink-l:#FCE7F3;
+  --blue:#2563EB;--blue-l:#DBEAFE;
+  --amber:#D97706;--amber-l:#FEF3C7;
+  --red:#DC2626;--red-l:#FEE2E2;
+  --slate:#475569;--slate-l:#F1F5F9;
+  --bg:#F1F5F9;--card:#FFFFFF;
+  --txt:#1E293B;--mut:#64748B;--bd:#E2E8F0;
+  --R:14px;--S:0 4px 14px rgba(0,0,0,.08);
+  --S2:0 8px 24px rgba(0,0,0,.12);
+}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--txt);background:var(--bg);line-height:1.75;-webkit-font-smoothing:antialiased}
+code,pre{font-family:'JetBrains Mono',monospace}
+.container{max-width:980px;margin:0 auto;padding:0 1.5rem}
+section{padding:3.5rem 0;position:relative}
+.sec-alt{background:#fff}
+h2{font-size:1.85rem;font-weight:900;margin-bottom:.4rem;display:flex;align-items:center;gap:.6rem;line-height:1.25}
+.h2-sub{font-size:.95rem;color:var(--mut);margin-bottom:1.75rem;font-weight:500}
+h3{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .9rem;color:var(--indigo-d)}
+h4{font-size:1.05rem;font-weight:700;margin:.8rem 0 .5rem}
+p{margin-bottom:1rem}
+
+/* ─── HERO ─── */
+.hero{background:linear-gradient(135deg,#312E81 0%,#4338CA 35%,#7C3AED 70%,#0891B2 100%);color:#fff;padding:4.5rem 0 4rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40h80M40 0v80' stroke='white' stroke-opacity='0.04' stroke-width='1'/%3E%3Ccircle cx='40' cy='40' r='2' fill='white' fill-opacity='0.06'/%3E%3C/svg%3E");pointer-events:none}
+.hero::after{content:'';position:absolute;top:-30%;right:-15%;width:600px;height:600px;background:radial-gradient(circle,rgba(34,211,238,.18) 0%,transparent 60%);border-radius:50%;pointer-events:none}
+.hero .container{position:relative;z-index:1}
+.hero-eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#67E8F9;margin-bottom:.85rem;padding:.32rem .9rem;border:1px solid rgba(103,232,249,.35);border-radius:999px;background:rgba(103,232,249,.08)}
+.hero h1{font-size:2.65rem;font-weight:900;line-height:1.18;margin-bottom:1rem;letter-spacing:-.02em}
+.hero h1 .accent{background:linear-gradient(120deg,#67E8F9,#A5F3FC,#C4B5FD);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-sub{font-size:1.1rem;opacity:.92;margin-bottom:1.5rem;max-width:720px;line-height:1.7}
+.tags{display:flex;flex-wrap:wrap;gap:.5rem}
+.tag{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600;background:rgba(255,255,255,.12);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.22)}
+.hero-meta{display:flex;gap:1.5rem;margin-top:1.75rem;flex-wrap:wrap;font-size:.85rem;opacity:.8}
+.hero-meta span{display:flex;align-items:center;gap:.4rem}
+
+/* ─── CORE MESSAGE ─── */
+.core-msg{background:linear-gradient(135deg,#0F172A,#1E293B);color:#fff;padding:2.5rem;border-radius:18px;margin-top:-2.5rem;position:relative;z-index:2;box-shadow:0 20px 50px rgba(0,0,0,.25);border:1px solid rgba(103,232,249,.2)}
+.core-msg-lbl{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#67E8F9;margin-bottom:.7rem}
+.core-msg-text{font-size:1.2rem;font-weight:500;line-height:1.7;color:#F1F5F9}
+.core-msg-text strong{color:#67E8F9;font-weight:700}
+.core-msg-cite{margin-top:1rem;font-size:.82rem;color:#94A3B8;font-style:italic}
+
+/* ─── EQUATION ─── */
+.equation{display:flex;align-items:stretch;justify-content:center;gap:.8rem;flex-wrap:wrap;margin:1.75rem 0;padding:1.5rem;background:linear-gradient(135deg,#F8FAFC,#fff);border-radius:18px;border:1px solid var(--bd);box-shadow:var(--S)}
+.eq-box{background:#fff;border-radius:14px;padding:1.3rem 1rem;text-align:center;min-width:170px;flex:1;border:2px solid var(--c,var(--indigo));transition:transform .25s}
+.eq-box:hover{transform:translateY(-4px)}
+.eq-box-i{font-size:2.2rem;margin-bottom:.4rem}
+.eq-box-t{font-weight:800;font-size:.95rem;color:var(--c);margin-bottom:.25rem}
+.eq-box-d{font-size:.78rem;color:var(--mut);line-height:1.5}
+.eq-op{display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;color:var(--indigo);min-width:30px}
+
+/* ─── WHY 4-CARD ─── */
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin-top:1.5rem}
+.why-card{background:var(--card);border-radius:var(--R);padding:1.5rem;box-shadow:var(--S);border:1px solid var(--bd);position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.why-card:hover{transform:translateY(-4px);box-shadow:var(--S2)}
+.why-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--c,var(--indigo))}
+.why-icon{font-size:2rem;margin-bottom:.6rem}
+.why-h{font-weight:800;font-size:1.05rem;color:var(--c,var(--indigo));margin-bottom:.4rem}
+.why-en{font-size:.7rem;color:var(--mut);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem}
+.why-t{font-size:.92rem;color:var(--txt);line-height:1.65}
+
+/* ─── VALUE 4-AXIS ─── */
+.val-wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1.5rem}
+.val-card{background:#fff;border-radius:var(--R);padding:1.4rem 1.5rem;box-shadow:var(--S);border-left:5px solid var(--c);transition:transform .2s}
+.val-card:hover{transform:translateX(4px)}
+.val-h{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.val-ic{font-size:1.6rem}
+.val-t{font-weight:800;font-size:1.05rem;color:var(--c)}
+.val-en{font-size:.72rem;color:var(--mut);margin-left:auto;font-weight:600;letter-spacing:.05em}
+.val-q{font-size:.92rem;line-height:1.7;color:var(--txt);font-style:italic;border-left:3px solid var(--c);padding-left:.8rem;background:var(--bg2,var(--indigo-l));padding:.7rem .9rem;border-radius:8px;margin-top:.5rem}
+
+/* ─── COMPARE 2-COL (SO101 vs LeKiwi) ─── */
+.cmp-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:1.5rem 0}
+.cmp-card{border-radius:var(--R);overflow:hidden;box-shadow:var(--S);background:#fff;transition:transform .25s,box-shadow .25s}
+.cmp-card:hover{transform:translateY(-4px);box-shadow:var(--S2)}
+.cmp-h{padding:1.3rem;color:#fff;text-align:center;position:relative;overflow:hidden}
+.cmp-h::after{content:'';position:absolute;top:-50%;right:-30%;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.15) 0%,transparent 60%);border-radius:50%}
+.cmp-h-i{font-size:2.2rem;margin-bottom:.3rem;position:relative;z-index:1}
+.cmp-h-t{font-weight:900;font-size:1.2rem;position:relative;z-index:1}
+.cmp-h-en{font-size:.75rem;opacity:.85;font-weight:500;margin-top:.2rem;position:relative;z-index:1}
+.cmp-b{padding:.5rem 1rem 1rem}
+.cmp-row{display:flex;justify-content:space-between;padding:.7rem 0;border-bottom:1px solid var(--bd);font-size:.88rem;gap:.6rem;align-items:flex-start}
+.cmp-row:last-child{border:none}
+.cmp-k{color:var(--mut);font-size:.82rem;flex-shrink:0;min-width:80px}
+.cmp-v{font-weight:700;text-align:right;font-size:.85rem}
+
+/* ─── MODEL TABLE ─── */
+.model-tbl{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.86rem;background:#fff;border-radius:var(--R);overflow:hidden;box-shadow:var(--S)}
+.model-tbl th{background:linear-gradient(135deg,var(--indigo-d),var(--indigo));color:#fff;padding:.85rem .9rem;text-align:left;font-weight:700;font-size:.85rem}
+.model-tbl td{padding:.7rem .9rem;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.6}
+.model-tbl tr:nth-child(even) td{background:var(--bg)}
+.model-tbl tr:hover td{background:var(--indigo-l)}
+.model-tbl .m-name{font-weight:800;color:var(--indigo-d);font-size:.92rem}
+.model-tbl .m-pos{display:inline-block;padding:.18rem .55rem;border-radius:6px;font-size:.72rem;font-weight:700}
+.pos-base{background:var(--green-l);color:var(--green)}
+.pos-main{background:var(--blue-l);color:var(--blue)}
+.pos-adv{background:var(--purple-l);color:var(--purple)}
+.pos-prec{background:var(--pink-l);color:var(--pink)}
+.pos-cap{background:var(--amber-l);color:var(--amber)}
+
+/* ─── EDGE TABLE ─── */
+.edge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1.5rem 0}
+.edge-card{background:#fff;border-radius:var(--R);padding:1.3rem;border-top:4px solid var(--c);box-shadow:var(--S);transition:transform .2s}
+.edge-card:hover{transform:translateY(-4px)}
+.edge-h{display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem}
+.edge-ic{font-size:1.7rem}
+.edge-t{font-weight:800;font-size:1rem;color:var(--c)}
+.edge-spec{font-size:.78rem;color:var(--mut);background:var(--bg);padding:.4rem .6rem;border-radius:6px;margin:.5rem 0;font-family:'JetBrains Mono',monospace;line-height:1.5}
+.edge-role{font-size:.85rem;font-weight:600;margin:.5rem 0 .3rem}
+.edge-fit{font-size:.82rem;color:var(--txt);line-height:1.6}
+.edge-warn{font-size:.78rem;color:var(--amber);background:var(--amber-l);padding:.4rem .6rem;border-radius:6px;margin-top:.6rem;line-height:1.5}
+
+/* ─── ARCH (관제 아키텍처) ─── */
+.arch-3{display:flex;flex-direction:column;align-items:center;gap:0;padding:1.75rem;background:linear-gradient(180deg,#fff,var(--bg));border-radius:18px;border:1px solid var(--bd);position:relative}
+.arch-3 .layer{width:100%;max-width:760px;border-radius:14px;padding:1.3rem 1.4rem;border:2px solid var(--lc);background:color-mix(in srgb,var(--lc) 5%,white);position:relative;transition:transform .2s}
+.arch-3 .layer:hover{transform:scale(1.01)}
+.arch-3 .layer-row{display:flex;align-items:center;gap:1rem;margin-bottom:.7rem}
+.arch-3 .layer-num{width:36px;height:36px;border-radius:10px;background:var(--lc);color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem}
+.arch-3 .layer-lb{font-weight:800;font-size:1rem;color:var(--lc)}
+.arch-3 .layer-lb-en{font-size:.74rem;font-weight:500;color:var(--mut);margin-top:.1rem;letter-spacing:.05em}
+.arch-3 .layer-d{font-size:.88rem;color:var(--txt);line-height:1.65;margin-bottom:.7rem}
+.arch-3 .layer-boxes{display:flex;gap:.5rem;flex-wrap:wrap}
+.arch-3 .layer-box{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:.4rem .8rem;font-size:.82rem;font-weight:500}
+.arch-3 .layer-box.h{background:var(--lc);color:#fff;border-color:var(--lc)}
+.arch-3 .conn{color:var(--mut);font-size:1.4rem;padding:.4rem 0;text-align:center}
+.arch-3 .conn-lb{font-size:.72rem;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-top:-.2rem}
+
+/* ─── 3 LOOP ─── */
+.loop-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}
+.loop-card{background:#fff;border-radius:var(--R);padding:1.3rem;border-top:5px solid var(--c);box-shadow:var(--S);position:relative;overflow:hidden}
+.loop-card::after{content:'';position:absolute;top:-30%;right:-30%;width:140px;height:140px;background:radial-gradient(circle,var(--c2,rgba(0,0,0,.04)) 0%,transparent 60%);border-radius:50%}
+.loop-h{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.loop-ic{font-size:1.8rem}
+.loop-t{font-weight:800;font-size:1rem;color:var(--c)}
+.loop-d{font-size:.85rem;line-height:1.65;color:var(--txt);position:relative;z-index:1}
+.loop-tech{font-size:.74rem;color:var(--mut);margin-top:.6rem;font-family:'JetBrains Mono',monospace;background:var(--bg);padding:.35rem .55rem;border-radius:6px;display:inline-block;font-weight:600}
+
+/* ─── PROCESS DIGITALIZATION ─── */
+.pd-tbl{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.86rem;background:#fff;border-radius:var(--R);overflow:hidden;box-shadow:var(--S)}
+.pd-tbl th{background:var(--teal-d);color:#fff;padding:.85rem .9rem;text-align:left;font-weight:700;font-size:.83rem}
+.pd-tbl td{padding:.7rem .9rem;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.6;font-size:.85rem}
+.pd-tbl tr:nth-child(even) td{background:var(--bg)}
+.pd-tbl .pd-arrow{color:var(--teal);font-weight:700}
+.pd-tbl .pd-old{color:var(--red);font-size:.82rem}
+.pd-tbl .pd-new{color:var(--green);font-weight:600}
+.pd-tbl .pd-kpi{display:inline-block;background:var(--teal-l);color:var(--teal-d);padding:.18rem .55rem;border-radius:6px;font-size:.72rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* ─── TIMELINE (6 모듈) ─── */
+.timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin:1.75rem 0;position:relative}
+.timeline::before{content:'';position:absolute;top:42px;left:5%;right:5%;height:3px;background:linear-gradient(90deg,#94A3B8,var(--green),var(--blue),var(--purple),var(--pink),var(--amber));z-index:0;border-radius:2px}
+.tl-step{position:relative;z-index:1;text-align:center;padding:0 .35rem}
+.tl-circle{width:84px;height:84px;border-radius:50%;background:#fff;border:3px solid var(--c);display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin:0 auto .8rem;box-shadow:var(--S);transition:transform .25s}
+.tl-step:hover .tl-circle{transform:scale(1.1)}
+.tl-stage{font-size:.66rem;font-weight:800;color:var(--c);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.tl-t{font-weight:700;font-size:.85rem;margin-bottom:.3rem;line-height:1.3}
+.tl-d{font-size:.72rem;color:var(--mut);line-height:1.5}
+
+/* ─── KPI 4-AXIS ─── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.kpi-card{background:#fff;border-radius:var(--R);padding:1.3rem;border:1px solid var(--bd);box-shadow:var(--S);position:relative;overflow:hidden;transition:transform .2s}
+.kpi-card:hover{transform:translateY(-3px)}
+.kpi-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.kpi-t{font-weight:800;font-size:1rem;color:var(--c)}
+.kpi-w{font-size:1.6rem;font-weight:900;color:var(--c);background:var(--bg2);padding:.2rem .7rem;border-radius:8px;line-height:1}
+.kpi-d{font-size:.82rem;color:var(--mut);margin-bottom:.6rem;line-height:1.55}
+.kpi-list{list-style:none;font-size:.8rem;line-height:1.85}
+.kpi-list li{padding-left:1rem;position:relative;color:var(--txt)}
+.kpi-list li::before{content:'▸';position:absolute;left:0;color:var(--c);font-weight:700}
+
+/* ─── ANALOGY ─── */
+.analogy{display:flex;gap:1.1rem;padding:1.4rem 1.5rem;border-radius:14px;border-left:5px solid var(--c);background:var(--bg2);margin:1.5rem 0;align-items:flex-start}
+.analogy-i{font-size:2.4rem;flex-shrink:0;line-height:1}
+.analogy-t{font-weight:800;font-size:.78rem;color:var(--c);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
+.analogy-tx{line-height:1.7;font-size:.96rem}
+.analogy-real{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--c);font-size:.88rem;color:var(--mut)}
+
+/* ─── CALLOUT ─── */
+.co{display:flex;gap:.8rem;padding:1rem 1.2rem;border-radius:10px;align-items:flex-start;margin:1rem 0;font-size:.92rem;line-height:1.65}
+.co-i{font-size:1.25rem;flex-shrink:0;padding-top:.05rem}
+.co-tip{background:var(--green-l);border-left:3px solid var(--green)}
+.co-info{background:var(--blue-l);border-left:3px solid var(--blue)}
+.co-warn{background:var(--amber-l);border-left:3px solid var(--amber)}
+.co-purple{background:var(--purple-l);border-left:3px solid var(--purple)}
+.co-pink{background:var(--pink-l);border-left:3px solid var(--pink)}
+
+/* ─── STATS ─── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:1rem;margin:1.5rem 0}
+.stat{background:#fff;border-radius:var(--R);padding:1.4rem 1rem;text-align:center;box-shadow:var(--S);border:1px solid var(--bd)}
+.stat-n{font-size:2.3rem;font-weight:900;line-height:1}
+.stat-l{font-weight:700;font-size:.85rem;margin-top:.5rem}
+.stat-d{font-size:.76rem;color:var(--mut);margin-top:.25rem;line-height:1.5}
+
+/* ─── WELCOME ─── */
+.welcome{background:linear-gradient(135deg,var(--indigo-d),var(--indigo),var(--purple),var(--teal));color:#fff;padding:3rem 2rem;border-radius:18px;text-align:center;margin-top:2rem;position:relative;overflow:hidden;box-shadow:var(--S2)}
+.welcome::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1.5' fill='white' fill-opacity='0.08'/%3E%3C/svg%3E");pointer-events:none}
+.welcome-eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#67E8F9;margin-bottom:.85rem;padding:.32rem .9rem;border:1px solid rgba(103,232,249,.4);border-radius:999px;position:relative;z-index:1}
+.welcome h3{font-size:1.85rem;font-weight:900;color:#fff;margin-bottom:.8rem;line-height:1.3;position:relative;z-index:1}
+.welcome p{font-size:1rem;opacity:.92;max-width:660px;margin:0 auto 1rem;line-height:1.7;position:relative;z-index:1}
+.welcome-q{font-size:1.05rem;margin-top:1.2rem;font-weight:600;font-style:italic;position:relative;z-index:1;color:#A5F3FC}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  .hero h1{font-size:1.95rem}
+  .hero-sub{font-size:1rem}
+  .core-msg{padding:1.75rem 1.4rem;margin-top:-1.5rem}
+  .core-msg-text{font-size:1.05rem}
+  .equation{flex-direction:column}
+  .eq-op{transform:rotate(90deg);padding:.3rem 0}
+  .val-wrap{grid-template-columns:1fr}
+  .cmp-2{grid-template-columns:1fr}
+  .loop-3{grid-template-columns:1fr}
+  .timeline{grid-template-columns:repeat(2,1fr);gap:1.5rem 0}
+  .timeline::before{display:none}
+  .arch-3 .layer-boxes{flex-direction:column}
+  .arch-3 .layer-box{width:100%}
+  .model-tbl,.pd-tbl{font-size:.78rem;display:block;overflow-x:auto;white-space:nowrap}
+  .model-tbl td,.pd-tbl td{white-space:normal}
+  h2{font-size:1.5rem}
+  section{padding:2.5rem 0}
+}
+@media print{
+  .hero{background:#312E81!important;-webkit-print-color-adjust:exact}
+  .core-msg,.welcome{background:#1E293B!important;-webkit-print-color-adjust:exact}
+  .cmp-card:hover,.edge-card:hover,.tl-step:hover .tl-circle,.kpi-card:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ 1. HERO ═══════ -->
+<header class="hero">
+<div class="container">
+  <span class="hero-eyebrow">📚 Course Design · 교육 설계 가이드</span>
+  <div class="tags" style="margin-bottom:1.25rem">
+    <span class="tag">🎯 Control Tower 중심</span>
+    <span class="tag">🤖 SO101 + LeKiwi</span>
+    <span class="tag">🧠 ACT · SmolVLA · Pi0-FAST</span>
+    <span class="tag">⚙️ MES / WMS / OPC UA</span>
+    <span class="tag">📊 다축 KPI</span>
+  </div>
+  <h1>관제시스템이 곧 <span class="accent">차별화다</span><br>— 피지컬 AI 입문 교육 설계</h1>
+  <p class="hero-sub">
+    "로봇이 움직인다"를 보여주는 데서 끝나지 않고, 그 움직임이 <strong>일감·예외·추적성·상위 시스템</strong>과 연결되어 어떻게 운영 가치로 바뀌는지까지 가르치는 것 — 이것이 입문 교육의 진짜 차별화입니다.
+  </p>
+  <div class="hero-meta">
+    <span>🏛️ <strong>Handong University</strong> 협력</span>
+    <span>👥 재직자 + 경영진 대상</span>
+    <span>📅 교육 설계 마스터플랜</span>
+  </div>
+</div>
+</header>
+
+<!-- ═══════ 2. CORE MESSAGE ═══════ -->
+<section style="padding-top:0">
+<div class="container">
+  <div class="core-msg">
+    <div class="core-msg-lbl">🎯 The Core Idea · 한 줄 메시지</div>
+    <p class="core-msg-text">
+      <strong>"모델은 움직임을 만들고,<br>관제는 업무와 생산성을 만든다."</strong>
+    </p>
+    <p class="core-msg-cite">— 관제 없는 피지컬 AI 교육은 정책(policy) 교육, 관제가 있는 피지컬 AI 교육은 운영체계 교육이다.</p>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 3. EQUATION (3-요소 등식) ═══════ -->
+<section>
+<div class="container">
+  <h2>🧩 교육 설계 등식 — 3개의 축이 하나의 셀로</h2>
+  <p class="h2-sub">SO101은 조작 성능을, LeKiwi는 이동과 인계를, 관제시스템은 업무 흐름을 가르칩니다. 셋이 합쳐져 비로소 "공정 셀"이 됩니다.</p>
+
+  <div class="equation">
+    <div class="eq-box" style="--c:var(--green)">
+      <div class="eq-box-i">🦾</div>
+      <div class="eq-box-t">SO101</div>
+      <div class="eq-box-d">조작 baseline<br>Manipulation</div>
+    </div>
+    <div class="eq-op">+</div>
+    <div class="eq-box" style="--c:var(--blue)">
+      <div class="eq-box-i">🛞</div>
+      <div class="eq-box-t">LeKiwi</div>
+      <div class="eq-box-d">이동·도킹·인계<br>Mobility</div>
+    </div>
+    <div class="eq-op">+</div>
+    <div class="eq-box" style="--c:var(--purple)">
+      <div class="eq-box-i">🎛️</div>
+      <div class="eq-box-t">관제시스템</div>
+      <div class="eq-box-d">업무 흐름<br>Control Tower</div>
+    </div>
+    <div class="eq-op">=</div>
+    <div class="eq-box" style="--c:var(--pink)">
+      <div class="eq-box-i">🏭</div>
+      <div class="eq-box-t">공정 셀</div>
+      <div class="eq-box-d">운영 가능 시스템<br>Operable Cell</div>
+    </div>
+  </div>
+
+  <div class="analogy" style="--c:var(--purple);--bg2:var(--purple-l)">
+    <div class="analogy-i">🎼</div>
+    <div>
+      <div class="analogy-t">오케스트라 비유</div>
+      <p class="analogy-tx">
+        <strong>SO101</strong>은 솔로 연주자(정밀한 조작), <strong>LeKiwi</strong>는 무대를 옮기는 백댄서(공간 이동), <strong>관제</strong>는 지휘자(언제·누가·어떻게)입니다. 솔로만 잘하는 교육은 박수가 끝나면 사라지지만, 지휘자가 있는 교육은 공연(공정)이 됩니다.
+      </p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 4. WHY 차별화 (4-CARD) ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <h2>🤔 왜 관제시스템이 차별화인가?</h2>
+  <p class="h2-sub">관제를 넣는 순간, 교육의 단위가 "개별 로봇 동작"에서 "운영 가능한 작업 체계"로 바뀝니다.</p>
+
+  <div class="why-grid">
+    <div class="why-card" style="--c:var(--red)">
+      <div class="why-icon">🔥</div>
+      <div class="why-en">Without Control Tower</div>
+      <div class="why-h">로봇 시연으로 끝난다</div>
+      <p class="why-t">"이거 멋지죠?"에서 멈춥니다. 누가 호출하는지, 두 대 이상이 어떻게 handoff하는지, 문제가 났을 때 어떻게 복구하는지 답이 없습니다.</p>
+    </div>
+    <div class="why-card" style="--c:var(--green)">
+      <div class="why-icon">🎯</div>
+      <div class="why-en">With Control Tower</div>
+      <div class="why-h">공정 디지털화 제안서가 된다</div>
+      <p class="why-t">교육 결과물이 "라인 물류·핸들링·추적성 디지털화" 제안서로 바뀝니다. 현업 구매·도입 검토 문서로 바로 이어집니다.</p>
+    </div>
+    <div class="why-card" style="--c:var(--blue)">
+      <div class="why-icon">📊</div>
+      <div class="why-en">Beyond Success Rate</div>
+      <div class="why-h">평가 기준이 넓어진다</div>
+      <p class="why-t">단순 성공률을 넘어 작업완료시간, dispatch latency, recovery rate, trace completeness까지 — 운영형 KPI가 들어옵니다.</p>
+    </div>
+    <div class="why-card" style="--c:var(--purple)">
+      <div class="why-icon">👔</div>
+      <div class="why-en">For Decision Makers</div>
+      <div class="why-h">경영진이 알아야 결정한다</div>
+      <p class="why-t">CEO·COO·CTO가 큰 그림을 모르면 투자·인력·기술 의사결정이 어긋납니다. 관제는 경영 언어와 현장 언어를 잇는 다리입니다.</p>
+    </div>
+  </div>
+
+  <div class="co co-purple" style="margin-top:1.5rem">
+    <div class="co-i">💡</div>
+    <div><strong>현장의 진짜 가치는 단일 로봇 데모가 아니라 운영 통합에서 나옵니다.</strong> AMR · 디지털 트윈 · MES/WMS 연동 — 국내 제조 사례에서 반복적으로 확인되는 패턴입니다.</div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 5. 4-VALUE ─── -->
+<section>
+<div class="container">
+  <h2>💎 한 장으로 보는 4가지 가치</h2>
+  <p class="h2-sub">임원용 "큰 그림" 슬라이드로 그대로 활용 가능. 교육 → 기술 → 운영 → 사업으로 가치가 확장됩니다.</p>
+
+  <div class="val-wrap">
+    <div class="val-card" style="--c:var(--green);--bg2:var(--green-l)">
+      <div class="val-h">
+        <div class="val-ic">🎓</div>
+        <div class="val-t">교육 가치</div>
+        <div class="val-en">Educational</div>
+      </div>
+      <p class="val-q">"SO101로 조작 baseline을 만들고, LeKiwi로 이동·도킹·인계를 실험한 뒤, 관제로 두 플랫폼을 하나의 공정으로 묶는다."</p>
+    </div>
+    <div class="val-card" style="--c:var(--blue);--bg2:var(--blue-l)">
+      <div class="val-h">
+        <div class="val-ic">⚙️</div>
+        <div class="val-t">기술 가치</div>
+        <div class="val-en">Technical</div>
+      </div>
+      <p class="val-q">"엣지는 제어·센서·안전을 맡고, 고용량 VLA 추론은 서버로 분리해 실제 운영형 아키텍처를 체험한다."</p>
+    </div>
+    <div class="val-card" style="--c:var(--purple);--bg2:var(--purple-l)">
+      <div class="val-h">
+        <div class="val-ic">🏭</div>
+        <div class="val-t">운영 가치</div>
+        <div class="val-en">Operational</div>
+      </div>
+      <p class="val-q">"관제는 작업오더를 로봇 행동으로 바꾸고, 예외를 처리하고, 결과를 MES/WMS/PLC 쪽으로 되돌려준다."</p>
+    </div>
+    <div class="val-card" style="--c:var(--pink);--bg2:var(--pink-l)">
+      <div class="val-h">
+        <div class="val-ic">💼</div>
+        <div class="val-t">사업 가치</div>
+        <div class="val-en">Business</div>
+      </div>
+      <p class="val-q">"교육 결과물이 '로봇 시연'이 아니라 '라인 물류·핸들링·추적성 디지털화' 제안서가 된다."</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 6. 두 플랫폼 비교 ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <h2>🦾 두 플랫폼 — SO101 vs LeKiwi</h2>
+  <p class="h2-sub">같은 LeRobot 프레임에서 공정하게 비교하면, "구동형 vs 로봇팔"의 본질적 차이가 학생에게 선명하게 보입니다.</p>
+
+  <div class="cmp-2">
+    <div class="cmp-card">
+      <div class="cmp-h" style="background:linear-gradient(135deg,#047857,#10B981)">
+        <div class="cmp-h-i">🦾</div>
+        <div class="cmp-h-t">SO101</div>
+        <div class="cmp-h-en">고정형 조작기 · Stationary Manipulator</div>
+      </div>
+      <div class="cmp-b">
+        <div class="cmp-row"><span class="cmp-k">본질</span><span class="cmp-v">고정형 조작기</span></div>
+        <div class="cmp-row"><span class="cmp-k">물리 과제</span><span class="cmp-v">pick-place · insertion · sorting</span></div>
+        <div class="cmp-row"><span class="cmp-k">제어</span><span class="cmp-v">arm position control</span></div>
+        <div class="cmp-row"><span class="cmp-k">실패 양상</span><span class="cmp-v">grasp 실패 · insertion 오차 · drift</span></div>
+        <div class="cmp-row"><span class="cmp-k">현장 KPI</span><span class="cmp-v">성공률 · cycle time · repeatability</span></div>
+        <div class="cmp-row"><span class="cmp-k">관제 의존</span><span class="cmp-v" style="color:var(--amber)">중간</span></div>
+        <div class="cmp-row"><span class="cmp-k">교육 포지션</span><span class="cmp-v" style="color:var(--green)">Manipulation Baseline</span></div>
+      </div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-h" style="background:linear-gradient(135deg,#1E40AF,#3B82F6)">
+        <div class="cmp-h-i">🛞</div>
+        <div class="cmp-h-t">LeKiwi</div>
+        <div class="cmp-h-en">이동체 + 조작기 · Mobile Manipulator</div>
+      </div>
+      <div class="cmp-b">
+        <div class="cmp-row"><span class="cmp-k">본질</span><span class="cmp-v">이동체 + 조작기</span></div>
+        <div class="cmp-row"><span class="cmp-k">물리 과제</span><span class="cmp-v">이동 · 회피 · 도킹 · 인계</span></div>
+        <div class="cmp-row"><span class="cmp-k">제어</span><span class="cmp-v">body-frame 속도 + arm + 네트워크</span></div>
+        <div class="cmp-row"><span class="cmp-k">실패 양상</span><span class="cmp-v">경로 지연 · 도킹 실패 · handoff 누락</span></div>
+        <div class="cmp-row"><span class="cmp-k">현장 KPI</span><span class="cmp-v">호출-도착 · 정체시간 · station wait</span></div>
+        <div class="cmp-row"><span class="cmp-k">관제 의존</span><span class="cmp-v" style="color:var(--red)">매우 높음</span></div>
+        <div class="cmp-row"><span class="cmp-k">교육 포지션</span><span class="cmp-v" style="color:var(--blue)">Mobility & Handoff</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="co co-info">
+    <div class="co-i">🎯</div>
+    <div><strong>핵심 인사이트:</strong> LeKiwi가 들어오는 순간 "관제가 왜 필요한가"가 자동으로 드러납니다. 이동체에는 호출·배차·대기열이 본질이기 때문입니다. <strong>SO101 단독으로는 관제의 가치를 가르치기 어렵습니다.</strong></div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 7. 모델 비교 표 ═══════ -->
+<section>
+<div class="container">
+  <h2>🧠 5가지 정책 모델 — 무엇을 가르치기에 좋은가</h2>
+  <p class="h2-sub">모델 비교는 정확도만으로 하면 메시지가 약해집니다. <strong>"어떤 edge 조건에서, 어떤 embodiment에, 어떤 운영 방식에 맞는가"</strong>로 봐야 합니다.</p>
+
+  <table class="model-tbl">
+    <thead>
+      <tr>
+        <th>모델</th>
+        <th>방식</th>
+        <th>강점</th>
+        <th>제약</th>
+        <th>권장 플랫폼</th>
+        <th>교육 포지션</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="m-name">ACT<br><span style="font-size:.7rem;color:var(--mut);font-weight:500">~80M</span></td>
+        <td>action chunking transformer + CVAE</td>
+        <td>가볍고 빠름 · data-efficient (50 demos)</td>
+        <td>언어/범용성 제한적</td>
+        <td>SO101 우선</td>
+        <td><span class="m-pos pos-base">기준선 모델</span></td>
+      </tr>
+      <tr>
+        <td class="m-name">SmolVLA<br><span style="font-size:.7rem;color:var(--mut);font-weight:500">~450M</span></td>
+        <td>VLA + flow matching + async</td>
+        <td>지시문 처리 · multi-view · consumer hardware</td>
+        <td>fine-tuning 품질에 민감</td>
+        <td>SO101, LeKiwi</td>
+        <td><span class="m-pos pos-main">주력 입문 VLA</span></td>
+      </tr>
+      <tr>
+        <td class="m-name">Pi0-FAST</td>
+        <td>FAST tokenization 기반 autoregressive VLA</td>
+        <td>5배 빠른 학습 · action tokenization</td>
+        <td>실전은 원격 GPU 전제 多</td>
+        <td>SO101, capstone LeKiwi</td>
+        <td><span class="m-pos pos-adv">고급 비교 모델</span></td>
+      </tr>
+      <tr>
+        <td class="m-name">Diffusion</td>
+        <td>conditional denoising · DiT 계열</td>
+        <td>contact-rich · multimodal · 안정적 학습</td>
+        <td>추론 latency · compute 부담</td>
+        <td>SO101 우선</td>
+        <td><span class="m-pos pos-prec">정밀·latency 비교</span></td>
+      </tr>
+      <tr>
+        <td class="m-name">X-VLA / OpenVLA<br><span style="font-size:.7rem;color:var(--mut);font-weight:500">7B+</span></td>
+        <td>대형 오픈 VLA</td>
+        <td>교차 embodiment 일반화</td>
+        <td>compute 부담 큼 · 서버 필수</td>
+        <td>server-backed 실습</td>
+        <td><span class="m-pos pos-cap">캡스톤·선택과제</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="co co-warn">
+    <div class="co-i">📌</div>
+    <div><strong>"W-VLA"에 대한 참고:</strong> 2026-04-26 현재 1차 문헌·공식 정책 목록에서 동일 표기를 명확히 확인하기 어렵습니다. 교차 embodiment 적응을 보여주려면 <strong>X-VLA</strong>, 대형 오픈 VLA 비교를 원하면 <strong>OpenVLA</strong>를 대체 후보로 두는 편이 안전합니다.</div>
+  </div>
+
+  <div class="co co-info" style="margin-top:.75rem">
+    <div class="co-i">🎓</div>
+    <div><strong>커리큘럼 권장 순서 — "가벼운 baseline → 중간급 VLA → 서버 분리형 고급 VLA":</strong> ACT로 출발해 SmolVLA·Diffusion으로 비교를 넓히고, capstone에서 Pi0-FAST 또는 X-VLA로 확장하는 흐름이 가장 안정적입니다.</div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 8. 엣지 디바이스 매핑 ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <h2>💻 엣지 디바이스 — "무엇을 어디서 돌릴 것인가"</h2>
+  <p class="h2-sub">스펙표가 아니라 <strong>의사결정 매트릭스</strong>여야 합니다. 입문 교육의 기본 원칙은 명확합니다 — "로봇 위에는 제어·센서·안전, 서버에는 고용량 추론".</p>
+
+  <div class="analogy" style="--c:var(--teal);--bg2:var(--teal-l)">
+    <div class="analogy-i">🏥</div>
+    <div>
+      <div class="analogy-t">병원 비유</div>
+      <p class="analogy-tx">
+        <strong>응급실 의료진(Edge)</strong>는 즉각 처치만 합니다. 정밀 영상 판독은 <strong>본관 영상의학실(Server)</strong>로 보냅니다. 응급실에 MRI를 둘 필요도 없고, 둘 수도 없습니다 — 로봇과 똑같습니다.
+      </p>
+    </div>
+  </div>
+
+  <div class="edge-grid">
+    <div class="edge-card" style="--c:var(--green)">
+      <div class="edge-h"><span class="edge-ic">🍓</span><span class="edge-t">Raspberry Pi 5 (8/16GB)</span></div>
+      <div class="edge-spec">2.4GHz quad-core A76 · LPDDR4X · PCIe 2.0 x1</div>
+      <div class="edge-role">권장 역할</div>
+      <div class="edge-fit">센서 수집 · 로봇 I/O · 원격 클라이언트. ACT 로컬 보조, 대형 VLA는 원격 추론 클라이언트 역할.</div>
+      <div class="edge-warn">⚠️ "온보드 완전 자율"보다 "제어 컴퓨터" 역할이 현실적</div>
+    </div>
+    <div class="edge-card" style="--c:var(--blue)">
+      <div class="edge-h"><span class="edge-ic">⚡</span><span class="edge-t">Jetson Orin Nano Super 8GB</span></div>
+      <div class="edge-spec">67 TOPS · 8GB LPDDR5 · 7–25W</div>
+      <div class="edge-role">권장 역할</div>
+      <div class="edge-fit">단일 로봇 edge · vision pre/post · async client. ACT 경량, SmolVLA 실험형.</div>
+      <div class="edge-warn">⚠️ 대형 VLA 상시 추론에는 메모리 여유가 작음</div>
+    </div>
+    <div class="edge-card" style="--c:var(--purple)">
+      <div class="edge-h"><span class="edge-ic">🚀</span><span class="edge-t">Jetson Orin NX 16GB</span></div>
+      <div class="edge-spec">117 TOPS · 16GB</div>
+      <div class="edge-role">권장 역할</div>
+      <div class="edge-fit">밸런스형 edge. ACT, SmolVLA inference 후보, Pi 계열 원격 클라이언트.</div>
+      <div class="edge-warn">💡 "분산 아키텍처"의 중요성을 가르치기 좋음</div>
+    </div>
+    <div class="edge-card" style="--c:var(--orange)">
+      <div class="edge-h"><span class="edge-ic">🔥</span><span class="edge-t">Jetson AGX Orin 32/64GB</span></div>
+      <div class="edge-spec">200/275 TOPS · 32–64GB</div>
+      <div class="edge-role">권장 역할</div>
+      <div class="edge-fit">셀 단위 edge 서버. SmolVLA, 일부 Pi 계열, vision-heavy stack.</div>
+      <div class="edge-warn">⚠️ 전력·예산 ↑ — capstone용이 적합</div>
+    </div>
+    <div class="edge-card" style="--c:var(--pink)">
+      <div class="edge-h"><span class="edge-ic">🖥️</span><span class="edge-t">고성능 CUDA 서버</span></div>
+      <div class="edge-spec">~RTX 4090급 remote policy server</div>
+      <div class="edge-role">권장 역할</div>
+      <div class="edge-fit">정책 서버 · batch 평가 · 고용량 VLA. Pi0-FAST · X-VLA · OpenVLA 운영.</div>
+      <div class="edge-warn">💡 네트워크 latency · async/RTC가 실습 핵심</div>
+    </div>
+  </div>
+
+  <div class="co co-warn">
+    <div class="co-i">⚙️</div>
+    <div><strong>실무 주의 — openpi의 PyTorch 지원 현황:</strong> π0·π0.5는 PyTorch 지원 제공, π0-FAST는 아직 제공되지 않습니다. 수업 표준 환경을 PyTorch 중심으로 맞추려면 Pi0-FAST는 <strong>시연형</strong>으로, 실습형은 SmolVLA·ACT를 주력으로 두는 편이 낫습니다.</div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 9. 관제 아키텍처 ═══════ -->
+<section>
+<div class="container">
+  <h2>🎛️ 관제시스템 아키텍처 — 3개의 루프</h2>
+  <p class="h2-sub">관제는 <strong>대시보드가 아닙니다</strong>. 작업오더를 로봇행동으로 바꾸고 결과를 다시 공정 데이터로 되돌리는 <strong>실행 허브</strong>입니다.</p>
+
+  <div class="arch-3">
+    <div class="layer" style="--lc:var(--purple)">
+      <div class="layer-row">
+        <div class="layer-num">1</div>
+        <div>
+          <div class="layer-lb">🌐 상위 시스템 — Enterprise Layer</div>
+          <div class="layer-lb-en">MES · WMS · PLC · OPC UA Vertical Integration</div>
+        </div>
+      </div>
+      <div class="layer-d">생산오더, 자재요청, 설비신호가 들어오는 곳. 표준 인터페이스(OPC UA)로 결과 데이터를 되돌려받습니다.</div>
+      <div class="layer-boxes">
+        <div class="layer-box h">MES / 생산오더</div>
+        <div class="layer-box h">WMS / 자재요청</div>
+        <div class="layer-box h">PLC / 설비신호</div>
+        <div class="layer-box">OPC UA</div>
+      </div>
+    </div>
+    <div class="conn">▲</div>
+    <div class="conn-lb">표준 인터페이스 · part ID · trace data</div>
+    <div class="layer" style="--lc:var(--indigo)">
+      <div class="layer-row">
+        <div class="layer-num">2</div>
+        <div>
+          <div class="layer-lb">🎛️ 관제시스템 — Control Tower</div>
+          <div class="layer-lb-en">Job Dispatch · Policy Server · Exception · History</div>
+        </div>
+      </div>
+      <div class="layer-d">작업 오케스트레이터, 로봇·장치 관리자, 정책 서버, 안전·예외 처리, 이벤트·이력 저장, 운영 대시보드의 통합 허브.</div>
+      <div class="layer-boxes">
+        <div class="layer-box h">작업 오케스트레이터</div>
+        <div class="layer-box h">로봇·장치 관리자</div>
+        <div class="layer-box h">정책 서버 (ACT/SmolVLA/Pi0)</div>
+        <div class="layer-box h">안전·예외</div>
+        <div class="layer-box h">이벤트·이력</div>
+        <div class="layer-box h">운영 대시보드</div>
+      </div>
+    </div>
+    <div class="conn">▲</div>
+    <div class="conn-lb">VDA 5050 · master control · async/RTC</div>
+    <div class="layer" style="--lc:var(--blue)">
+      <div class="layer-row">
+        <div class="layer-num">3</div>
+        <div>
+          <div class="layer-lb">🤖 엣지 런타임 — Edge Runtime</div>
+          <div class="layer-lb-en">ROS2 / DDS · LeRobot · Real-Time Control</div>
+        </div>
+      </div>
+      <div class="layer-d">DDS 기반 실시간 데이터 교환, QoS 제어, 카메라·조인트·상태 발행. 로봇이 인터넷이 끊겨도 일할 수 있게 만드는 계층.</div>
+      <div class="layer-boxes">
+        <div class="layer-box h">ROS2 / LeRobot</div>
+        <div class="layer-box h">Async / RTC 큐</div>
+        <div class="layer-box">LeKiwi</div>
+        <div class="layer-box">SO101</div>
+        <div class="layer-box">카메라·조인트·상태</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2.5rem">🔄 관제가 동시에 돌리는 3개의 루프</h3>
+  <p style="font-size:.92rem;color:var(--mut);margin-bottom:1rem">실시간 제어·운영 배차·추적성 — 같은 시스템 안에서 시간 스케일이 다른 세 흐름이 동시에 돌아갑니다.</p>
+
+  <div class="loop-3">
+    <div class="loop-card" style="--c:var(--green);--c2:rgba(5,150,105,.12)">
+      <div class="loop-h"><span class="loop-ic">⚡</span><span class="loop-t">실시간 제어 루프</span></div>
+      <p class="loop-d">로봇 위에서 매초 수십 회 도는 빠른 루프. 센서 → 정책 → 액션. 끊기면 안 되는 영역.</p>
+      <div class="loop-tech">~30Hz · ROS2/DDS · QoS</div>
+    </div>
+    <div class="loop-card" style="--c:var(--blue);--c2:rgba(37,99,235,.12)">
+      <div class="loop-h"><span class="loop-ic">📋</span><span class="loop-t">운영 배차 루프</span></div>
+      <p class="loop-d">초~분 단위. 작업오더가 들어오면 어느 로봇·언제·어디로 갈지 결정. 대기열·우선순위·예외 처리.</p>
+      <div class="loop-tech">~1Hz · VDA 5050 · FMS</div>
+    </div>
+    <div class="loop-card" style="--c:var(--purple);--c2:rgba(124,58,237,.12)">
+      <div class="loop-h"><span class="loop-ic">📚</span><span class="loop-t">추적성 루프</span></div>
+      <p class="loop-d">분~시간 단위. job ID · robot ID · model version · timestamp · result 모두 저장. 데이터 환류의 출발점.</p>
+      <div class="loop-tech">Async · OPC UA · RAG</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 10. 공정 디지털화 ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <h2>🏭 관제가 디지털화하는 5가지 공정</h2>
+  <p class="h2-sub">교육 결과물은 "로봇 시연"이 아닙니다. 아래 5가지를 데모로 만들 수 있어야 진짜 차별화입니다.</p>
+
+  <table class="pd-tbl">
+    <thead>
+      <tr>
+        <th>핵심 프로세스</th>
+        <th>기존 방식 → 관제 연동</th>
+        <th>남길 데이터</th>
+        <th>KPI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>📦 라인 자재 공급</strong></td>
+        <td><span class="pd-old">작업자 호출·수동 운반</span><br><span class="pd-new">MES/WMS 요청 → LeKiwi dispatch → 도착 ack</span></td>
+        <td>job ID · 호출 시각 · 도착 시각 · 대기시간</td>
+        <td><span class="pd-kpi">dispatch-to-arrival</span> <span class="pd-kpi">queue wait</span></td>
+      </tr>
+      <tr>
+        <td><strong>🦾 스테이션 핸들링</strong></td>
+        <td><span class="pd-old">수동 적재/분류</span><br><span class="pd-new">SO101 작업 배정 → 완료 결과 보고</span></td>
+        <td>robot ID · model version · task result</td>
+        <td><span class="pd-kpi">success rate</span> <span class="pd-kpi">cycle time</span></td>
+      </tr>
+      <tr>
+        <td><strong>🔁 NG/리워크 분기</strong></td>
+        <td><span class="pd-old">현장 판단·구두 전달</span><br><span class="pd-new">설비/검사 결과 → 관제 rule → 재이송/재작업</span></td>
+        <td>item ID · NG code · reroute history</td>
+        <td><span class="pd-kpi">rework lead time</span></td>
+      </tr>
+      <tr>
+        <td><strong>🚨 예외 대응</strong></td>
+        <td><span class="pd-old">전화·메신저·현장 확인</span><br><span class="pd-new">watchdog · stop · recovery ticket</span></td>
+        <td>error code · intervention · restart 시각</td>
+        <td><span class="pd-kpi">MTTR</span> <span class="pd-kpi">manual interventions</span></td>
+      </tr>
+      <tr>
+        <td><strong>📊 추적성</strong></td>
+        <td><span class="pd-old">분산 로그</span><br><span class="pd-new">공정 ID + 로봇 이벤트 + 결과 표준화</span></td>
+        <td>timestamp · part ID · result · trace data</td>
+        <td><span class="pd-kpi">trace completeness</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="co co-tip">
+    <div class="co-i">🎯</div>
+    <div><strong>국내 사례 일치 패턴:</strong> 삼성SDS의 이음5G 스마트팩토리 사례, LG이노텍 구미 공장(AI 비전·AGV), 센트랄 창원 공장(AMR 물류·디지털 트윈), 유진로봇 GoCart180(FMS·WMS/MES 연동) — 현장에서는 이미 <strong>관제와 데이터 인터페이스가 경쟁 포인트</strong>입니다.</div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 11. 6 모듈 타임라인 ═══════ -->
+<section>
+<div class="container">
+  <h2>🚶 교육 시나리오 — 6개 모듈 타임라인</h2>
+  <p class="h2-sub"><strong>SO101 baseline → LeKiwi mobility → 관제 통합 → 서버 분리형 VLA</strong> — 교육적 설득력이 가장 높은 흐름입니다.</p>
+
+  <div class="timeline">
+    <div class="tl-step" style="--c:var(--slate)">
+      <div class="tl-circle">🛠️</div>
+      <div class="tl-stage">Module 0</div>
+      <div class="tl-t">준비</div>
+      <div class="tl-d">조립·캘리브레이션·데이터 포맷</div>
+    </div>
+    <div class="tl-step" style="--c:var(--green)">
+      <div class="tl-circle">🦾</div>
+      <div class="tl-stage">Module A</div>
+      <div class="tl-t">SO101 + ACT</div>
+      <div class="tl-d">조작 기준선 만들기</div>
+    </div>
+    <div class="tl-step" style="--c:var(--blue)">
+      <div class="tl-circle">🧠</div>
+      <div class="tl-stage">Module B</div>
+      <div class="tl-t">SmolVLA · Diffusion</div>
+      <div class="tl-d">지시문·반응성 비교</div>
+    </div>
+    <div class="tl-step" style="--c:var(--purple)">
+      <div class="tl-circle">🛞</div>
+      <div class="tl-stage">Module C</div>
+      <div class="tl-t">LeKiwi 이동·인계</div>
+      <div class="tl-d">도킹·핸드오프 실험</div>
+    </div>
+    <div class="tl-step" style="--c:var(--pink)">
+      <div class="tl-circle">🎛️</div>
+      <div class="tl-stage">Module D</div>
+      <div class="tl-t">관제 연동</div>
+      <div class="tl-d">배차·예외·이력</div>
+    </div>
+    <div class="tl-step" style="--c:var(--amber)">
+      <div class="tl-circle">🚀</div>
+      <div class="tl-stage">Capstone</div>
+      <div class="tl-t">원격 정책 서버</div>
+      <div class="tl-d">Pi0-FAST / X-VLA</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n" style="color:var(--green)">2</div><div class="stat-l">실습 플랫폼</div><div class="stat-d">SO101 + LeKiwi</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--blue)">5</div><div class="stat-l">정책 모델</div><div class="stat-d">ACT~OpenVLA</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--purple)">3</div><div class="stat-l">관제 루프</div><div class="stat-d">실시간·배차·추적</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--orange)">5</div><div class="stat-l">디지털화 공정</div><div class="stat-d">자재·핸들링·NG·예외·추적</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--pink)">6</div><div class="stat-l">교육 모듈</div><div class="stat-d">준비~Capstone</div></div>
+  </div>
+
+  <div class="co co-info">
+    <div class="co-i">💡</div>
+    <div><strong>실습 장비가 부족할 때:</strong> IsaacLab Arena 같은 GPU 시뮬레이션 모듈을 먼저 넣고 하드웨어 단계로 내려와도 무방합니다. 중요한 건 "관제와 통합해본 경험"입니다.</div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 12. 평가 기준 (다축 KPI) ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <h2>📊 평가는 다축으로 — 관제의 가치를 성적표에 반영하라</h2>
+  <p class="h2-sub">"성공률 1개, 통합 1개" 식으로 잡으면 관제의 교육적 가치가 묻힙니다. 4축으로 분리해야 학생의 학습이 다각도로 보입니다.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--c:var(--green);--bg2:var(--green-l)">
+      <div class="kpi-h"><span class="kpi-t">조작·이동 성능</span><span class="kpi-w">35</span></div>
+      <p class="kpi-d">로봇이 잘 움직이는가</p>
+      <ul class="kpi-list">
+        <li>task success rate</li>
+        <li>cycle time</li>
+        <li>recovery success</li>
+      </ul>
+    </div>
+    <div class="kpi-card" style="--c:var(--blue);--bg2:var(--blue-l)">
+      <div class="kpi-h"><span class="kpi-t">시스템 통합</span><span class="kpi-w">30</span></div>
+      <p class="kpi-d">관제와 잘 엮였는가</p>
+      <ul class="kpi-list">
+        <li>작업오더 수신</li>
+        <li>dispatch · 완료 ack</li>
+        <li>예외 처리 흐름</li>
+      </ul>
+    </div>
+    <div class="kpi-card" style="--c:var(--purple);--bg2:var(--purple-l)">
+      <div class="kpi-h"><span class="kpi-t">데이터·디지털화</span><span class="kpi-w">25</span></div>
+      <p class="kpi-d">데이터가 잘 남았는가</p>
+      <ul class="kpi-list">
+        <li>trace completeness</li>
+        <li>로그 구조</li>
+        <li>model/version 기록</li>
+      </ul>
+    </div>
+    <div class="kpi-card" style="--c:var(--pink);--bg2:var(--pink-l)">
+      <div class="kpi-h"><span class="kpi-t">설명력</span><span class="kpi-w">10</span></div>
+      <p class="kpi-d">왜 이렇게 했는지 말할 수 있는가</p>
+      <ul class="kpi-list">
+        <li>플랫폼 선택 근거</li>
+        <li>모델 선택 근거</li>
+        <li>경영/현장 언어 변환</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>📐 측정지표 — Model · Robot · System · Data 4계층</h3>
+  <table class="pd-tbl">
+    <thead>
+      <tr><th>레벨</th><th>지표</th><th>정의</th><th>왜 중요한가</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong style="color:var(--green)">Model</strong></td><td>inference latency</td><td>관측 입력 후 action chunk 생성까지 시간</td><td>edge/server 분리 필요성</td></tr>
+      <tr><td><strong style="color:var(--green)">Model</strong></td><td>recovery success</td><td>외란 후 task 재진입 성공률</td><td>적응형 정책과 단순 따라하기 구분</td></tr>
+      <tr><td><strong style="color:var(--blue)">Robot</strong></td><td>task success rate</td><td>시도 대비 완료 비율</td><td>기본 성능 지표</td></tr>
+      <tr><td><strong style="color:var(--blue)">Robot</strong></td><td>cycle time</td><td>시작부터 완료까지 시간</td><td>실제 운영 생산성과 직결</td></tr>
+      <tr><td><strong style="color:var(--purple)">Mobile</strong></td><td>dispatch-to-arrival</td><td>작업 할당 후 도착까지 시간</td><td>관제와 이동의 연결 품질</td></tr>
+      <tr><td><strong style="color:var(--purple)">System</strong></td><td>queue wait time</td><td>작업 생성 후 실제 실행까지 대기시간</td><td>병목과 배차 정책 평가</td></tr>
+      <tr><td><strong style="color:var(--purple)">System</strong></td><td>manual intervention count</td><td>사람 개입 횟수</td><td>자동화 성숙도 판단</td></tr>
+      <tr><td><strong style="color:var(--pink)">Data</strong></td><td>trace completeness</td><td>job ID · robot ID · model version · result 보존율</td><td>공정 디지털화 완성도</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- ═══════ 13. CLOSING ═══════ -->
+<section>
+<div class="container">
+  <div class="welcome">
+    <span class="welcome-eyebrow">🎯 The Differentiator</span>
+    <h3>우리가 만드는 교육은 "로봇 시연"이 아니다</h3>
+    <p>
+      SO101과 LeKiwi로 모델 성능을 비교하는 것만으로는 피지컬 AI 교육이 되지 않습니다.<br>
+      <strong>관제시스템을 넣어야 비로소 공정·데이터·운영·ROI를 동시에 설명하는 교육</strong>이 됩니다.
+    </p>
+    <p style="margin-top:1rem">
+      교육 결과물이 그 자체로 <strong>"라인 물류·핸들링·추적성 디지털화 제안서"</strong>가 되는 것 —<br>
+      이것이 우리가 다른 피지컬 AI 강의와 구분되는 지점입니다.
+    </p>
+    <div class="welcome-q">
+      "AI는 똑똑한 모델이 아니라, 현장 데이터가 학습으로 되돌아오는 순환 구조가 완성될 때 산업이 된다."
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer style="background:linear-gradient(135deg,#0F172A,#1E293B);color:rgba(255,255,255,.75);padding:2.5rem 0">
+<div class="container" style="text-align:center">
+  <p style="font-weight:700;color:#fff;font-size:1.05rem;margin-bottom:.5rem">
+    🎛️ 관제시스템 중심 피지컬 AI 입문 교육 설계
+  </p>
+  <p style="font-size:.85rem;margin-bottom:.4rem">
+    SO101 (Manipulation) + LeKiwi (Mobility) + Control Tower (Operations) = Operable Cell
+  </p>
+  <p style="font-size:.78rem;opacity:.65;margin-top:.6rem">
+    FCLA · Handong University × 빅맨 · 2026-04-26
+  </p>
+</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<!-- ai-infra-failure-cases-edu.html — AI 인프라·관제 부재 실패 사례 분석 [2026-04-26] -->
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 모델만으로는 산업이 되지 않는다 — 글로벌 실패 사례 분석</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --indigo:#4338CA;--indigo-l:#E0E7FF;--indigo-d:#312E81;
+  --teal:#0891B2;--teal-l:#CFFAFE;--teal-d:#164E63;
+  --purple:#7C3AED;--purple-l:#EDE9FE;
+  --green:#059669;--green-l:#D1FAE5;
+  --orange:#EA580C;--orange-l:#FFEDD5;
+  --pink:#DB2777;--pink-l:#FCE7F3;
+  --blue:#2563EB;--blue-l:#DBEAFE;
+  --amber:#D97706;--amber-l:#FEF3C7;
+  --red:#DC2626;--red-l:#FEE2E2;--red-d:#7F1D1D;
+  --crimson:#991B1B;
+  --slate:#475569;--slate-l:#F1F5F9;
+  --bg:#F1F5F9;--card:#FFFFFF;
+  --txt:#1E293B;--mut:#64748B;--bd:#E2E8F0;
+  --R:14px;--S:0 4px 14px rgba(0,0,0,.08);
+  --S2:0 8px 24px rgba(0,0,0,.12);
+}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--txt);background:var(--bg);line-height:1.75;-webkit-font-smoothing:antialiased}
+code,pre{font-family:'JetBrains Mono',monospace}
+.container{max-width:980px;margin:0 auto;padding:0 1.5rem}
+section{padding:3.5rem 0;position:relative}
+.sec-alt{background:#fff}
+h2{font-size:1.85rem;font-weight:900;margin-bottom:.4rem;display:flex;align-items:center;gap:.6rem;line-height:1.25}
+.h2-sub{font-size:.95rem;color:var(--mut);margin-bottom:1.75rem;font-weight:500}
+h3{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .9rem;color:var(--indigo-d)}
+h4{font-size:1.05rem;font-weight:700;margin:.8rem 0 .5rem}
+p{margin-bottom:1rem}
+
+/* ─── HERO ─── */
+.hero{background:linear-gradient(135deg,#450A0A 0%,#7F1D1D 30%,#991B1B 60%,#312E81 100%);color:#fff;padding:4.5rem 0 4rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40h80M40 0v80' stroke='white' stroke-opacity='0.04' stroke-width='1'/%3E%3Ccircle cx='40' cy='40' r='2' fill='white' fill-opacity='0.06'/%3E%3C/svg%3E");pointer-events:none}
+.hero::after{content:'';position:absolute;top:-30%;right:-15%;width:600px;height:600px;background:radial-gradient(circle,rgba(252,165,165,.15) 0%,transparent 60%);border-radius:50%;pointer-events:none}
+.hero .container{position:relative;z-index:1}
+.hero-eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#FCA5A5;margin-bottom:.85rem;padding:.32rem .9rem;border:1px solid rgba(252,165,165,.4);border-radius:999px;background:rgba(252,165,165,.08)}
+.hero h1{font-size:2.55rem;font-weight:900;line-height:1.18;margin-bottom:1rem;letter-spacing:-.02em}
+.hero h1 .accent{background:linear-gradient(120deg,#FCA5A5,#FECACA,#FBBF24);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-sub{font-size:1.1rem;opacity:.92;margin-bottom:1.5rem;max-width:720px;line-height:1.7}
+.tags{display:flex;flex-wrap:wrap;gap:.5rem}
+.tag{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600;background:rgba(255,255,255,.12);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.22)}
+.hero-meta{display:flex;gap:1.5rem;margin-top:1.75rem;flex-wrap:wrap;font-size:.85rem;opacity:.8}
+.hero-meta span{display:flex;align-items:center;gap:.4rem}
+
+/* ─── CORE MESSAGE ─── */
+.core-msg{background:linear-gradient(135deg,#0F172A,#1E293B);color:#fff;padding:2.5rem;border-radius:18px;margin-top:-2.5rem;position:relative;z-index:2;box-shadow:0 20px 50px rgba(0,0,0,.25);border:1px solid rgba(252,165,165,.25)}
+.core-msg-lbl{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#FCA5A5;margin-bottom:.7rem}
+.core-msg-text{font-size:1.2rem;font-weight:500;line-height:1.7;color:#F1F5F9}
+.core-msg-text strong{color:#FCA5A5;font-weight:700}
+.core-msg-cite{margin-top:1rem;font-size:.82rem;color:#94A3B8;font-style:italic}
+
+/* ─── STATS HEAD ─── */
+.stat-head{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1.5rem 0}
+.stat-h{background:#fff;border-radius:var(--R);padding:1.5rem 1rem;text-align:center;box-shadow:var(--S);border-top:5px solid var(--c);transition:transform .2s}
+.stat-h:hover{transform:translateY(-4px)}
+.stat-h-n{font-size:2.8rem;font-weight:900;line-height:1;color:var(--c)}
+.stat-h-l{font-weight:700;font-size:.92rem;margin-top:.5rem;color:var(--txt)}
+.stat-h-d{font-size:.76rem;color:var(--mut);margin-top:.3rem;line-height:1.5}
+.stat-h-src{display:inline-block;margin-top:.5rem;font-size:.68rem;color:var(--c);font-weight:700;letter-spacing:.05em;background:var(--bg2);padding:.15rem .55rem;border-radius:999px;font-family:'JetBrains Mono',monospace}
+
+/* ─── ANALOGY ─── */
+.analogy{display:flex;gap:1.1rem;padding:1.4rem 1.5rem;border-radius:14px;border-left:5px solid var(--c);background:var(--bg2);margin:1.5rem 0;align-items:flex-start}
+.analogy-i{font-size:2.4rem;flex-shrink:0;line-height:1}
+.analogy-t{font-weight:800;font-size:.78rem;color:var(--c);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
+.analogy-tx{line-height:1.7;font-size:.96rem}
+.analogy-real{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--c);font-size:.88rem;color:var(--mut)}
+
+/* ─── PART DIVIDER ─── */
+.part-div{background:linear-gradient(135deg,var(--c),var(--c-d));color:#fff;padding:2rem 2rem;border-radius:18px;margin:1.5rem 0;position:relative;overflow:hidden}
+.part-div::before{content:'';position:absolute;top:-50%;right:-15%;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 60%);border-radius:50%;pointer-events:none}
+.part-div .pd-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;opacity:.85;margin-bottom:.5rem}
+.part-div .pd-t{font-size:1.7rem;font-weight:900;margin-bottom:.5rem;line-height:1.2}
+.part-div .pd-d{font-size:.98rem;opacity:.92;max-width:680px;line-height:1.65;position:relative;z-index:1}
+
+/* ─── CASE CARD (대형) ─── */
+.case-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:var(--S);border:1px solid var(--bd);margin:1.5rem 0;position:relative;transition:box-shadow .25s}
+.case-card:hover{box-shadow:var(--S2)}
+.case-head{padding:1.5rem 1.75rem;color:#fff;display:flex;align-items:flex-start;gap:1.2rem;position:relative;overflow:hidden}
+.case-head::after{content:'';position:absolute;top:-50%;right:-15%;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.15) 0%,transparent 60%);border-radius:50%;pointer-events:none}
+.case-num{font-size:3.2rem;font-weight:900;line-height:.85;background:rgba(255,255,255,.18);width:80px;height:80px;display:flex;align-items:center;justify-content:center;border-radius:18px;flex-shrink:0;backdrop-filter:blur(4px);position:relative;z-index:1}
+.case-meta{flex:1;position:relative;z-index:1}
+.case-tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.2);padding:.22rem .65rem;border-radius:999px;margin-bottom:.35rem}
+.case-t{font-size:1.35rem;font-weight:900;line-height:1.25;margin-bottom:.3rem}
+.case-co{font-size:.85rem;opacity:.85;display:flex;gap:1rem;flex-wrap:wrap;font-weight:500}
+.case-co span{display:flex;align-items:center;gap:.3rem}
+.case-cost{background:rgba(0,0,0,.25);color:#FCA5A5;padding:.3rem .7rem;border-radius:10px;font-weight:800;font-size:.82rem;font-family:'JetBrains Mono',monospace;align-self:flex-start;flex-shrink:0;position:relative;z-index:1}
+.case-body{padding:1.5rem 1.75rem}
+.case-q{font-size:1rem;line-height:1.7;color:var(--txt);margin-bottom:1.25rem}
+.case-q strong{color:var(--c-d)}
+
+/* What/Why/Lesson 3-section */
+.wwl{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-top:1rem}
+.wwl-box{background:var(--bg);border-radius:12px;padding:1rem 1.1rem;border-top:3px solid var(--c)}
+.wwl-h{font-weight:800;font-size:.78rem;color:var(--c);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.45rem;display:flex;align-items:center;gap:.4rem}
+.wwl-h .wwl-ic{font-size:1.1rem}
+.wwl-t{font-size:.86rem;line-height:1.65;color:var(--txt)}
+
+.case-quote{background:#0F172A;color:#F1F5F9;padding:1.1rem 1.3rem;border-radius:12px;margin:1.25rem 0;border-left:4px solid var(--c);font-style:italic;font-size:.92rem;line-height:1.7;position:relative}
+.case-quote::before{content:'"';position:absolute;top:-.5rem;left:.5rem;font-size:3rem;color:var(--c);opacity:.5;font-family:Georgia,serif;line-height:1}
+.case-quote .speaker{display:block;margin-top:.7rem;font-style:normal;font-size:.78rem;color:#94A3B8;font-weight:600}
+
+/* ─── COMPARE PATTERN ─── */
+.pattern-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:1.5rem 0}
+.pattern-card{background:#fff;border-radius:var(--R);padding:1.5rem;box-shadow:var(--S);border-top:5px solid var(--c)}
+.pattern-h{display:flex;align-items:center;gap:.7rem;margin-bottom:1rem;padding-bottom:.8rem;border-bottom:1px dashed var(--bd)}
+.pattern-ic{font-size:2rem}
+.pattern-t{font-weight:800;font-size:1.05rem;color:var(--c)}
+.pattern-en{font-size:.74rem;color:var(--mut);font-weight:500;letter-spacing:.04em}
+.pattern-list{list-style:none}
+.pattern-list li{padding:.6rem 0;font-size:.88rem;display:flex;gap:.6rem;align-items:flex-start;border-bottom:1px solid var(--bd)}
+.pattern-list li:last-child{border:none}
+.pattern-list .x{color:var(--red);font-weight:900;font-size:1.1rem;flex-shrink:0;line-height:1.5}
+.pattern-list .v{color:var(--green);font-weight:900;font-size:1.1rem;flex-shrink:0;line-height:1.5}
+
+/* ─── LESSONS (4 axes) ─── */
+.lesson-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.5rem 0}
+.lesson-card{background:#fff;border-radius:var(--R);padding:1.4rem;border:1px solid var(--bd);box-shadow:var(--S);position:relative;overflow:hidden;transition:transform .2s}
+.lesson-card:hover{transform:translateY(-4px)}
+.lesson-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:5px;background:linear-gradient(90deg,var(--c),var(--c2))}
+.lesson-num{font-size:.7rem;font-weight:800;color:var(--c);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;margin-top:.3rem}
+.lesson-ic{font-size:1.8rem;margin-bottom:.5rem}
+.lesson-t{font-weight:800;font-size:1.02rem;color:var(--txt);margin-bottom:.5rem;line-height:1.35}
+.lesson-d{font-size:.85rem;line-height:1.65;color:var(--mut)}
+
+/* ─── FCLA CONNECTION ─── */
+.fcla-box{background:linear-gradient(135deg,#0F172A,#1E293B);color:#fff;padding:2.5rem;border-radius:18px;margin:1.5rem 0;position:relative;overflow:hidden}
+.fcla-box::before{content:'';position:absolute;top:-40%;left:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(103,232,249,.1) 0%,transparent 60%);border-radius:50%}
+.fcla-box::after{content:'';position:absolute;bottom:-40%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(196,181,253,.1) 0%,transparent 60%);border-radius:50%}
+.fcla-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#67E8F9;margin-bottom:.6rem;position:relative;z-index:1}
+.fcla-h{font-size:1.6rem;font-weight:900;margin-bottom:.7rem;color:#fff;position:relative;z-index:1}
+.fcla-tx{font-size:1rem;opacity:.9;line-height:1.75;margin-bottom:1.2rem;position:relative;z-index:1}
+.fcla-tx strong{color:#67E8F9}
+.fcla-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.9rem;position:relative;z-index:1}
+.fcla-item{background:rgba(255,255,255,.08);border:1px solid rgba(103,232,249,.25);border-radius:12px;padding:1rem 1.1rem;backdrop-filter:blur(4px);transition:border-color .25s}
+.fcla-item:hover{border-color:rgba(103,232,249,.6)}
+.fcla-i-num{font-size:.7rem;color:#67E8F9;font-weight:700;letter-spacing:.1em}
+.fcla-i-t{font-weight:700;font-size:.95rem;margin-top:.25rem;margin-bottom:.3rem;color:#fff}
+.fcla-i-d{font-size:.78rem;opacity:.78;line-height:1.55}
+
+/* ─── CALLOUT ─── */
+.co{display:flex;gap:.8rem;padding:1rem 1.2rem;border-radius:10px;align-items:flex-start;margin:1rem 0;font-size:.92rem;line-height:1.65}
+.co-i{font-size:1.25rem;flex-shrink:0;padding-top:.05rem}
+.co-tip{background:var(--green-l);border-left:3px solid var(--green)}
+.co-info{background:var(--blue-l);border-left:3px solid var(--blue)}
+.co-warn{background:var(--amber-l);border-left:3px solid var(--amber)}
+.co-err{background:var(--red-l);border-left:3px solid var(--red)}
+.co-purple{background:var(--purple-l);border-left:3px solid var(--purple)}
+
+/* ─── REFERENCES ─── */
+.refs{background:#fff;border-radius:var(--R);padding:1.5rem 1.75rem;box-shadow:var(--S);border:1px solid var(--bd);margin:1.5rem 0}
+.refs h4{font-size:.92rem;color:var(--indigo-d);margin-bottom:.8rem;font-weight:800}
+.refs ul{list-style:none;font-size:.83rem;line-height:1.9}
+.refs li{padding:.35rem 0;display:flex;gap:.7rem;align-items:flex-start;border-bottom:1px dashed var(--bd)}
+.refs li:last-child{border:none}
+.refs li::before{content:'📄';flex-shrink:0}
+.refs .ref-src{color:var(--indigo);font-weight:700}
+.refs .ref-d{color:var(--mut);font-size:.78rem;display:block;margin-top:.1rem}
+
+/* ─── CROSS PATTERN TABLE ─── */
+.cross-tbl{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.86rem;background:#fff;border-radius:var(--R);overflow:hidden;box-shadow:var(--S)}
+.cross-tbl th{background:linear-gradient(135deg,var(--red-d),var(--crimson));color:#fff;padding:.85rem .9rem;text-align:left;font-weight:700;font-size:.85rem}
+.cross-tbl td{padding:.75rem .9rem;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.6}
+.cross-tbl tr:nth-child(even) td{background:var(--bg)}
+.cross-tbl .pattern{font-weight:800;color:var(--red-d)}
+.cross-tbl .badge{display:inline-block;background:var(--red-l);color:var(--red-d);padding:.15rem .55rem;border-radius:6px;font-size:.72rem;font-weight:700;font-family:'JetBrains Mono',monospace;margin-right:.3rem}
+
+/* ─── WELCOME ─── */
+.welcome{background:linear-gradient(135deg,var(--indigo-d),var(--indigo),var(--purple),var(--teal));color:#fff;padding:3rem 2rem;border-radius:18px;text-align:center;margin-top:2rem;position:relative;overflow:hidden;box-shadow:var(--S2)}
+.welcome::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1.5' fill='white' fill-opacity='0.08'/%3E%3C/svg%3E");pointer-events:none}
+.welcome-eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#67E8F9;margin-bottom:.85rem;padding:.32rem .9rem;border:1px solid rgba(103,232,249,.4);border-radius:999px;position:relative;z-index:1}
+.welcome h3{font-size:1.75rem;font-weight:900;color:#fff;margin-bottom:.8rem;line-height:1.3;position:relative;z-index:1}
+.welcome p{font-size:1rem;opacity:.92;max-width:660px;margin:0 auto 1rem;line-height:1.7;position:relative;z-index:1}
+.welcome-q{font-size:1.05rem;margin-top:1.2rem;font-weight:600;font-style:italic;position:relative;z-index:1;color:#A5F3FC}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  .hero h1{font-size:1.85rem}
+  .hero-sub{font-size:1rem}
+  .core-msg{padding:1.75rem 1.4rem;margin-top:-1.5rem}
+  .core-msg-text{font-size:1.05rem}
+  .case-head{flex-direction:column;gap:.8rem}
+  .case-num{font-size:2.4rem;width:60px;height:60px}
+  .case-cost{align-self:flex-start}
+  .wwl{grid-template-columns:1fr}
+  .pattern-grid{grid-template-columns:1fr}
+  .cross-tbl{font-size:.78rem;display:block;overflow-x:auto;white-space:nowrap}
+  .cross-tbl td{white-space:normal}
+  h2{font-size:1.5rem}
+  section{padding:2.5rem 0}
+}
+@media print{
+  .hero{background:#7F1D1D!important;-webkit-print-color-adjust:exact}
+  .core-msg,.fcla-box,.welcome,.case-quote{background:#1E293B!important;-webkit-print-color-adjust:exact}
+  .case-card:hover,.lesson-card:hover,.stat-h:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ 1. HERO ═══════ -->
+<header class="hero">
+<div class="container">
+  <span class="hero-eyebrow">⚠️ Failure Case Analysis · 글로벌 실패 사례 분석</span>
+  <div class="tags" style="margin-bottom:1.25rem">
+    <span class="tag">💸 IBM Watson $4B</span>
+    <span class="tag">🤖 Tesla Fluff Bot</span>
+    <span class="tag">🏭 GM Lights-Out</span>
+    <span class="tag">📊 RAND · McKinsey</span>
+    <span class="tag">⚠️ 80% AI 실패</span>
+  </div>
+  <h1>AI 모델만으로는 <span class="accent">절대 산업이 되지 않는다</span><br>— 글로벌 실패 사례에서 배우는 교훈</h1>
+  <p class="hero-sub">
+    "AI 모델만 적용하면 된다"는 생각으로 시작했다가 무너진 프로젝트들. 그리고 "관제 시스템이 없어서" 효과적으로 대응하지 못한 현장들. 글로벌 실패 사례를 통해 <strong>왜 인프라와 관제가 차별화의 핵심인지</strong> 데이터로 증명합니다.
+  </p>
+  <div class="hero-meta">
+    <span>🔍 <strong>RAND · McKinsey · IEEE · HBR</strong> 출처</span>
+    <span>📅 2017–2026 실제 케이스</span>
+    <span>🎯 FCLA 교육 근거 자료</span>
+  </div>
+</div>
+</header>
+
+<!-- ═══════ 2. CORE MESSAGE ═══════ -->
+<section style="padding-top:0">
+<div class="container">
+  <div class="core-msg">
+    <div class="core-msg-lbl">⚠️ The Hard Truth · 데이터가 말하는 진실</div>
+    <p class="core-msg-text">
+      <strong>"AI 프로젝트의 80–87%는 production에 도달하지 못한다."<br>이유는 모델이 나빠서가 아니라, 인프라가 준비되지 않았기 때문이다.</strong>
+    </p>
+    <p class="core-msg-cite">— RAND Corporation, Akaike AI, QuickLaunch Analytics (2024–2026) 교차 검증</p>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 3. 통계 한눈에 보기 ═══════ -->
+<section>
+<div class="container">
+  <h2>📊 글로벌 통계 — 실패는 보편적 패턴이다</h2>
+  <p class="h2-sub">개별 사례가 아닌, 산업 전반에 걸친 구조적 문제임을 보여주는 핵심 수치들.</p>
+
+  <div class="stat-head">
+    <div class="stat-h" style="--c:var(--red);--bg2:var(--red-l)">
+      <div class="stat-h-n">80%</div>
+      <div class="stat-h-l">AI 프로젝트<br>실패율</div>
+      <div class="stat-h-d">비-AI 기술 프로젝트 대비 2배</div>
+      <div class="stat-h-src">RAND 2024</div>
+    </div>
+    <div class="stat-h" style="--c:var(--crimson);--bg2:var(--red-l)">
+      <div class="stat-h-n">87%</div>
+      <div class="stat-h-l">Production 미도달<br>AI 프로젝트</div>
+      <div class="stat-h-d">데이터 품질이 주요 원인</div>
+      <div class="stat-h-src">Akaike 2025</div>
+    </div>
+    <div class="stat-h" style="--c:var(--orange);--bg2:var(--orange-l)">
+      <div class="stat-h-n">74%</div>
+      <div class="stat-h-l">제조업체<br>Pilot Purgatory</div>
+      <div class="stat-h-d">파일럿은 성공, 스케일은 실패</div>
+      <div class="stat-h-src">McKinsey GLN</div>
+    </div>
+    <div class="stat-h" style="--c:var(--amber);--bg2:var(--amber-l)">
+      <div class="stat-h-n">75%</div>
+      <div class="stat-h-l">디지털 파일럿<br>스케일 실패</div>
+      <div class="stat-h-d">평균 8개 파일럿 中 6개 실패</div>
+      <div class="stat-h-src">WEF/McKinsey</div>
+    </div>
+    <div class="stat-h" style="--c:var(--purple);--bg2:var(--purple-l)">
+      <div class="stat-h-n">46%</div>
+      <div class="stat-h-l">POC 폐기율<br>(Scrap Rate)</div>
+      <div class="stat-h-d">데이터 갭으로 production 단계 폐기</div>
+      <div class="stat-h-src">SR Analytics</div>
+    </div>
+  </div>
+
+  <div class="analogy" style="--c:var(--red);--bg2:var(--red-l)">
+    <div class="analogy-i">🏗️</div>
+    <div>
+      <div class="analogy-t">건축 비유</div>
+      <p class="analogy-tx">
+        <strong>"멋진 고층 빌딩을 짓겠다며 옥상부터 만들기 시작한 격."</strong> AI 모델은 빌딩의 옥상 같은 것입니다. 기초·골조·배관·전기(데이터 인프라·관제·이력 시스템)가 없으면 결국 무너집니다. 글로벌 80%가 이 함정에 빠졌습니다.
+      </p>
+      <p class="analogy-real">
+        💡 <strong>RAND의 결론</strong> — "조직이 데이터를 관리하고 완성된 AI 모델을 배포할 적절한 인프라를 갖추지 못하면, 프로젝트 실패 가능성이 급격히 높아진다."
+      </p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 4. PART 1 — AI 인프라 없이 모델만 ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <div class="part-div" style="--c:var(--red);--c-d:var(--red-d)">
+    <div class="pd-eyebrow">⚠️ PART 1 / TWO</div>
+    <div class="pd-t">🧠 인프라 없이 AI 모델만 적용한 실패</div>
+    <p class="pd-d">"모델만 좋으면 된다"는 착각이 무너지는 순간. 글로벌 빅테크부터 자동차·헬스케어까지, 데이터 인프라를 건너뛴 프로젝트는 예외 없이 무너졌습니다.</p>
+  </div>
+
+  <!-- CASE 1: IBM Watson for Oncology -->
+  <div class="case-card">
+    <div class="case-head" style="background:linear-gradient(135deg,#7F1D1D,#DC2626);--c-d:var(--red-d)">
+      <div class="case-num">1</div>
+      <div class="case-meta">
+        <span class="case-tag">Healthcare · USA</span>
+        <div class="case-t">IBM Watson for Oncology</div>
+        <div class="case-co">
+          <span>🏢 IBM + Memorial Sloan Kettering</span>
+          <span>📅 2012–2017</span>
+          <span>💀 MD Anderson 결별 (2017)</span>
+        </div>
+      </div>
+      <div class="case-cost">$4 Billion+</div>
+    </div>
+    <div class="case-body">
+      <p class="case-q">IBM Watson은 "암 진단을 인간 의사보다 더 잘하는 AI"로 화려하게 출범했습니다. <strong>$62M 초기 투자</strong>로 시작해 Truven Health Analytics 인수($2.6B), Merge Healthcare ($1B) 등 <strong>총 $4B 이상</strong>이 투입됐습니다. 결과는?</p>
+
+      <div class="case-quote" style="--c:#FCA5A5">
+        Watson은 <strong>실제 환자 데이터가 아닌 가상(synthetic) 케이스로 훈련</strong>됐다. 의사들은 Watson의 권고가 자신들의 임상 판단과 일치하지 않는다고 보고했고, 일부 권고는 안전하지 않은 치료법이었다.
+        <span class="speaker">— ASH Clinical News / IEEE Spectrum 보도 (2018)</span>
+      </div>
+
+      <div class="wwl">
+        <div class="wwl-box" style="--c:var(--red);background:var(--red-l)">
+          <div class="wwl-h"><span class="wwl-ic">❌</span>무엇이 실패했나</div>
+          <div class="wwl-t">실제 환자 데이터가 아닌 합성 데이터로 학습. 비정형 데이터(의사 노트, 임상 요약) 해석 능력 부족. 결정 과정이 불투명한 "black box".</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--amber);background:var(--amber-l)">
+          <div class="wwl-h"><span class="wwl-ic">🔍</span>왜 실패했나</div>
+          <div class="wwl-t"><strong>데이터 인프라가 모델보다 먼저 준비되지 않았음.</strong> 병원의 비정형 진료 기록을 구조화할 데이터 파이프라인 부재. NLP만으로는 한계.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--blue);background:var(--blue-l)">
+          <div class="wwl-h"><span class="wwl-ic">💡</span>교훈</div>
+          <div class="wwl-t">"높은 투자와 첨단 기술이 <strong>설계·배포 전략의 근본적 결함</strong>을 보완해주지 못한다." 데이터 품질 → 신뢰 → 채택의 순서를 거스를 수 없다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 2: Walmart Inventory AI -->
+  <div class="case-card">
+    <div class="case-head" style="background:linear-gradient(135deg,#9F1239,#DB2777);--c-d:#9F1239">
+      <div class="case-num">2</div>
+      <div class="case-meta">
+        <span class="case-tag">Retail · USA</span>
+        <div class="case-t">Walmart AI 재고 관리 시스템</div>
+        <div class="case-co">
+          <span>🏢 Walmart</span>
+          <span>📅 2018 초기 배포</span>
+          <span>📚 HBR Case Study</span>
+        </div>
+      </div>
+      <div class="case-cost">정확도 실패</div>
+    </div>
+    <div class="case-body">
+      <p class="case-q">세계 최대 유통업체 Walmart가 2018년 AI 기반 재고 관리 시스템을 야심차게 도입했습니다. 첨단 ML 알고리즘과 막대한 데이터를 보유했지만 — <strong>정확도가 처참하게 무너졌습니다.</strong></p>
+
+      <div class="wwl">
+        <div class="wwl-box" style="--c:var(--red);background:var(--red-l)">
+          <div class="wwl-h"><span class="wwl-ic">❌</span>무엇이 실패했나</div>
+          <div class="wwl-t">매장마다 상품 분류 체계가 달랐고, 과거 판매 데이터가 불완전했으며, 매장별 데이터 입력 표준이 들쭉날쭉했습니다.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--amber);background:var(--amber-l)">
+          <div class="wwl-h"><span class="wwl-ic">🔍</span>왜 실패했나</div>
+          <div class="wwl-t"><strong>"비싼 AI에 투자하면서 데이터 품질은 외면."</strong> 같은 상품이 매장마다 다른 카테고리에 들어가 있는데 AI가 일관된 패턴을 학습할 수 없었습니다.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--blue);background:var(--blue-l)">
+          <div class="wwl-h"><span class="wwl-ic">💡</span>교훈</div>
+          <div class="wwl-t">전국 매장의 <strong>데이터 표준화·거버넌스</strong>가 AI보다 먼저였습니다. 인프라 없는 데이터는 AI에게 독약입니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 3: Tesla Fluff Bot -->
+  <div class="case-card">
+    <div class="case-head" style="background:linear-gradient(135deg,#7F1D1D,#EA580C);--c-d:#7F1D1D">
+      <div class="case-num">3</div>
+      <div class="case-meta">
+        <span class="case-tag">Manufacturing · USA</span>
+        <div class="case-t">Tesla Model 3 "Fluff Bot" 자동화</div>
+        <div class="case-co">
+          <span>🏢 Tesla Fremont Factory</span>
+          <span>📅 2017–2018</span>
+          <span>💬 Musk 공식 인정</span>
+        </div>
+      </div>
+      <div class="case-cost">목표 미달 60%</div>
+    </div>
+    <div class="case-body">
+      <p class="case-q">Elon Musk는 "Alien Dreadnought"라 불리는 <strong>완전 자동화 공장</strong>을 약속했습니다. 목표는 주당 5,000대 Model 3 생산. 결과는 — 주당 2,000대. 문제는 한 작은 로봇에서 시작됐습니다.</p>
+
+      <div class="case-quote" style="--c:#FBBF24">
+        우리는 자동화에서 너무 멀리 갔다. 정말 바보 같은 것들까지 자동화했다. <strong>로봇은 솜뭉치(fluff)를 집어 올리는 데 정말 서툴다.</strong> 한 디자인에서 우리는 엔진 소음을 줄이려고 fiberglass mat을 배터리팩에 부착하는 로봇을 만들었는데, 알고 보니 그 부품은 노이즈 감소에 효과도 없었다. 우리는 그 부품을 아예 제거했다.
+        <span class="speaker">— Elon Musk, 2018년 5월 어닝 콜</span>
+      </div>
+
+      <div class="wwl">
+        <div class="wwl-box" style="--c:var(--red);background:var(--red-l)">
+          <div class="wwl-h"><span class="wwl-ic">❌</span>무엇이 실패했나</div>
+          <div class="wwl-t">비전 AI로 fiberglass mat을 집어 배터리팩에 붙이는 "fluff bot"이 실패. 컨베이어 벨트의 "복잡한 네트워크" 전체가 작동하지 않아 결국 폐기.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--amber);background:var(--amber-l)">
+          <div class="wwl-h"><span class="wwl-ic">🔍</span>왜 실패했나</div>
+          <div class="wwl-t"><strong>제품 설계·운영 인프라를 먼저 검증하지 않고 자동화부터 추구.</strong> 부품 자체가 불필요했음을 자동화 후에야 발견. 통합 검증 시스템 부재.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--blue);background:var(--blue-l)">
+          <div class="wwl-h"><span class="wwl-ic">💡</span>교훈</div>
+          <div class="wwl-t">Musk 본인이 트위터에 인정: <strong>"Yes, excessive automation at Tesla was a mistake. To be precise, my mistake. Humans are underrated."</strong></div>
+        </div>
+      </div>
+
+      <div class="co co-err">
+        <div class="co-i">📌</div>
+        <div><strong>핵심 통찰:</strong> Tesla는 "AI 로봇 + 컨베이어"라는 첨단 기술을 갖고 있었지만, 그 위의 <strong>운영 인프라·제품 검증 시스템</strong>이 없었습니다. 결과적으로 "그 부품이 정말 필요한가?"라는 가장 기본 질문에 답하기 전에 자동화부터 진행한 셈입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 4: RAND 5 Root Causes -->
+  <div class="case-card">
+    <div class="case-head" style="background:linear-gradient(135deg,#312E81,#7C3AED);--c-d:var(--indigo-d)">
+      <div class="case-num">4</div>
+      <div class="case-meta">
+        <span class="case-tag">Research · Global</span>
+        <div class="case-t">RAND Corporation — AI 실패 5대 근본 원인</div>
+        <div class="case-co">
+          <span>🏢 RAND Corp.</span>
+          <span>📅 2024 메타 연구</span>
+          <span>👥 데이터 사이언티스트 인터뷰</span>
+        </div>
+      </div>
+      <div class="case-cost">80% 실패율</div>
+    </div>
+    <div class="case-body">
+      <p class="case-q">RAND Corporation이 AI 프로젝트 실패의 근본 원인을 종합 분석한 결과, <strong>5가지 패턴이 반복</strong>되는 것을 발견했습니다. 4번째 원인이 바로 우리가 다루는 핵심입니다.</p>
+
+      <div class="wwl" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+        <div class="wwl-box" style="--c:var(--mut);background:var(--bg)">
+          <div class="wwl-h"><span class="wwl-ic">①</span>문제 정의 오류</div>
+          <div class="wwl-t">잘못된 metric으로 최적화. 비즈니스 워크플로우와 안 맞음.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--mut);background:var(--bg)">
+          <div class="wwl-h"><span class="wwl-ic">②</span>데이터 부족</div>
+          <div class="wwl-t">AI 모델을 훈련할 충분한 양·질의 데이터가 없음.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--mut);background:var(--bg)">
+          <div class="wwl-h"><span class="wwl-ic">③</span>기술 과시 함정</div>
+          <div class="wwl-t">실제 문제 해결보다 최신 기술 자랑에 집중.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--red);background:var(--red-l);border:2px solid var(--red)">
+          <div class="wwl-h"><span class="wwl-ic">④</span>인프라 부재 ⭐</div>
+          <div class="wwl-t"><strong>데이터를 관리하고 모델을 배포할 인프라 부재 — 가장 자주 등장하는 패턴</strong></div>
+        </div>
+        <div class="wwl-box" style="--c:var(--mut);background:var(--bg)">
+          <div class="wwl-h"><span class="wwl-ic">⑤</span>AI로 풀 수 없는 문제</div>
+          <div class="wwl-t">AI가 풀기에는 너무 어려운 문제에 적용.</div>
+        </div>
+      </div>
+
+      <div class="case-quote" style="--c:#67E8F9;margin-top:1.25rem">
+        조직들은 데이터 인프라가 production AI를 지원하도록 설계되지 않은 상태에서 파일럿을 쌓아 올렸고, 프로젝트 출범 <strong>후에야</strong> 성공 기준을 정의했으며, 최종 사용자 채택은 모델이 배포되면 자연스럽게 일어날 것이라고 여겼다.
+        <span class="speaker">— SR Analytics, "Why 95% of AI Projects Fail" (2026)</span>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 5. PART 2 — 관제 시스템 부재 ═══════ -->
+<section>
+<div class="container">
+  <div class="part-div" style="--c:var(--orange);--c-d:#7C2D12">
+    <div class="pd-eyebrow">⚠️ PART 2 / TWO</div>
+    <div class="pd-t">🎛️ 관제 시스템 부재로 효과적 대응 못한 실패</div>
+    <p class="pd-d">로봇·자동화는 있는데 그것을 엮는 관제(Control Tower)가 없으면 어떤 일이 벌어지는가. 결국 데이터는 사일로에 갇히고, 예외 발생 시 사람이 일일이 뛰어다녀야 합니다.</p>
+  </div>
+
+  <!-- CASE 5: GM Lights-Out -->
+  <div class="case-card">
+    <div class="case-head" style="background:linear-gradient(135deg,#7C2D12,#EA580C);--c-d:#7C2D12">
+      <div class="case-num">5</div>
+      <div class="case-meta">
+        <span class="case-tag">Manufacturing · USA</span>
+        <div class="case-t">GM "Lights-Out Factory" 비전 (1980년대)</div>
+        <div class="case-co">
+          <span>🏢 General Motors</span>
+          <span>📅 Roger Smith CEO 시대</span>
+          <span>📚 ArsTechnica 분석</span>
+        </div>
+      </div>
+      <div class="case-cost">대규모 손실</div>
+    </div>
+    <div class="case-body">
+      <p class="case-q">Tesla 사례보다 30년 앞선, <strong>"관제 없는 자동화"의 원조 실패</strong>. 당시 GM CEO Roger Smith는 일본 토요타와의 경쟁에서 이기기 위해 <strong>로봇만으로 운영되는 공장</strong>을 꿈꿨습니다.</p>
+
+      <div class="case-quote" style="--c:#FBBF24">
+        조립 라인이 속도를 내려 하자, <strong>컴퓨터로 가이드되던 돌리(dolly)가 코스를 이탈했고</strong>, 스프레이 페인팅 로봇들은 자동차가 아닌 <strong>서로에게 페인트를 뿌리기 시작했다.</strong> 결국 GM은 차량을 트럭으로 57년 된 캐딜락 공장으로 옮겨 다시 페인팅해야 했다.
+        <span class="speaker">— ArsTechnica, Timothy B. Lee 분석</span>
+      </div>
+
+      <div class="wwl">
+        <div class="wwl-box" style="--c:var(--red);background:var(--red-l)">
+          <div class="wwl-h"><span class="wwl-ic">❌</span>무엇이 실패했나</div>
+          <div class="wwl-t">로봇은 있었지만 <strong>로봇 간 조율(orchestration)이 없었음</strong>. AGV가 길을 잃고, 페인팅 로봇이 서로 충돌. 예외 발생 시 누구도 멈출 수 없음.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--amber);background:var(--amber-l)">
+          <div class="wwl-h"><span class="wwl-ic">🔍</span>왜 실패했나</div>
+          <div class="wwl-t"><strong>관제 시스템(Control Tower)이 없었음.</strong> 각 로봇이 독립적으로 일하면서 전체 흐름을 보는 눈이 없었습니다. 결국 사람이 차를 트럭으로 옮겨야 했습니다.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--blue);background:var(--blue-l)">
+          <div class="wwl-h"><span class="wwl-ic">💡</span>교훈</div>
+          <div class="wwl-t">"완전 자동화"보다 더 어려운 것은 <strong>"통합 운영"</strong>입니다. 40년이 지나도 Tesla는 같은 실수를 반복했습니다 — 역사는 가르치되, 듣지 않으면 반복됩니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 6: McKinsey Pilot Purgatory -->
+  <div class="case-card">
+    <div class="case-head" style="background:linear-gradient(135deg,#312E81,#0891B2);--c-d:var(--indigo-d)">
+      <div class="case-num">6</div>
+      <div class="case-meta">
+        <span class="case-tag">Industry-Wide · Global</span>
+        <div class="case-t">"Pilot Purgatory" — 74% 제조업체의 늪</div>
+        <div class="case-co">
+          <span>🏢 McKinsey & WEF Global Lighthouse</span>
+          <span>📅 2018–2026</span>
+          <span>📊 700+ 제조업 인터뷰</span>
+        </div>
+      </div>
+      <div class="case-cost">5–10년 정체</div>
+    </div>
+    <div class="case-body">
+      <p class="case-q">McKinsey가 글로벌 제조업체 수백 곳을 조사한 결과 — <strong>74%가 "Pilot Purgatory(파일럿 연옥)"에 갇혀 있다</strong>는 충격적 결과. 평균 8개 파일럿을 시작하지만 75%는 스케일 단계에서 실패합니다.</p>
+
+      <div class="case-quote" style="--c:#A5F3FC">
+        한 사이트에서는 <strong>MES 데이터의 90%가 30일 후 자동 삭제</strong>되고 있었다 (주요 고객 보고용 파라미터만 제외). 노후 장비는 1990년대 후반 데스크탑 기반 머신 컨트롤에 연결돼 있고, 데이터는 스프레드시트로 오프라인 보관됐다.
+        <span class="speaker">— McKinsey "IT/OT Last Mile" 분석 (2018)</span>
+      </div>
+
+      <h4 style="margin-top:1.25rem;color:var(--indigo-d)">🚧 5가지 IT/OT Last-Mile 장벽</h4>
+      <div class="wwl" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin-top:.5rem">
+        <div class="wwl-box" style="--c:var(--red);background:var(--red-l)">
+          <div class="wwl-h"><span class="wwl-ic">🧩</span>이기종 환경</div>
+          <div class="wwl-t">200+ 장비, 각자 다른 벤더·프로토콜·SW 플랫폼</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--orange);background:var(--orange-l)">
+          <div class="wwl-h"><span class="wwl-ic">🏚️</span>노후 장비</div>
+          <div class="wwl-t">수십 년 된 기계, 계측기 없음, 페인트샵 등 극한 환경</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--amber);background:var(--amber-l)">
+          <div class="wwl-h"><span class="wwl-ic">📂</span>데이터 사일로</div>
+          <div class="wwl-t">로봇·PLC·MES 로그가 각자 다른 곳에 흩어져 있음</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--purple);background:var(--purple-l)">
+          <div class="wwl-h"><span class="wwl-ic">🔒</span>보안 우려</div>
+          <div class="wwl-t">클라우드로 데이터 이동 꺼림 → 통합 분석 어려움</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--blue);background:var(--blue-l)">
+          <div class="wwl-h"><span class="wwl-ic">⚙️</span>IT-OT 분리</div>
+          <div class="wwl-t">IT 부서와 OT 부서가 사일로로 운영. 협업 부재</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 7: Automotive Parts Manufacturer -->
+  <div class="case-card">
+    <div class="case-head" style="background:linear-gradient(135deg,#164E63,#0891B2);--c-d:var(--teal-d)">
+      <div class="case-num">7</div>
+      <div class="case-meta">
+        <span class="case-tag">Manufacturing · Mid-size</span>
+        <div class="case-t">자동차 부품 제조업체 — MES·SCADA·PLC 통합 실패</div>
+        <div class="case-co">
+          <span>🏢 자동차 부품 3개 라인</span>
+          <span>📅 iFactory 분석 (2026)</span>
+          <span>⏱️ 주당 8시간 수동 작업</span>
+        </div>
+      </div>
+      <div class="case-cost">진단 불가</div>
+    </div>
+    <div class="case-body">
+      <p class="case-q">한 중견 자동차 부품 제조업체는 SCADA·MES·PLC를 모두 갖고 있었습니다. 문제는 — <strong>3개 시스템이 서로 다른 벤더의 것이라 공유 데이터 모델이 없었다</strong>는 점입니다.</p>
+
+      <div class="wwl">
+        <div class="wwl-box" style="--c:var(--red);background:var(--red-l)">
+          <div class="wwl-h"><span class="wwl-ic">❌</span>무엇이 실패했나</div>
+          <div class="wwl-t">유지보수 엔지니어가 <strong>주당 8시간 이상을 시스템 로그 수동 조정</strong>에 소비. 재발하는 컨베이어 고장을 진단할 수 없음. 계획된 정비에도 surprise failure 발생.</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--amber);background:var(--amber-l)">
+          <div class="wwl-h"><span class="wwl-ic">🔍</span>왜 실패했나</div>
+          <div class="wwl-t"><strong>SCADA는 온도 스파이크를 보여주는데 MES는 어느 생산오더가 영향받는지 모름.</strong> 결과: 응답 지연, 배치 낭비, 사후 분석만 가능 (예방 불가).</div>
+        </div>
+        <div class="wwl-box" style="--c:var(--blue);background:var(--blue-l)">
+          <div class="wwl-h"><span class="wwl-ic">💡</span>교훈</div>
+          <div class="wwl-t">개별 시스템 투자는 충분했지만 <strong>"계층 간 통합(Cross-Layer Integration)"이 없으면 가치가 0</strong>. 관제는 시스템들을 엮는 접착제입니다.</div>
+        </div>
+      </div>
+
+      <div class="co co-warn">
+        <div class="co-i">⚙️</div>
+        <div><strong>iFactory의 결론:</strong> "기술이 문제가 아니라 <strong>계층 간 갭(gaps between them)</strong>이 문제다. 운영자들은 오래된 데이터로 결정을 내리고, 엔지니어들은 시스템 간 작업을 중복하며, 리더는 전략적 행동을 위한 통합 뷰가 없다."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 8: cnn-robotics analysis -->
+  <div class="case-card">
+    <div class="case-head" style="background:linear-gradient(135deg,#7F1D1D,#9F1239);--c-d:#7F1D1D">
+      <div class="case-num">8</div>
+      <div class="case-meta">
+        <span class="case-tag">Industry Analysis</span>
+        <div class="case-t">"왜 대부분의 로봇·자동화 프로젝트는 실패하는가"</div>
+        <div class="case-co">
+          <span>🏢 cnn-robotics 산업 분석</span>
+          <span>📅 2025년 12월</span>
+          <span>🔍 통합 vs 하드웨어 진단</span>
+        </div>
+      </div>
+      <div class="case-cost">통합 실패</div>
+    </div>
+    <div class="case-body">
+      <p class="case-q">2025년 말 발표된 산업 분석은 한 가지 결론을 내립니다: <strong>"로봇·자동화 프로젝트 실패의 진짜 원인은 하드웨어가 아니라 통합이다."</strong> 실제 현장에서 반복되는 패턴은 다음과 같습니다.</p>
+
+      <h4 style="margin-top:1rem;color:var(--red-d)">⚠️ 현장에서 반복되는 실패 패턴</h4>
+      <div class="pattern-grid">
+        <div class="pattern-card" style="--c:var(--red)">
+          <div class="pattern-h">
+            <span class="pattern-ic">❌</span>
+            <div>
+              <div class="pattern-t">통합 부재 증상</div>
+              <div class="pattern-en">Without Control Tower</div>
+            </div>
+          </div>
+          <ul class="pattern-list">
+            <li><span class="x">✗</span><span>로봇 로그는 여기, PLC 알람은 저기, MES 이벤트는 또 다른 곳</span></li>
+            <li><span class="x">✗</span><span>MES/ERP가 정확한 cycle time·scrap·downtime 사유를 못 받음</span></li>
+            <li><span class="x">✗</span><span>운영자들이 자동화를 우회하여 "그냥 생산 유지"</span></li>
+            <li><span class="x">✗</span><span>로봇 폴트 발생 시 매번 수동 재교육 필요</span></li>
+            <li><span class="x">✗</span><span>비상시 백업/수동 모드가 명확치 않아 운영자 패닉</span></li>
+          </ul>
+        </div>
+        <div class="pattern-card" style="--c:var(--green)">
+          <div class="pattern-h">
+            <span class="pattern-ic">✅</span>
+            <div>
+              <div class="pattern-t">통합된 시스템</div>
+              <div class="pattern-en">With Control Tower</div>
+            </div>
+          </div>
+          <ul class="pattern-list">
+            <li><span class="v">✓</span><span>모든 로그·알람·이벤트가 통합 이력 시스템에 저장</span></li>
+            <li><span class="v">✓</span><span>MES에 정확한 cycle time·NG·다운타임 사유 자동 전달</span></li>
+            <li><span class="v">✓</span><span>운영자가 통합 대시보드 하나로 모든 상태 파악</span></li>
+            <li><span class="v">✓</span><span>로봇 폴트 시 자동 진단 → recovery ticket 생성</span></li>
+            <li><span class="v">✓</span><span>비상 시 명확한 fallback 절차 + 자동 알람</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 6. 교차 패턴 분석 ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <h2>🔬 교차 패턴 — 두 카테고리의 공통점</h2>
+  <p class="h2-sub">8개의 실패 사례를 비교 분석하면 놀라울 정도로 일관된 패턴이 보입니다. 산업·시대·기술 종류와 무관합니다.</p>
+
+  <table class="cross-tbl">
+    <thead>
+      <tr>
+        <th>패턴</th>
+        <th>인프라 부재 사례 (Part 1)</th>
+        <th>관제 부재 사례 (Part 2)</th>
+        <th>공통 결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="pattern">🎯 "기술 자랑" 함정</td>
+        <td>IBM Watson · Tesla Fluff Bot</td>
+        <td>GM Lights-Out · Tesla Conveyor</td>
+        <td><span class="badge">최신 기술 ≠ 운영 가치</span></td>
+      </tr>
+      <tr>
+        <td class="pattern">📂 데이터 사일로</td>
+        <td>Walmart 매장별 분류 불일치</td>
+        <td>MES·SCADA·PLC 통합 실패</td>
+        <td><span class="badge">데이터 시스템이 안 엮여서 가치 0</span></td>
+      </tr>
+      <tr>
+        <td class="pattern">⏱️ 응답 지연</td>
+        <td>Watson black-box 응답 신뢰 부족</td>
+        <td>주당 8시간 수동 로그 조정</td>
+        <td><span class="badge">사람이 매번 뛰어다녀야 함</span></td>
+      </tr>
+      <tr>
+        <td class="pattern">🚫 예외 처리 부재</td>
+        <td>Walmart 카테고리 변동 처리 못함</td>
+        <td>GM 로봇 충돌, 페인팅 자기끼리 분사</td>
+        <td><span class="badge">시스템 멈추면 사람만 손해</span></td>
+      </tr>
+      <tr>
+        <td class="pattern">📊 측정 못함</td>
+        <td>RAND: 잘못된 metric 최적화</td>
+        <td>MES 90% 데이터 30일 후 삭제</td>
+        <td><span class="badge">개선의 출발점인 측정조차 안 됨</span></td>
+      </tr>
+      <tr>
+        <td class="pattern">🔁 스케일 못함</td>
+        <td>POC 단계에서 46% 폐기</td>
+        <td>74% 제조업 Pilot Purgatory</td>
+        <td><span class="badge">파일럿은 성공, 확장은 실패</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy" style="--c:var(--indigo);--bg2:var(--indigo-l)">
+    <div class="analogy-i">🧬</div>
+    <div>
+      <div class="analogy-t">DNA 비유</div>
+      <p class="analogy-tx">
+        8가지 사례는 마치 같은 DNA를 공유하는 듯합니다. <strong>"기술은 있는데 그것을 엮는 인프라·관제가 없다."</strong> 산업도, 시대도, 기술 종류도 다르지만 — 결과는 항상 같습니다.
+      </p>
+      <p class="analogy-real">
+        💡 <strong>왜 이 패턴이 끝나지 않는가?</strong> 사람들은 "멋진 기술"에 끌리고, "재미없는 인프라"를 외면하기 때문입니다. 40년 전 GM과 2018년 Tesla가 같은 실수를 한 이유입니다.
+      </p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 7. 4대 교훈 ═══════ -->
+<section>
+<div class="container">
+  <h2>📚 4가지 핵심 교훈 — 우리는 이 사례에서 무엇을 배워야 하는가</h2>
+  <p class="h2-sub">RAND·McKinsey·HBR·IEEE 자료를 종합하면 "성공한 5%"가 공통적으로 따른 4가지 원칙이 도출됩니다.</p>
+
+  <div class="lesson-grid">
+    <div class="lesson-card" style="--c:var(--green);--c2:#10B981">
+      <div class="lesson-ic">🏗️</div>
+      <div class="lesson-num">LESSON 1</div>
+      <div class="lesson-t">데이터 인프라가 AI보다 먼저다</div>
+      <div class="lesson-d">"Connect → Centralize → Conquer → AI" 순서를 절대 거스르지 말 것. 데이터 표준화·거버넌스·관측 시스템이 AI 모델 선택보다 우선해야 합니다.</div>
+    </div>
+    <div class="lesson-card" style="--c:var(--blue);--c2:#3B82F6">
+      <div class="lesson-ic">🎛️</div>
+      <div class="lesson-num">LESSON 2</div>
+      <div class="lesson-t">관제 시스템은 선택이 아닌 필수</div>
+      <div class="lesson-d">로봇 한 대를 쓰더라도 호출·실행·이벤트·이력의 흐름이 통합돼야 합니다. 관제 없는 자동화는 GM 1980s를 반복합니다.</div>
+    </div>
+    <div class="lesson-card" style="--c:var(--purple);--c2:#8B5CF6">
+      <div class="lesson-ic">📊</div>
+      <div class="lesson-num">LESSON 3</div>
+      <div class="lesson-t">측정 못하면 개선 못한다</div>
+      <div class="lesson-d">trace completeness, dispatch latency, recovery rate — 운영형 KPI를 정의하고 매일 측정해야 합니다. MES 데이터가 30일 후 사라지면 안 됩니다.</div>
+    </div>
+    <div class="lesson-card" style="--c:var(--pink);--c2:#EC4899">
+      <div class="lesson-ic">🔁</div>
+      <div class="lesson-num">LESSON 4</div>
+      <div class="lesson-t">현장 데이터가 환류해야 산업이 된다</div>
+      <div class="lesson-d">Watson은 합성 데이터로 학습했고, Walmart는 매장 데이터를 통합 못했습니다. 진짜 학습은 <strong>현장 데이터 → AI → 현장 재배포</strong>의 순환입니다.</div>
+    </div>
+  </div>
+
+  <div class="co co-tip">
+    <div class="co-i">✅</div>
+    <div><strong>QuickLaunch Analytics 진단법 (2026):</strong> "AI 지원을 위해 별도 데이터 프로젝트가 필요하다면, 총 비용과 시간이 대부분 조직의 인내와 예산을 초과할 것입니다. 그러므로 다음 투자는 <strong>다음 AI 실험이 아니라 데이터 기반</strong>으로 가야 합니다."</div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 8. FCLA 적용 ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <h2>🎯 그래서 — 우리 FCLA 교육은 어떻게 다른가</h2>
+  <p class="h2-sub">8가지 실패 사례가 우리 교육 설계의 정당성을 증명합니다. FCLA는 이 모든 실패의 정반대 길을 갑니다.</p>
+
+  <div class="fcla-box">
+    <div class="fcla-eyebrow">🔄 FCLA · Field-Connected Learning Approach</div>
+    <h3 class="fcla-h" style="color:#fff;margin-top:0">실패 사례의 정반대 길</h3>
+    <p class="fcla-tx">
+      "AI는 똑똑한 모델이 아니라, <strong>현장 데이터가 학습으로 되돌아오는 순환 구조</strong>가 완성될 때 산업이 된다." — 이 한 문장이 IBM Watson·Tesla·GM·Walmart가 무너진 이유를 정확히 짚어냅니다.
+    </p>
+
+    <div class="fcla-grid">
+      <div class="fcla-item">
+        <div class="fcla-i-num">STEP 1</div>
+        <div class="fcla-i-t">현장 데이터 수집</div>
+        <div class="fcla-i-d">합성 데이터(Watson) ❌<br>현장의 살아있는 데이터 ✅</div>
+      </div>
+      <div class="fcla-item">
+        <div class="fcla-i-num">STEP 2</div>
+        <div class="fcla-i-t">관측·분석 인프라</div>
+        <div class="fcla-i-d">데이터 사일로(McKinsey 74%) ❌<br>Prometheus·Grafana 통합 ✅</div>
+      </div>
+      <div class="fcla-item">
+        <div class="fcla-i-num">STEP 3</div>
+        <div class="fcla-i-t">AI 학습·재훈련</div>
+        <div class="fcla-i-d">black-box 모델 ❌<br>현장 검증된 모델 ✅</div>
+      </div>
+      <div class="fcla-item">
+        <div class="fcla-i-num">STEP 4</div>
+        <div class="fcla-i-t">현장 재배포 + 관제</div>
+        <div class="fcla-i-d">Lights-Out 환상(GM) ❌<br>Control Tower 통합 ✅</div>
+      </div>
+    </div>
+
+    <p style="font-size:.95rem;text-align:center;margin-top:1.5rem;color:#CBD5E1;position:relative;z-index:1;line-height:1.7">
+      <strong style="color:#67E8F9">이 순환이 완성되어야 비로소 "산업"이 됩니다.</strong><br>
+      그 출발점이 <strong style="color:#67E8F9">시스템 인프라 + 관제 시스템</strong>이며, 그것이 우리 교육이 다른 강의와 구분되는 지점입니다.
+    </p>
+  </div>
+
+  <div class="pattern-grid" style="margin-top:1.5rem">
+    <div class="pattern-card" style="--c:var(--red)">
+      <div class="pattern-h">
+        <span class="pattern-ic">⚠️</span>
+        <div>
+          <div class="pattern-t">실패한 8개 사례의 공통점</div>
+          <div class="pattern-en">What they missed</div>
+        </div>
+      </div>
+      <ul class="pattern-list">
+        <li><span class="x">✗</span><span>모델·기술에만 투자, 인프라 외면</span></li>
+        <li><span class="x">✗</span><span>현장 데이터 환류 구조 없음</span></li>
+        <li><span class="x">✗</span><span>관제·이벤트·이력 시스템 부재</span></li>
+        <li><span class="x">✗</span><span>예외 처리·recovery 절차 없음</span></li>
+        <li><span class="x">✗</span><span>측정 기준 = 단순 정확도만</span></li>
+      </ul>
+    </div>
+    <div class="pattern-card" style="--c:var(--green)">
+      <div class="pattern-h">
+        <span class="pattern-ic">🎯</span>
+        <div>
+          <div class="pattern-t">FCLA 교육이 다루는 것</div>
+          <div class="pattern-en">What we teach</div>
+        </div>
+      </div>
+      <ul class="pattern-list">
+        <li><span class="v">✓</span><span>Edge → Local → Server 3계층 인프라</span></li>
+        <li><span class="v">✓</span><span>현장 데이터 환류 (FCLA 4단계 순환)</span></li>
+        <li><span class="v">✓</span><span>관제(Control Tower)가 모든 모듈의 허브</span></li>
+        <li><span class="v">✓</span><span>실전 디버깅·healthcheck·복구 패턴</span></li>
+        <li><span class="v">✓</span><span>4축 KPI (Model·Robot·System·Data)</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 9. 참고 자료 ═══════ -->
+<section>
+<div class="container">
+  <h2>📚 참고 자료 — 검증된 출처</h2>
+  <p class="h2-sub">본 자료의 모든 통계와 사례는 글로벌 공식 보고서·연구기관·산업 분석에서 교차 검증된 것입니다.</p>
+
+  <div class="refs">
+    <h4>🔬 연구 보고서 · Research Reports</h4>
+    <ul>
+      <li><div><span class="ref-src">RAND Corporation (2024)</span> "The Root Causes of Failure for Artificial Intelligence Projects"<span class="ref-d">→ 80% AI 프로젝트 실패, 5대 근본 원인, 인프라 부재 핵심 지목</span></div></li>
+      <li><div><span class="ref-src">McKinsey & WEF Global Lighthouse Network</span> "Industry 4.0: Capturing value at scale"<span class="ref-d">→ 74% Pilot Purgatory, IT/OT Last-Mile 5대 장벽</span></div></li>
+      <li><div><span class="ref-src">Precisely & Drexel LeBow (2026)</span> AI 인프라 readiness 연구<span class="ref-d">→ 88% 자신 vs 43% 실제 준비 — 인식 갭</span></div></li>
+    </ul>
+    <h4 style="margin-top:1.25rem">💼 사례 분석 · Case Studies</h4>
+    <ul>
+      <li><div><span class="ref-src">Henrico Dolfing (2024)</span> "Case Study 20: The $4 Billion AI Failure of IBM Watson for Oncology"<span class="ref-d">→ 합성 데이터 학습, MD Anderson 결별 상세 분석</span></div></li>
+      <li><div><span class="ref-src">IEEE Spectrum (2019)</span> "How IBM Watson Overpromised and Underdelivered on AI Health Care"<span class="ref-d">→ 의료 인프라 변화 필요성, 데이터 공유의 한계</span></div></li>
+      <li><div><span class="ref-src">JNCI / Oxford Academic (2017)</span> "M.D. Anderson Breaks With IBM Watson"<span class="ref-d">→ 비정형 데이터 품질이 AI의 가장 큰 도전</span></div></li>
+      <li><div><span class="ref-src">Fortune / CBS This Morning (2018)</span> "Elon Musk Admits 'Humans Are Underrated'"<span class="ref-d">→ Tesla Fluff Bot 사례, "excessive automation was a mistake"</span></div></li>
+      <li><div><span class="ref-src">Harvard Business Review</span> Walmart 재고관리 AI 케이스<span class="ref-d">→ 데이터 품질 인프라의 중요성</span></div></li>
+    </ul>
+    <h4 style="margin-top:1.25rem">🏭 산업 분석 · Industry Analysis</h4>
+    <ul>
+      <li><div><span class="ref-src">iFactory (2026)</span> "MES-SCADA-PLC-IIoT Integration: The 4-Layer Smart Factory Stack"<span class="ref-d">→ 자동차 부품 통합 실패 사례, 계층 간 갭 분석</span></div></li>
+      <li><div><span class="ref-src">cnn-robotics (2025)</span> "Why Most Robotics & Automation Projects Fail: Fixing Integration, Not Hardware"<span class="ref-d">→ 통합 부재의 5가지 증상</span></div></li>
+      <li><div><span class="ref-src">SR Analytics (2026)</span> "Why 95% of AI Projects Fail and How Data Fixes It"<span class="ref-d">→ "데이터 readiness 평가가 AI use case 선택보다 먼저"</span></div></li>
+      <li><div><span class="ref-src">Akaike AI (2025)</span> "The Hidden Cost of Poor Data Quality"<span class="ref-d">→ 87% production 미도달, 데이터 품질이 주요 원인</span></div></li>
+      <li><div><span class="ref-src">Datacor (2026)</span> "AI Readiness in Process Manufacturing: Why Data Quality Comes First"<span class="ref-d">→ Event-level 인프라가 곧 운영 방식</span></div></li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ 10. CLOSING ═══════ -->
+<section class="sec-alt">
+<div class="container">
+  <div class="welcome">
+    <span class="welcome-eyebrow">🎯 The Takeaway</span>
+    <h3>실패한 8곳의 길이 아닌, 성공한 5%의 길로</h3>
+    <p>
+      IBM도 Tesla도 GM도 Walmart도 — 모두 똑똑한 기업이었습니다.<br>
+      그러나 <strong>"AI 모델만 적용하면 된다"</strong>는 생각으로 시작했고, <strong>"관제 시스템은 나중에 만들면 된다"</strong>고 미뤘습니다.
+    </p>
+    <p style="margin-top:1rem">
+      우리 FCLA 교육은 그 정반대 길을 걷습니다 —<br>
+      <strong>인프라 → 데이터 흐름 → 관제 → AI 모델</strong>의 순서를 절대 거스르지 않습니다.
+    </p>
+    <div class="welcome-q">
+      "AI는 똑똑한 모델이 아니라, 현장 데이터가 학습으로 되돌아오는 순환 구조가 완성될 때 산업이 된다."
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer style="background:linear-gradient(135deg,#0F172A,#1E293B);color:rgba(255,255,255,.75);padding:2.5rem 0">
+<div class="container" style="text-align:center">
+  <p style="font-weight:700;color:#fff;font-size:1.05rem;margin-bottom:.5rem">
+    ⚠️ AI 인프라·관제 부재 글로벌 실패 사례 분석
+  </p>
+  <p style="font-size:.85rem;margin-bottom:.4rem">
+    IBM Watson · Tesla · GM · Walmart · McKinsey Pilot Purgatory · RAND 80% Failure Pattern
+  </p>
+  <p style="font-size:.78rem;opacity:.65;margin-top:.6rem">
+    FCLA · Handong University × 빅맨 · 2026-04-26 · 교육 근거 자료
+  </p>
+</div>
+</footer>
+
+</body>
+</html>
