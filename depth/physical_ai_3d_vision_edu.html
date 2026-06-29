@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>피지컬 AI의 3D 비전 도입 분야 - Physical AI Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --color-primary: #059669;
+  --color-primary-light: #D1FAE5;
+  --color-secondary: #2563EB;
+  --color-secondary-light: #DBEAFE;
+  --color-accent: #7C3AED;
+  --color-accent-light: #EDE9FE;
+  --color-warning: #D97706;
+  --color-warning-light: #FEF3C7;
+  --color-danger: #DC2626;
+  --color-danger-light: #FEE2E2;
+  --color-surface: #F8FAFC;
+  --color-card: #FFFFFF;
+  --color-text: #1E293B;
+  --color-muted: #64748B;
+  --color-border: #E2E8F0;
+}
+
+body { font-family: 'Noto Sans KR', sans-serif; color: var(--color-text); background: var(--color-surface); line-height: 1.75; }
+code, pre { font-family: 'JetBrains Mono', monospace; }
+.container { max-width: 920px; margin: 0 auto; padding: 0 1.5rem; }
+section { padding: 3rem 0; }
+
+/* 히어로 */
+.hero { background: linear-gradient(135deg, #064E3B 0%, #0891B2 100%); color: white; padding: 4rem 0 3.5rem; position: relative; overflow: hidden; }
+.hero::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 18% 28%, rgba(255,255,255,0.08) 0 2px, transparent 2px), radial-gradient(circle at 75% 65%, rgba(255,255,255,0.06) 0 2px, transparent 2px); background-size: 55px 55px, 85px 85px; pointer-events: none; }
+.hero .container { position: relative; z-index: 1; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+.pill { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 0.35rem 0.9rem; font-size: 0.8rem; font-weight: 500; }
+.hero h1 { font-size: 2.6rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; }
+.hero h1 .hl { color: #A7F3D0; }
+.hero-subtitle { font-size: 1.08rem; opacity: 0.95; max-width: 730px; }
+.hero-meta { margin-top: 1.5rem; font-size: 0.85rem; opacity: 0.8; }
+
+/* 섹션 제목 */
+.section-title { font-size: 1.85rem; font-weight: 900; margin-bottom: 0.5rem; }
+.section-lead { color: var(--color-muted); margin-bottom: 2rem; font-size: 1.02rem; }
+.eyebrow { display: inline-block; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-primary); margin-bottom: 0.5rem; }
+
+/* 이미지 */
+figure { margin: 1.5rem 0; }
+figure img { width: 100%; border-radius: 14px; border: 1px solid var(--color-border); box-shadow: 0 4px 14px rgba(0,0,0,0.08); display: block; }
+figcaption { font-size: 0.82rem; color: var(--color-muted); margin-top: 0.6rem; text-align: center; }
+
+/* 수치 카드 */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+.stat-card { background: var(--color-card); border-radius: 14px; padding: 1.4rem 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid var(--color-border); }
+.stat-number { font-size: 2.1rem; font-weight: 900; color: var(--color-primary); line-height: 1; }
+.stat-label { font-weight: 700; font-size: 0.88rem; margin-top: 0.5rem; }
+.stat-desc { font-size: 0.76rem; color: var(--color-muted); margin-top: 0.25rem; }
+
+/* 비유 박스 */
+.analogy-box { display: flex; gap: 1.25rem; padding: 1.5rem; background: var(--color-primary-light); border-radius: 14px; border-left: 4px solid var(--color-primary); margin: 1.5rem 0; }
+.analogy-icon { font-size: 2.4rem; flex-shrink: 0; }
+.analogy-title { font-weight: 700; font-size: 0.8rem; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+.analogy-text { line-height: 1.7; }
+.analogy-real { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-primary); font-size: 0.9rem; color: #047857; }
+
+/* 도입 분야 카드 */
+.field { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 18px; padding: 2rem; margin-bottom: 1.8rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.field-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.field-icon { flex-shrink: 0; width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; }
+.field-icon.blue { background: var(--color-secondary-light); }
+.field-icon.purple { background: var(--color-accent-light); }
+.field-icon.green { background: var(--color-primary-light); }
+.field-icon.orange { background: var(--color-warning-light); }
+.field-title { font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
+.field-sub { font-size: 0.84rem; color: var(--color-muted); margin-top: 0.15rem; }
+.field-body p { margin-bottom: 0.9rem; }
+.maturity { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.7rem; border-radius: 999px; margin-left: auto; white-space: nowrap; }
+.m-mature { background: var(--color-primary-light); color: #047857; }
+.m-growing { background: var(--color-warning-light); color: #B45309; }
+.m-future { background: var(--color-accent-light); color: #6D28D9; }
+
+/* 사례 박스 */
+.case { background: var(--color-secondary-light); border-radius: 12px; padding: 1.2rem 1.4rem; margin: 1.1rem 0; border-left: 4px solid var(--color-secondary); }
+.case-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; background: var(--color-secondary); color: white; padding: 0.2rem 0.7rem; border-radius: 999px; margin-bottom: 0.5rem; }
+.case-text { font-size: 0.92rem; line-height: 1.65; }
+.case-text strong { color: #1D4ED8; }
+
+/* 콜아웃 */
+.callout { display: flex; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: 10px; align-items: flex-start; margin: 1.2rem 0; }
+.callout-icon { font-size: 1.25rem; flex-shrink: 0; }
+.callout-content { font-size: 0.94rem; line-height: 1.65; }
+.callout-tip { background: var(--color-primary-light); border-left: 3px solid var(--color-primary); }
+.callout-warning { background: var(--color-warning-light); border-left: 3px solid var(--color-warning); }
+.callout-info { background: var(--color-accent-light); border-left: 3px solid var(--color-accent); }
+
+/* 요약 표 */
+.summary-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.88rem; background: var(--color-card); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.summary-table th { background: var(--color-primary); color: white; padding: 0.85rem; text-align: left; font-size: 0.84rem; }
+.summary-table td { padding: 0.8rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.summary-table tr:last-child td { border-bottom: none; }
+.summary-table td:first-child { font-weight: 700; }
+.badge { font-size: 0.7rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+
+/* 파이프라인 */
+.pipeline { display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 1.6rem 1rem; background: var(--color-surface); border-radius: 16px; overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--color-border); }
+.pl-node { background: var(--color-card); border: 2px solid var(--n, var(--color-primary)); border-radius: 12px; padding: 0.9rem; text-align: center; min-width: 110px; flex-shrink: 0; }
+.pl-icon { font-size: 1.5rem; }
+.pl-title { font-weight: 700; font-size: 0.84rem; margin-top: 0.3rem; }
+.pl-desc { font-size: 0.72rem; color: var(--color-muted); }
+.pl-arrow { color: var(--color-muted); font-size: 1.2rem; flex-shrink: 0; }
+
+/* 토의 */
+.worksheet { background: linear-gradient(135deg, #164E63, #0891B2); color: white; border-radius: 18px; padding: 2.2rem; margin-top: 2rem; }
+.worksheet h3 { font-size: 1.4rem; margin-bottom: 1.2rem; }
+.worksheet ol { margin-left: 1.2rem; }
+.worksheet li { margin-bottom: 0.9rem; line-height: 1.6; }
+.worksheet li strong { color: #A5F3FC; }
+
+.sources { font-size: 0.78rem; color: var(--color-muted); }
+.sources li { margin-bottom: 0.3rem; }
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2rem; }
+  .pipeline { flex-direction: column; }
+  .pl-arrow { transform: rotate(90deg); }
+  .field { padding: 1.4rem; }
+  .field-head { flex-wrap: wrap; }
+  .maturity { margin-left: 0; }
+}
+@media print {
+  .hero { background: white !important; color: black !important; }
+  .hero h1 .hl { color: #047857 !important; }
+  .pill { color: black; border-color: #ccc; }
+  .field, .case, figure img { break-inside: avoid; }
+  .worksheet { background: white !important; color: black !important; border: 2px solid #0891B2; }
+  .worksheet h3, .worksheet li strong { color: #0891B2 !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- 히어로 -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="pill">🏭 Physical AI</span>
+      <span class="pill">3D Vision</span>
+      <span class="pill">Point Cloud</span>
+      <span class="pill">산업 도입 분석</span>
+    </div>
+    <h1>피지컬 AI는 왜 <span class="hl">3D의 눈</span>을<br>갖기 시작했나</h1>
+    <p class="hero-subtitle">
+      평면(2D)만 보던 공장의 눈이 이제 깊이(3D)를 봅니다. 로봇이 뒤섞인 부품을 집고,
+      표면 결함을 잡아내고, 비접촉으로 치수를 재는 일 — 이 모든 것이 3D 비전 위에서 돌아갑니다.
+      <strong>지금 진행 중인 분야</strong>와 <strong>앞으로 확대될 분야</strong>를 글로벌 자료로 정리했습니다.
+    </p>
+    <div class="hero-meta">제타위성로보틱스 · 피지컬 AI 교육 자료 · 2026</div>
+  </div>
+</header>
+
+<!-- Overview 1: 2D vs 3D -->
+<section>
+  <div class="container">
+    <span class="eyebrow">출발점</span>
+    <h2 class="section-title">왜 2D로는 부족할까?</h2>
+    <p class="section-lead">
+      공장 자동화의 눈은 오랫동안 2D 카메라였습니다. 하지만 로봇이 물건을 <em>집고</em>,
+      표면의 <em>요철</em>을 보고, <em>부피</em>를 재려면 "깊이"가 필요합니다.
+    </p>
+
+    <figure>
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzAwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjMwMCI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjMGYxNzJhIi8+Cjx0ZXh0IHg9IjMyMCIgeT0iMzQiIGZpbGw9IiNhN2YzZDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIj4yRCDruYTsoIQgdnMgM0Qg67mE7KCEPC90ZXh0Pgo8IS0tIOq1rOu2hOyEoCAtLT4KPGxpbmUgeDE9IjMyMCIgeTE9IjU1IiB4Mj0iMzIwIiB5Mj0iMjgwIiBzdHJva2U9IiMzMzQxNTUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWRhc2hhcnJheT0iNiA2Ii8+CjwhLS0gMkQg7Kq9IC0tPgo8dGV4dCB4PSIxNjAiIHk9IjgwIiBmaWxsPSIjOTRhM2I4IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPjJEIOKAlCDtj4nrqbTrp4wg67O464ukPC90ZXh0Pgo8cmVjdCB4PSI3MCIgeT0iMTAwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjEyMCIgcng9IjgiIGZpbGw9IiMxZTI5M2IiIHN0cm9rZT0iIzQ3NTU2OSIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjExMCIgeT0iMTQwIiB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIGZpbGw9IiNmNTllMGIiIG9wYWNpdHk9IjAuODUiLz4KPHJlY3QgeD0iMTcwIiB5PSIxNTAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iI2Y1OWUwYiIgb3BhY2l0eT0iMC41Ii8+Cjx0ZXh0IHg9IjE2MCIgeT0iMjQ1IiBmaWxsPSIjNjQ3NDhiIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+7JyE7LmYwrfsg4nsg4HsnYAg7JWM7KeA66eMPC90ZXh0Pgo8dGV4dCB4PSIxNjAiIHk9IjI2MiIgZmlsbD0iIzY0NzQ4YiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuuGkuydtMK36riw7Jq46riw64qUIOuqqOumhDwvdGV4dD4KPCEtLSAzRCDsqr0gLS0+Cjx0ZXh0IHg9IjQ4MCIgeT0iODAiIGZpbGw9IiMzNGQzOTkiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+M0Qg4oCUIOq5iuydtOq5jOyngCDrs7jri6Q8L3RleHQ+CjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQwMCwxMDApIj4KPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxMjAiIHJ4PSI4IiBmaWxsPSIjMWUyOTNiIiBzdHJva2U9IiMxMGI5ODEiIHN0cm9rZS13aWR0aD0iMiIvPgo8IS0tIOyeheyytCDrsJXsiqQgLS0+Cjxwb2x5Z29uIHBvaW50cz0iNDAsOTAgODAsOTAgOTUsNzAgNTUsNzAiIGZpbGw9IiMxMGI5ODEiIG9wYWNpdHk9IjAuOSIvPgo8cG9seWdvbiBwb2ludHM9IjgwLDkwIDgwLDU1IDk1LDM1IDk1LDcwIiBmaWxsPSIjMDU5NjY5IiBvcGFjaXR5PSIwLjkiLz4KPHBvbHlnb24gcG9pbnRzPSI0MCw5MCA1NSw3MCA1NSwzNSA0MCw1NSIgZmlsbD0iIzM0ZDM5OSIgb3BhY2l0eT0iMC45Ii8+Cjxwb2x5Z29uIHBvaW50cz0iNDAsNTUgNTUsMzUgOTUsMzUgODAsNTUiIGZpbGw9IiM2ZWU3YjciIG9wYWNpdHk9IjAuOSIvPgo8IS0tIOyijO2RnOy2lSAtLT4KPGxpbmUgeDE9IjExMCIgeTE9IjEwMCIgeDI9IjE0MCIgeTI9IjEwMCIgc3Ryb2tlPSIjNjBhNWZhIiBzdHJva2Utd2lkdGg9IjIiLz4KPGxpbmUgeDE9IjExMCIgeTE9IjEwMCIgeDI9IjExMCIgeTI9IjcwIiBzdHJva2U9IiNmODcxNzEiIHN0cm9rZS13aWR0aD0iMiIvPgo8bGluZSB4MT0iMTEwIiB5MT0iMTAwIiB4Mj0iMTI4IiB5Mj0iODUiIHN0cm9rZT0iI2ZiYmYyNCIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjx0ZXh0IHg9IjE0MyIgeT0iMTAzIiBmaWxsPSIjNjBhNWZhIiBmb250LXNpemU9IjEwIj5YPC90ZXh0Pgo8dGV4dCB4PSIxMDgiIHk9IjY1IiBmaWxsPSIjZjg3MTcxIiBmb250LXNpemU9IjEwIj5aPC90ZXh0Pgo8L2c+Cjx0ZXh0IHg9IjQ4MCIgeT0iMjQ1IiBmaWxsPSIjOTRhM2I4IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+7JyE7LmYK+uGkuydtCvquLDsmrjquLAo7J6Q7IS4KeulvDwvdGV4dD4KPHRleHQgeD0iNDgwIiB5PSIyNjIiIGZpbGw9IiM5NGEzYjgiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7rsIDrpqzrr7jthLAg64uo7JyE66GcIO2MjOyVhTwvdGV4dD4KPC9zdmc+" alt="2D 비전과 3D 비전의 차이를 보여주는 다이어그램">
+      <figcaption>2D는 평면 위치·색상만 알지만, 3D는 높이·기울기(자세)까지 밀리미터 단위로 파악한다</figcaption>
+    </figure>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">📄</div>
+      <div class="analogy-content">
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          2D 비전은 <strong>"사진 한 장"</strong>과 같아요. 사진 속 컵이 어디 있는지는 알지만,
+          그 컵이 얼마나 <strong>기울어졌는지, 얼마나 멀리 있는지</strong>는 알 수 없죠.
+          로봇 손이 컵을 잡으려면 그걸 알아야 합니다. 3D 비전은 <strong>"입체 모형"</strong>을
+          만들어줘서, 로봇이 손을 어떤 각도로 뻗어야 하는지 계산할 수 있게 합니다.
+        </p>
+        <p class="analogy-real">
+          💡 <strong>실제로는</strong> — 3D 카메라가 만든 점구름(Point Cloud)에서 부품의
+          위치(x,y,z)와 자세(회전)를 추정해, 로봇이 충돌 없는 집기 경로를 계산합니다.
+        </p>
+      </div>
+    </div>
+
+    <span class="eyebrow" style="margin-top:1rem;">시장 신호</span>
+    <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:0.5rem;">숫자가 말하는 3D 비전의 부상</h3>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">14%+</div>
+        <div class="stat-label">연평균 성장률</div>
+        <div class="stat-desc">3D 머신비전 시장 CAGR</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">$15.6B</div>
+        <div class="stat-label">2030년 전망</div>
+        <div class="stat-desc">2024년 71.6억$ → 156억$</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">~52%</div>
+        <div class="stat-label">최대 응용 분야</div>
+        <div class="stat-desc">품질검사가 가장 큰 비중</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">42%</div>
+        <div class="stat-label">아시아태평양 점유</div>
+        <div class="stat-desc">한·중·일 제조 허브</div>
+      </div>
+    </div>
+    <p style="font-size:0.8rem; color:var(--color-muted); text-align:center;">
+      ※ 조사기관마다 수치 편차가 있으나, 모든 보고가 두 자릿수 고성장에 일치 (Grand View Research 등 기준)
+    </p>
+  </div>
+</section>
+
+<!-- Overview 2: 4대 분야 -->
+<section>
+  <div class="container">
+    <span class="eyebrow">큰 그림</span>
+    <h2 class="section-title">3D 비전의 4대 도입 분야</h2>
+    <p class="section-lead">산업 현장에서 3D 비전은 크게 네 갈래로 쓰입니다. 하나의 3D 카메라가 여러 임무를 떠맡습니다.</p>
+    <figure>
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzYwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjM2MCI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iMzYwIiBmaWxsPSIjMGYxNzJhIi8+Cjx0ZXh0IHg9IjMyMCIgeT0iMzYiIGZpbGw9IiNhN2YzZDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIj4zRCDruYTsoITsnZggNOuMgCDtlbXsi6wg64+E7J6FIOu2hOyVvDwvdGV4dD4KPCEtLSDspJHslZkgM0Qg7Lm066mU6528IC0tPgo8Y2lyY2xlIGN4PSIzMjAiIGN5PSIxOTUiIHI9IjQ4IiBmaWxsPSIjMWUyOTNiIiBzdHJva2U9IiMxMGI5ODEiIHN0cm9rZS13aWR0aD0iMyIvPgo8dGV4dCB4PSIzMjAiIHk9IjE5MCIgZmlsbD0iIzM0ZDM5OSIgZm9udC1zaXplPSIyNiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+TtzwvdGV4dD4KPHRleHQgeD0iMzIwIiB5PSIyMTUiIGZpbGw9IiNhN2YzZDAiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIj4zRCDsubTrqZTrnbw8L3RleHQ+CjwhLS0gNCDrtoTslbwg67CV7IqkIC0tPgo8ZyBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+CjwhLS0g7KKM7IOBOiDroZzrtIcg6rCA7J2065OcIC0tPgo8cmVjdCB4PSI0MCIgeT0iODAiIHdpZHRoPSIxODAiIGhlaWdodD0iNzgiIHJ4PSIxMiIgZmlsbD0iIzFlM2E4YSIgc3Ryb2tlPSIjM2I4MmY2IiBzdHJva2Utd2lkdGg9IjIiLz4KPHRleHQgeD0iNjAiIHk9IjEwOCIgZm9udC1zaXplPSIyMiI+8J+mvjwvdGV4dD4KPHRleHQgeD0iOTUiIHk9IjEwNiIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiPuuhnOu0hyDqsIDsnbTrk5zCt+u5iO2UvO2CuTwvdGV4dD4KPHRleHQgeD0iOTUiIHk9IjEyOCIgZmlsbD0iI2JmZGJmZSIgZm9udC1zaXplPSIxMSI+65Kk7ISe7J24IOu2gO2SiOydhCDsp5HslrTrg4Q8L3RleHQ+Cjx0ZXh0IHg9Ijk1IiB5PSIxNDUiIGZpbGw9IiM5M2M1ZmQiIGZvbnQtc2l6ZT0iMTAiPuyekOyEuOy2lOyglSArIOq3uOuemOyKpO2VkTwvdGV4dD4KPCEtLSDsmrDsg4E6IO2SiOyniOqygOyCrCAtLT4KPHJlY3QgeD0iNDIwIiB5PSI4MCIgd2lkdGg9IjE4MCIgaGVpZ2h0PSI3OCIgcng9IjEyIiBmaWxsPSIjNGMxZDk1IiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSI0NDAiIHk9IjEwOCIgZm9udC1zaXplPSIyMiI+8J+UjTwvdGV4dD4KPHRleHQgeD0iNDc1IiB5PSIxMDYiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj7tkojsp4jqsoDsgqzCt+qysO2VqO2DkOyngDwvdGV4dD4KPHRleHQgeD0iNDc1IiB5PSIxMjgiIGZpbGw9IiNkZGQ2ZmUiIGZvbnQtc2l6ZT0iMTEiPu2RnOuptMK37Jqp7KCRwrfsuZjsiJgg6rKA7IKsPC90ZXh0Pgo8dGV4dCB4PSI0NzUiIHk9IjE0NSIgZmlsbD0iI2M0YjVmZCIgZm9udC1zaXplPSIxMCI+7KCc66Gc65SU7Y6Z7Yq4IOygnOyhsDwvdGV4dD4KPCEtLSDsooztlZg6IOy4oeyglSAtLT4KPHJlY3QgeD0iNDAiIHk9IjIzMiIgd2lkdGg9IjE4MCIgaGVpZ2h0PSI3OCIgcng9IjEyIiBmaWxsPSIjMDY0ZTNiIiBzdHJva2U9IiMxMGI5ODEiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSI2MCIgeT0iMjYwIiBmb250LXNpemU9IjIyIj7wn5OQPC90ZXh0Pgo8dGV4dCB4PSI5NSIgeT0iMjU4IiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCI+7KCV67CAIOy4oeyglcK366mU7Yq466Gk66Gc7KeAPC90ZXh0Pgo8dGV4dCB4PSI5NSIgeT0iMjgwIiBmaWxsPSIjYTdmM2QwIiBmb250LXNpemU9IjExIj7ruYTsoJHstIkgM0Qg7LmY7IiYIOy4oeyglTwvdGV4dD4KPHRleHQgeD0iOTUiIHk9IjI5NyIgZmlsbD0iIzZlZTdiNyIgZm9udC1zaXplPSIxMCI+wrEwLjAxbW0g7KCV67CA64+EPC90ZXh0Pgo8IS0tIOyasO2VmDog66y866WYIC0tPgo8cmVjdCB4PSI0MjAiIHk9IjIzMiIgd2lkdGg9IjE4MCIgaGVpZ2h0PSI3OCIgcng9IjEyIiBmaWxsPSIjNzgzNTBmIiBzdHJva2U9IiNmNTllMGIiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSI0NDAiIHk9IjI2MCIgZm9udC1zaXplPSIyMiI+8J+TpjwvdGV4dD4KPHRleHQgeD0iNDc1IiB5PSIyNTgiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj7rrLzrpZjCt+uUlO2MlOugiO2DgOydtOynlTwvdGV4dD4KPHRleHQgeD0iNDc1IiB5PSIyODAiIGZpbGw9IiNmZGU2OGEiIGZvbnQtc2l6ZT0iMTEiPuyGjO2PrCDrtoDtlLzsuKHsoJXCt+2VmOyXrTwvdGV4dD4KPHRleHQgeD0iNDc1IiB5PSIyOTciIGZpbGw9IiNmY2QzNGQiIGZvbnQtc2l6ZT0iMTAiPuyekOycqCDrtoTrpZjCt+yggeyerDwvdGV4dD4KPC9nPgo8IS0tIOyXsOqysOyEoCAtLT4KPGcgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuNSI+CjxsaW5lIHgxPSIyMjAiIHkxPSIxMTkiIHgyPSIyODAiIHkyPSIxNzAiLz4KPGxpbmUgeDE9IjQyMCIgeTE9IjExOSIgeDI9IjM2MCIgeTI9IjE3MCIvPgo8bGluZSB4MT0iMjIwIiB5MT0iMjcxIiB4Mj0iMjgwIiB5Mj0iMjIwIi8+CjxsaW5lIHgxPSI0MjAiIHkxPSIyNzEiIHgyPSIzNjAiIHkyPSIyMjAiLz4KPC9nPgo8L3N2Zz4=" alt="3D 비전의 4대 핵심 도입 분야 다이어그램">
+      <figcaption>① 로봇 가이드·빈피킹 ② 품질검사·결함탐지 ③ 정밀 측정 ④ 물류·하역 — 3D 비전의 네 기둥</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 현재 진행 중 -->
+<section>
+  <div class="container">
+    <span class="eyebrow">PART 1 · 지금 돌아가고 있다</span>
+    <h2 class="section-title">현재 진행 중인 분야 (성숙기)</h2>
+    <p class="section-lead">이미 공장에서 검증되어 매일 가동되는, "오늘의 3D 비전"입니다.</p>
+
+    <!-- 1. 빈피킹 -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-icon blue">🦾</div>
+        <div>
+          <div class="field-title">로봇 가이드 & 빈피킹 (Bin Picking)</div>
+          <div class="field-sub">Vision-Guided Robotics · 자세추정 + 그래스핑</div>
+        </div>
+        <span class="maturity m-mature">✓ 성숙</span>
+      </div>
+      <div class="field-body">
+        <p>
+          공장 자동화의 마지막 난제였습니다. 박스 안에 <strong>아무렇게나 뒤섞여 쌓인 부품</strong>을
+          로봇이 집어내는 일은, 오랫동안 사람 손에 의존해야 했습니다. 3D 비전이 이 판을 바꿨습니다.
+          구조광 또는 스테레오 3D 카메라가 박스 전체의 점구름을 찍으면, AI가 각 부품의 위치·자세를
+          추정하고, 충돌 없는 집기 자세를 계산합니다.
+        </p>
+        <div class="pipeline">
+          <div class="pl-node" style="--n: var(--color-secondary)"><div class="pl-icon">📷</div><div class="pl-title">3D 스캔</div><div class="pl-desc">점구름 캡처</div></div>
+          <div class="pl-arrow">→</div>
+          <div class="pl-node" style="--n: var(--color-accent)"><div class="pl-icon">🧠</div><div class="pl-title">자세 추정</div><div class="pl-desc">위치+회전</div></div>
+          <div class="pl-arrow">→</div>
+          <div class="pl-node" style="--n: var(--color-warning)"><div class="pl-icon">🖐️</div><div class="pl-title">집기 계획</div><div class="pl-desc">충돌 회피</div></div>
+          <div class="pl-arrow">→</div>
+          <div class="pl-node" style="--n: var(--color-primary)"><div class="pl-icon">🦾</div><div class="pl-title">로봇 집기</div><div class="pl-desc">서브밀리미터</div></div>
+        </div>
+        <div class="case">
+          <span class="case-tag">🚗 실제 · 자동차 산업이 최대 수요처</span>
+          <p class="case-text">
+            업계 분석에 따르면 <strong>2026년 빈피킹 도입의 가장 큰 비중이 자동차 제조</strong>(엔진 부품,
+            차체, 조립 공급)이며, 시스템이 박스 안 무작위 부품을 <strong>고정 지그 없이</strong> 시간당
+            수백 번 집어냅니다. 빈피킹 시장은 2026년 기준 두 자릿수 성장률로 확대 중입니다.
+          </p>
+        </div>
+        <div class="callout callout-info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong>빅맨님 환경 연결:</strong> 빅맨님의 SO-ARM 로봇 팔 + RealSense 조합이 바로 이
+            빈피킹 파이프라인의 교육용 축소판입니다. YOLO→SAM3로 부품을 분할하고 깊이로 집기 자세를
+            잡는 구조가 산업 표준과 동일합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 품질검사 -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-icon purple">🔍</div>
+        <div>
+          <div class="field-title">품질검사 & 결함탐지</div>
+          <div class="field-sub">Quality Inspection · 표면·용접·치수</div>
+        </div>
+        <span class="maturity m-mature">✓ 성숙</span>
+      </div>
+      <div class="field-body">
+        <p>
+          가장 큰 시장입니다. 여러 조사에서 <strong>품질보증·검사가 3D 비전의 최대 응용 분야</strong>로
+          꼽힙니다. 2D로는 못 잡는 결함 — 표면의 미세한 요철, 용접 비드의 형상, 부품의 휨 —을
+          3D 깊이 데이터로 잡아냅니다. 특히 자동차·반도체·전자에서 <strong>제로 디펙트(무결점) 제조</strong>를
+          향한 핵심 도구입니다.
+        </p>
+        <div class="case">
+          <span class="case-tag">🔧 실제 · 용접·치수 검사</span>
+          <p class="case-text">
+            자동차 산업은 3D 비전을 <strong>치수 검사, 용접 비드 분석, 로봇 가이드</strong>에 핵심적으로
+            씁니다. 전기차 생산 확대와 배터리 모듈 통합으로 정밀 검사 수요가 더 커지고 있습니다.
+            비접촉 방식이라 고속 라인에서도 멈추지 않고 검사합니다.
+          </p>
+        </div>
+        <div class="callout callout-tip">
+          <div class="callout-icon">🏭</div>
+          <div class="callout-content">
+            <strong>빅맨님 환경 연결:</strong> 빅맨님의 PatchCore 이상탐지 + 도장 철판 평활도(오렌지필)
+            검사 프로젝트가 정확히 이 분야입니다. 디플렉토메트리 + 3D 보조 캐스케이드 구조는
+            글로벌 표면검사 트렌드와 일치합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 측정 -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-icon green">📐</div>
+        <div>
+          <div class="field-title">정밀 측정 & 메트롤로지</div>
+          <div class="field-sub">Metrology · 비접촉 3D 치수</div>
+        </div>
+        <span class="maturity m-mature">✓ 성숙</span>
+      </div>
+      <div class="field-body">
+        <p>
+          물건에 손대지 않고 치수를 잽니다. 과거엔 일일이 게이지로 재던 것을, 3D 비전이
+          <strong>비접촉으로 길이·폭·높이·지름·평면도·진원도</strong>를 한 번에 측정합니다.
+          여러 전용 게이지를 하나의 비전 시스템이 대체합니다.
+        </p>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-number">±0.01mm</div>
+            <div class="stat-label">측정 정밀도</div>
+            <div class="stat-desc">레이저 삼각측량</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">98%+</div>
+            <div class="stat-label">검증 정확도</div>
+            <div class="stat-desc">고급 메트롤로지 라인</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">10~600</div>
+            <div class="stat-label">분당 처리 부품</div>
+            <div class="stat-desc">고속 측정</div>
+          </div>
+        </div>
+        <div class="callout callout-info">
+          <div class="callout-icon">📊</div>
+          <div class="callout-content">
+            독일에서는 <strong>3D 비전 생산자 매출의 약 절반이 부품 검사용</strong>이라는 보고가 있을
+            만큼, 측정·검사는 제조 강국의 핵심 응용입니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 물류 -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-icon orange">📦</div>
+        <div>
+          <div class="field-title">물류 · 디팔레타이징 · 하역</div>
+          <div class="field-sub">Logistics · 부피측정 + 자율분류</div>
+        </div>
+        <span class="maturity m-mature">✓ 성숙</span>
+      </div>
+      <div class="field-body">
+        <p>
+          창고와 물류센터에서 3D 비전은 <strong>소포 부피 측정</strong>(배송비 계산),
+          <strong>팔레트 하역(디팔레타이징)</strong>, <strong>소포 인덕션</strong>에 쓰입니다.
+          ToF 3D 카메라가 박스 치수를 즉석에서 재고, 다층으로 쌓인 부품을 정확히 골라 트레이로 옮깁니다.
+        </p>
+        <div class="case">
+          <span class="case-tag">🇰🇷 실제 · AW2026 (서울 COEX)</span>
+          <p class="case-text">
+            아시아 대표 스마트제조 전시 AW2026에서 Zivid의 고정밀 3D 검출로 <strong>다층으로 쌓인
+            부품을 안정적으로 식별해 트레이로 이송</strong>하는 물류 자동화 시나리오가 시연됐습니다.
+            물류·3PL은 3D 비전 분야에서 <strong>가장 높은 성장률</strong>이 예상되는 세그먼트입니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 전환기 & 미래 -->
+<section>
+  <div class="container">
+    <span class="eyebrow">PART 2 · 지금 떠오르고 있다</span>
+    <h2 class="section-title">앞으로 확대될 분야 (전환기 → 미래)</h2>
+    <p class="section-lead">기술은 검증됐지만 아직 무르익는 중이거나, 막 산업 현장에 발을 들이는 "내일의 3D 비전"입니다.</p>
+
+    <figure>
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzgwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjM4MCI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iMzgwIiBmaWxsPSIjMGYxNzJhIi8+Cjx0ZXh0IHg9IjMyMCIgeT0iMzYiIGZpbGw9IiNhN2YzZDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIj4zRCDruYTsoIQg6rO17J6lIOuPhOyehSDroZzrk5zrp7U8L3RleHQ+CjwhLS0g7YOA7J6E65287J24IOy2lSAtLT4KPGxpbmUgeDE9IjgwIiB5MT0iMjAwIiB4Mj0iNTYwIiB5Mj0iMjAwIiBzdHJva2U9IiM0NzU1NjkiIHN0cm9rZS13aWR0aD0iMyIvPgo8cG9seWdvbiBwb2ludHM9IjU2MCwyMDAgNTQ4LDE5NCA1NDgsMjA2IiBmaWxsPSIjNDc1NTY5Ii8+CjwhLS0g64uo6rOEIOuniOy7pCAtLT4KPGcgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPgo8IS0tIO2YhOyerCAtLT4KPGNpcmNsZSBjeD0iMTYwIiBjeT0iMjAwIiByPSIxMiIgZmlsbD0iIzEwYjk4MSIvPgo8dGV4dCB4PSIxNjAiIHk9IjE2MCIgZmlsbD0iIzM0ZDM5OSIgZm9udC1zaXplPSIxNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPu2YhOyerCAo7ISx7IiZKTwvdGV4dD4KPHJlY3QgeD0iNzAiIHk9IjIyMCIgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxMjAiIHJ4PSIxMCIgZmlsbD0iIzA2NGUzYiIgc3Ryb2tlPSIjMTBiOTgxIiBzdHJva2Utd2lkdGg9IjIiLz4KPHRleHQgeD0iODUiIHk9IjI0NSIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuKckyDruYjtlLztgrnCt+uhnOu0h+qwgOydtOuTnDwvdGV4dD4KPHRleHQgeD0iODUiIHk9IjI2NyIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuKckyDtkZzrqbTCt+yaqeygkSDtkojsp4jqsoDsgqw8L3RleHQ+Cjx0ZXh0IHg9Ijg1IiB5PSIyODkiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7inJMg67mE7KCR7LSJIOygleuwgOy4oeyglTwvdGV4dD4KPHRleHQgeD0iODUiIHk9IjMxMSIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuKckyDshoztj6wg67aA7ZS8wrftlZjsl608L3RleHQ+Cjx0ZXh0IHg9Ijg1IiB5PSIzMzEiIGZpbGw9IiM2ZWU3YjciIGZvbnQtc2l6ZT0iMTAiPkNBRCDrp6Tsua0g64uo7J2867aA7ZKIIOyViOyglTwvdGV4dD4KPCEtLSDsoITtmZjquLAgLS0+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjIwMCIgcj0iMTIiIGZpbGw9IiNmNTllMGIiLz4KPHRleHQgeD0iMzQwIiB5PSIxNjAiIGZpbGw9IiNmYmJmMjQiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIj7soITtmZjquLAgKOyEseyImSDspJEpPC90ZXh0Pgo8cmVjdCB4PSIyNjAiIHk9IjIyMCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxMjAiIHJ4PSIxMCIgZmlsbD0iIzc4MzUwZiIgc3Ryb2tlPSIjZjU5ZTBiIiBzdHJva2Utd2lkdGg9IjIiLz4KPHRleHQgeD0iMjc1IiB5PSIyNDUiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7il5Ag7Zi87ZWpwrfrr7jsp4Ag67aA7ZKIPC90ZXh0Pgo8dGV4dCB4PSIyOTAiIHk9IjI2MiIgZmlsbD0iI2ZkZTY4YSIgZm9udC1zaXplPSIxMCI+QUkg7ZWZ7Iq17ZiVIOq3uOuemOyKpO2VkTwvdGV4dD4KPHRleHQgeD0iMjc1IiB5PSIyODQiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7il5Ag6re465287J2465Spwrftj7Trpqzsi7E8L3RleHQ+Cjx0ZXh0IHg9IjI5MCIgeT0iMzAxIiBmaWxsPSIjZmRlNjhhIiBmb250LXNpemU9IjEwIj7siqTsupTihpIzROuqqOuNuOKGkuqwgOqztTwvdGV4dD4KPHRleHQgeD0iMjc1IiB5PSIzMjMiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7il5Ag65SU7KeA7YS4IO2KuOyciCDsl7Drj5k8L3RleHQ+CjwhLS0g66+4656YIC0tPgo8Y2lyY2xlIGN4PSI1MjAiIGN5PSIyMDAiIHI9IjEyIiBmaWxsPSIjOGI1Y2Y2Ii8+Cjx0ZXh0IHg9IjUyMCIgeT0iMTYwIiBmaWxsPSIjYTc4YmZhIiBmb250LXNpemU9IjE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+66+4656YICjtmZXrjIApPC90ZXh0Pgo8cmVjdCB4PSI0NDUiIHk9IjIyMCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxMjAiIHJ4PSIxMCIgZmlsbD0iIzRjMWQ5NSIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjIiLz4KPHRleHQgeD0iNDYwIiB5PSIyNDUiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7ihpIg7Zy066i464W47J2065OcPC90ZXh0Pgo8dGV4dCB4PSI0NzUiIHk9IjI2MiIgZmlsbD0iI2RkZDZmZSIgZm9udC1zaXplPSIxMCI+VkxB66GcIOyghOyLoCDsoJzslrQ8L3RleHQ+Cjx0ZXh0IHg9IjQ2MCIgeT0iMjg0IiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+4oaSIOyLnOyXsD3tlZnsirU8L3RleHQ+Cjx0ZXh0IHg9IjQ3NSIgeT0iMzAxIiBmaWxsPSIjZGRkNmZlIiBmb250LXNpemU9IjEwIj7rqqjrsKntlZnsirUg7J6Q64+Z7ZmUPC90ZXh0Pgo8dGV4dCB4PSI0NjAiIHk9IjMyMyIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuKGkiDri6TtkojsooUg7Jyg7Jew7IOd7IKwPC90ZXh0Pgo8L2c+Cjwvc3ZnPg==" alt="3D 비전 공장 도입 로드맵 타임라인">
+      <figcaption>현재(성숙) → 전환기(성숙 중) → 미래(확대) — 3D 비전 도입의 시간 축</figcaption>
+    </figure>
+
+    <!-- 전환기 1: 혼합 부품 AI 그래스핑 -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-icon orange">🤖</div>
+        <div>
+          <div class="field-title">혼합·미지 부품 AI 그래스핑</div>
+          <div class="field-sub">Embodied AI Grasping · 학습형 집기</div>
+        </div>
+        <span class="maturity m-growing">◐ 성숙 중</span>
+      </div>
+      <div class="field-body">
+        <p>
+          지금의 빈피킹은 <strong>알려진 단일 부품</strong>(CAD 모델 매칭)에서는 안정적이지만,
+          <strong>여러 종류가 섞이거나 처음 보는 부품</strong>이 들어오면 여전히 어렵습니다.
+          여기서 임바디드 AI(체화된 AI)가 판을 바꾸는 중입니다. 학습된 모델이 프로그래밍하지 않은
+          부품에도 <strong>일반화</strong>해서 집어냅니다.
+        </p>
+        <div class="callout callout-warning">
+          <div class="callout-icon">⏳</div>
+          <div class="callout-content">
+            <strong>2026년 현황:</strong> 빈피킹은 스펙트럼입니다 — 알려진 단일 부품은 3D 비전+CAD
+            매칭으로 안정적이지만, <strong>혼합·미지 부품은 AI 기반 집기가 막 떠오르며 아직 성숙 중</strong>입니다.
+            업계는 이것을 "AI가 제조에 주는 가장 명확한 단기 수혜"로 봅니다. 무작위 혼합 박스는
+            예전엔 자동화 자체가 거의 불가능했기 때문입니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 전환기 2: 스캔-가공 일체화 -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-icon green">⚙️</div>
+        <div>
+          <div class="field-title">스캔→3D모델→가공 일체화</div>
+          <div class="field-sub">그라인딩·폴리싱 자동화</div>
+        </div>
+        <span class="maturity m-growing">◐ 성숙 중</span>
+      </div>
+      <div class="field-body">
+        <p>
+          전통적으로 사람이 수작업하던 <strong>그라인딩·폴리싱</strong>(연마·광택) 같은
+          복잡한 표면 가공을 3D 비전이 자동화합니다. 다각도 스캔으로 3D 모델을 만들고,
+          로봇이 그 모델에 맞춰 가공한 뒤, 다시 표면을 검사하는 <strong>완결된 루프</strong>입니다.
+        </p>
+        <div class="case">
+          <span class="case-tag">🔩 실제 · AIDIN Robotics (AW2026)</span>
+          <p class="case-text">
+            AIDIN Robotics는 수작업이던 복잡한 연마·광택 공정을 <strong>다각도 스캔 → 3D 모델 생성 →
+            로봇 폴리싱 → 표면 검사</strong>의 전체 워크플로로 자동화해 시연했습니다. 3D 비전이 정밀
+            제조에 주는 가치를 보여준 사례입니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 미래 1: 휴머노이드 + VLA -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-icon purple">🦿</div>
+        <div>
+          <div class="field-title">휴머노이드 + VLA 모델</div>
+          <div class="field-sub">Vision-Language-Action · 전신 제어</div>
+        </div>
+        <span class="maturity m-future">→ 미래 확대</span>
+      </div>
+      <div class="field-body">
+        <p>
+          가장 큰 미래입니다. 3D 비전이 <strong>휴머노이드 로봇의 눈</strong>이 되어, 공장의
+          다품종 작업을 사람처럼 처리합니다. 핵심은 <strong>VLA(비전-언어-행동) 모델</strong> —
+          카메라 영상과 자연어 명령을 받아 곧바로 모터 제어로 출력하는 단일 학습 시스템입니다.
+          별도의 인식 파이프라인이나 계획 모듈이 없습니다.
+        </p>
+        <div class="pipeline">
+          <div class="pl-node" style="--n: var(--color-secondary)"><div class="pl-icon">👁️</div><div class="pl-title">Vision</div><div class="pl-desc">카메라 영상</div></div>
+          <div class="pl-arrow">+</div>
+          <div class="pl-node" style="--n: var(--color-accent)"><div class="pl-icon">💬</div><div class="pl-title">Language</div><div class="pl-desc">자연어 명령</div></div>
+          <div class="pl-arrow">→</div>
+          <div class="pl-node" style="--n: var(--color-primary)"><div class="pl-icon">🦾</div><div class="pl-title">Action</div><div class="pl-desc">모터 제어</div></div>
+        </div>
+        <div class="case">
+          <span class="case-tag">🏭 실제 · Automate 2026 (시카고)</span>
+          <p class="case-text">
+            업계는 휴머노이드가 <strong>"실증 단계로 넘어섰다"</strong>고 평가합니다. Figure AI의
+            Helix, NVIDIA의 Isaac GR00T, Google DeepMind의 Gemini Robotics가 모두 <strong>실제
+            산업 현장에서 가동되는 VLA 구현체</strong>입니다. Tesla Optimus는 프리몬트·오스틴 기가팩토리에서
+            부품 운반·분류·1차 품질 선별을 수행하며, 2026년 말까지 생산라인 투입 대수를 수천 대로
+            확대할 계획을 밝혔습니다.
+          </p>
+        </div>
+        <div class="callout callout-tip">
+          <div class="callout-icon">🤗</div>
+          <div class="callout-content">
+            <strong>빅맨님 환경 연결:</strong> NVIDIA Isaac GR00T 모델이 <strong>LeRobot(HuggingFace)
+            생태계에 통합</strong>되어, GR00T N 모델과 Isaac Lab-Arena를 LeRobot에서 바로 파인튜닝할 수
+            있게 됐습니다. 빅맨님의 LeKiwi·SO-ARM + LeRobot 커리큘럼이 그대로 VLA 미래로 이어집니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 미래 2: 디지털 트윈 / Sim-to-Real -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-icon blue">🌐</div>
+        <div>
+          <div class="field-title">디지털 트윈 & Sim-to-Real</div>
+          <div class="field-sub">합성 데이터 · 시뮬레이션 학습</div>
+        </div>
+        <span class="maturity m-future">→ 미래 확대</span>
+      </div>
+      <div class="field-body">
+        <p>
+          미래의 3D 비전은 <strong>실제 공장을 가상으로 복제한 디지털 트윈</strong> 안에서 먼저
+          학습합니다. 시뮬레이션에서 수백만 번 연습한 AI 정책을 실제 로봇에 옮기는 것이죠.
+          관건은 <strong>심투리얼 갭(Sim-to-Real Gap)</strong> — 시뮬레이션과 실제 공장의 마찰·재질
+          차이를 좁히는 것이 2026년의 핵심 과제입니다.
+        </p>
+        <div class="case">
+          <span class="case-tag">🔬 실제 · NVIDIA Omniverse + OpenUSD</span>
+          <p class="case-text">
+            <strong>OpenUSD</strong>가 3D 데이터를 표준화해 시뮬레이션부터 배포까지 디지털 트윈을
+            재사용하게 하고, <strong>Isaac Sim</strong>이 합성 데이터를 생성해 인식 로봇을 훈련합니다.
+            ROBOTIS는 Isaac Sim에서 데이터 생성 → GR00T-Mimic 증강 → VLA 모델 파인튜닝 → 하드웨어
+            직접 배포의 오픈소스 심투리얼 파이프라인을 구축했습니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 요약 표 -->
+<section>
+  <div class="container">
+    <span class="eyebrow">정리</span>
+    <h2 class="section-title">현재 ↔ 미래 한눈에 보기</h2>
+    <table class="summary-table">
+      <thead>
+        <tr><th>분야</th><th>핵심 기술</th><th>성숙도</th><th>대표 사례</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>빈피킹·로봇가이드</td><td>점구름 + 자세추정</td><td><span class="badge m-mature">성숙</span></td><td>자동차 (최대 수요처)</td></tr>
+        <tr><td>품질검사·결함탐지</td><td>3D 표면·용접 분석</td><td><span class="badge m-mature">성숙</span></td><td>자동차·반도체 무결점</td></tr>
+        <tr><td>정밀 측정</td><td>비접촉 메트롤로지</td><td><span class="badge m-mature">성숙</span></td><td>독일 부품검사 (매출 절반)</td></tr>
+        <tr><td>물류·하역</td><td>부피측정·디팔레타이징</td><td><span class="badge m-mature">성숙</span></td><td>Zivid · AW2026</td></tr>
+        <tr><td>혼합부품 AI 집기</td><td>임바디드 AI 일반화</td><td><span class="badge m-growing">성숙 중</span></td><td>2026 단기 수혜</td></tr>
+        <tr><td>스캔-가공 일체화</td><td>스캔→모델→폴리싱</td><td><span class="badge m-growing">성숙 중</span></td><td>AIDIN Robotics</td></tr>
+        <tr><td>휴머노이드+VLA</td><td>비전-언어-행동 모델</td><td><span class="badge m-future">미래</span></td><td>Figure·GR00T·Optimus</td></tr>
+        <tr><td>디지털 트윈</td><td>Sim-to-Real·합성데이터</td><td><span class="badge m-future">미래</span></td><td>Omniverse·Isaac Sim</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🧭</div>
+      <div class="callout-content">
+        <strong>큰 흐름 한 줄 요약:</strong> 3D 비전은 <strong>"정해진 일을 정확히"(빈피킹·검사·측정)</strong>에서
+        출발해, <strong>"처음 보는 일도 알아서"(AI 그래스핑·휴머노이드·VLA)</strong>로 진화하고 있습니다.
+        닫힌 문제에서 열린 문제로 — 이것이 피지컬 AI에서 3D 비전이 가는 방향입니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 토의 -->
+<section>
+  <div class="container">
+    <div class="worksheet">
+      <h3>💬 함께 생각해 봅시다 (토의 워크시트)</h3>
+      <ol>
+        <li>
+          <strong>왜 3D인가:</strong> 우리 교실의 RealSense 9미션 중, 2D 카메라로는 절대 불가능하고
+          반드시 3D(깊이)가 있어야 하는 미션을 골라 보세요. 그 이유는 무엇인가요?
+        </li>
+        <li>
+          <strong>성숙도 판단:</strong> 만약 여러분이 중소 제조공장 사장이라면, 위 8개 분야 중
+          <em>지금 당장</em> 도입할 분야와 <em>2~3년 뒤</em> 도입할 분야를 어떻게 나누겠습니까?
+        </li>
+        <li>
+          <strong>닫힌 문제 vs 열린 문제:</strong> "정해진 부품 빈피킹"과 "처음 보는 부품 AI 집기"의
+          난이도 차이는 어디서 올까요? 빅맨님 환경의 YOLO/SAM3(닫힌 인식)와 VLM(열린 추론)의
+          역할 분담과 연결해 설명해 보세요.
+        </li>
+        <li>
+          <strong>우리의 위치:</strong> 빅맨님의 LeKiwi·SO-ARM + LeRobot 커리큘럼은 위 로드맵에서
+          어느 지점에 있나요? 휴머노이드+VLA 미래로 가려면 무엇을 더 배워야 할까요?
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 출처 -->
+<section>
+  <div class="container">
+    <span class="eyebrow">참고 자료</span>
+    <h2 class="section-title" style="font-size:1.3rem;">출처 (Sources)</h2>
+    <ul class="sources">
+      <li>Grand View Research / MarketsandMarkets / Straits Research — 3D Machine Vision Market (2024–2033)</li>
+      <li>Overview.ai — Computer Vision Applications in Manufacturing Guide (2026)</li>
+      <li>iFactory / EVST — AI Vision 3D Bin Picking & Robot Guidance (2026)</li>
+      <li>Zivid Blog — AW2026 Review: 3D Vision and Physical AI (2026.3, AIDIN Robotics 사례)</li>
+      <li>Wevolver — Top Vision Systems for Manufacturing 2026 (Photoneo·Cognex)</li>
+      <li>TechTimes — Automate 2026: Humanoid Robot Shift to Production (VLA·Figure Helix)</li>
+      <li>NVIDIA Blog / Newsroom / The Robot Report — Isaac GR00T·Omniverse·LeRobot 통합</li>
+      <li>Meta Intelligence — Physical AI Insight (Tesla Optimus 기가팩토리 배치)</li>
+    </ul>
+    <p style="font-size:0.8rem; color:var(--color-muted); margin-top:1rem;">
+      ※ 본 자료는 교육 목적으로 글로벌 공개 자료를 분석·재구성한 것입니다. 시장 수치는 조사기관마다
+      편차가 있으며, 발표 시점 기준입니다.
+    </p>
+  </div>
+</section>
+
+</body>
+</html>

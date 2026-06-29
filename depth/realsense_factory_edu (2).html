@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리얼센스가 공장에서 강한 7가지 이유 - Physical AI Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --color-primary: #059669;        /* 센서/데이터 그린 */
+  --color-primary-light: #D1FAE5;
+  --color-secondary: #2563EB;      /* 로보틱스 블루 */
+  --color-secondary-light: #DBEAFE;
+  --color-accent: #7C3AED;         /* AI 퍼플 */
+  --color-accent-light: #EDE9FE;
+  --color-success: #059669;
+  --color-success-light: #D1FAE5;
+  --color-warning: #D97706;
+  --color-warning-light: #FEF3C7;
+  --color-danger: #DC2626;
+  --color-danger-light: #FEE2E2;
+  --color-surface: #F8FAFC;
+  --color-card: #FFFFFF;
+  --color-text: #1E293B;
+  --color-muted: #64748B;
+  --color-border: #E2E8F0;
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--color-text);
+  background: var(--color-surface);
+  line-height: 1.75;
+}
+code, pre { font-family: 'JetBrains Mono', monospace; }
+.container { max-width: 920px; margin: 0 auto; padding: 0 1.5rem; }
+section { padding: 3rem 0; }
+
+/* === 히어로 === */
+.hero {
+  background: linear-gradient(135deg, #064E3B 0%, #10B981 100%);
+  color: white;
+  padding: 4rem 0 3.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0 2px, transparent 2px),
+                    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.06) 0 2px, transparent 2px);
+  background-size: 60px 60px, 90px 90px;
+  pointer-events: none;
+}
+.hero .container { position: relative; z-index: 1; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+.pill {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  backdrop-filter: blur(4px);
+}
+.hero h1 { font-size: 2.7rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; }
+.hero h1 .hl { color: #A7F3D0; }
+.hero-subtitle { font-size: 1.1rem; font-weight: 400; opacity: 0.95; max-width: 720px; }
+.hero-meta { margin-top: 1.5rem; font-size: 0.85rem; opacity: 0.8; }
+
+/* === 섹션 제목 === */
+.section-title { font-size: 1.9rem; font-weight: 900; margin-bottom: 0.5rem; }
+.section-lead { color: var(--color-muted); margin-bottom: 2rem; font-size: 1.02rem; }
+.eyebrow {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+/* === 이미지 === */
+figure { margin: 1.5rem 0; }
+figure img {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  display: block;
+}
+figcaption {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-top: 0.6rem;
+  text-align: center;
+}
+
+/* === 핵심 수치 카드 === */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.stat-card {
+  background: var(--color-card);
+  border-radius: 14px;
+  padding: 1.4rem 1rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid var(--color-border);
+}
+.stat-number { font-size: 2.3rem; font-weight: 900; color: var(--color-primary); line-height: 1; }
+.stat-label { font-weight: 700; font-size: 0.9rem; margin-top: 0.5rem; }
+.stat-desc { font-size: 0.78rem; color: var(--color-muted); margin-top: 0.25rem; }
+
+/* === 비유 박스 === */
+.analogy-box {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--color-primary-light);
+  border-radius: 14px;
+  border-left: 4px solid var(--color-primary);
+  margin: 1.5rem 0;
+}
+.analogy-icon { font-size: 2.4rem; flex-shrink: 0; }
+.analogy-title {
+  font-weight: 700; font-size: 0.8rem; color: var(--color-primary);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;
+}
+.analogy-text { line-height: 1.7; }
+.analogy-real {
+  margin-top: 0.75rem; padding-top: 0.75rem;
+  border-top: 1px dashed var(--color-primary);
+  font-size: 0.9rem; color: #047857;
+}
+
+/* === 강점 카드 (7개) === */
+.point {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  position: relative;
+}
+.point-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.point-num {
+  flex-shrink: 0;
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--color-primary), #34D399);
+  color: white;
+  font-size: 1.5rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+}
+.point-num.blue { background: linear-gradient(135deg, var(--color-secondary), #60A5FA); }
+.point-num.purple { background: linear-gradient(135deg, var(--color-accent), #A78BFA); }
+.point-num.orange { background: linear-gradient(135deg, var(--color-warning), #FBBF24); }
+.point-title { font-size: 1.3rem; font-weight: 700; line-height: 1.3; }
+.point-sub { font-size: 0.85rem; color: var(--color-muted); margin-top: 0.15rem; }
+.point-body p { margin-bottom: 0.9rem; }
+
+/* === 사례 박스 === */
+.case {
+  background: var(--color-secondary-light);
+  border-radius: 12px;
+  padding: 1.25rem 1.4rem;
+  margin: 1.2rem 0;
+  border-left: 4px solid var(--color-secondary);
+}
+.case-tag {
+  display: inline-block;
+  font-size: 0.72rem; font-weight: 700;
+  background: var(--color-secondary); color: white;
+  padding: 0.2rem 0.7rem; border-radius: 999px;
+  margin-bottom: 0.6rem; letter-spacing: 0.03em;
+}
+.case-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.4rem; }
+.case-text { font-size: 0.92rem; line-height: 1.65; }
+.case-text strong { color: #1D4ED8; }
+
+/* === 콜아웃 === */
+.callout {
+  display: flex; gap: 0.75rem;
+  padding: 1rem 1.25rem; border-radius: 10px;
+  align-items: flex-start; margin: 1.2rem 0;
+}
+.callout-icon { font-size: 1.25rem; flex-shrink: 0; }
+.callout-content { font-size: 0.94rem; line-height: 1.65; }
+.callout-tip { background: var(--color-success-light); border-left: 3px solid var(--color-success); }
+.callout-warning { background: var(--color-warning-light); border-left: 3px solid var(--color-warning); }
+.callout-info { background: var(--color-accent-light); border-left: 3px solid var(--color-accent); }
+
+/* === 비교 카드 (ToF vs Stereo) === */
+.compare-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem; margin: 1.5rem 0;
+}
+.compare-card { border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: var(--color-card); border: 1px solid var(--color-border); }
+.compare-header { padding: 1.1rem; color: white; text-align: center; }
+.compare-header h4 { margin: 0.4rem 0 0; font-size: 1.05rem; }
+.compare-icon { font-size: 1.8rem; }
+.compare-body { padding: 1rem 1.2rem; }
+.compare-item { display: flex; justify-content: space-between; padding: 0.65rem 0; border-bottom: 1px solid var(--color-border); font-size: 0.9rem; }
+.compare-item:last-child { border-bottom: none; }
+.compare-label { color: var(--color-muted); }
+.compare-value { font-weight: 700; text-align: right; }
+
+/* === 플로우 다이어그램 === */
+.flow-diagram {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.5rem; padding: 1.8rem 1rem; background: var(--color-surface);
+  border-radius: 16px; overflow-x: auto; margin: 1.5rem 0;
+  border: 1px solid var(--color-border);
+}
+.flow-node {
+  background: var(--color-card); border: 2px solid var(--node-color, var(--color-primary));
+  border-radius: 12px; padding: 1rem; text-align: center; min-width: 120px; flex-shrink: 0;
+}
+.flow-node-icon { font-size: 1.7rem; margin-bottom: 0.4rem; }
+.flow-node-title { font-weight: 700; font-size: 0.88rem; }
+.flow-node-desc { font-size: 0.74rem; color: var(--color-muted); margin-top: 0.2rem; }
+.flow-arrow { flex-shrink: 0; color: var(--color-muted); font-size: 1.3rem; }
+
+/* === 요약 표 === */
+.summary-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; background: var(--color-card); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.summary-table th { background: var(--color-primary); color: white; padding: 0.85rem; text-align: left; font-size: 0.85rem; }
+.summary-table td { padding: 0.85rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.summary-table tr:last-child td { border-bottom: none; }
+.summary-table td:first-child { font-weight: 700; white-space: nowrap; }
+
+/* === 토의 워크시트 === */
+.worksheet {
+  background: linear-gradient(135deg, #4C1D95, #7C3AED);
+  color: white; border-radius: 18px; padding: 2.2rem; margin-top: 2rem;
+}
+.worksheet h3 { font-size: 1.4rem; margin-bottom: 1.2rem; }
+.worksheet ol { margin-left: 1.2rem; }
+.worksheet li { margin-bottom: 0.9rem; line-height: 1.6; }
+.worksheet li strong { color: #DDD6FE; }
+
+/* === 출처 === */
+.sources { font-size: 0.78rem; color: var(--color-muted); }
+.sources li { margin-bottom: 0.3rem; word-break: break-all; }
+
+/* === 반응형 === */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2rem; }
+  .flow-diagram { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+  .point { padding: 1.4rem; }
+}
+
+/* === 인쇄 === */
+@media print {
+  .hero { background: white !important; color: black !important; }
+  .hero h1 .hl { color: #047857 !important; }
+  .pill { color: black; border-color: #ccc; }
+  .point, .case, figure img { break-inside: avoid; }
+  .worksheet { background: white !important; color: black !important; border: 2px solid #7C3AED; }
+  .worksheet h3, .worksheet li strong { color: #7C3AED !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- 1. 히어로 -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="pill">🏭 Physical AI</span>
+      <span class="pill">📷 Depth Camera</span>
+      <span class="pill">Intel RealSense</span>
+      <span class="pill">산업 적용 사례</span>
+    </div>
+    <h1>왜 공장은 <span class="hl">리얼센스</span>를<br>믿고 쓸까?</h1>
+    <p class="hero-subtitle">
+      "365일 잔고장 없이 돌아간다"는 현장의 직관에는 분명한 기술적 이유가 있습니다.
+      리얼센스(Intel RealSense) 깊이 카메라가 실제 공장·물류·발전소에서 검증된
+      <strong>7가지 차별화 강점</strong>을, 글로벌 실제 적용 사례와 함께 살펴봅니다.
+    </p>
+    <div class="hero-meta">제타위성로보틱스 · 피지컬 AI 교육 자료 · 2026</div>
+  </div>
+</header>
+
+<!-- 2. 개념 Overview -->
+<section class="overview">
+  <div class="container">
+    <span class="eyebrow">한눈에 보기</span>
+    <h2 class="section-title">리얼센스의 작동 원리부터</h2>
+    <p class="section-lead">
+      리얼센스는 ToF(비행시간)나 LiDAR가 아니라, 사람의 두 눈처럼 작동하는
+      <strong>능동 적외선 스테레오(Active IR Stereo)</strong> 방식입니다. 이 원리 차이가
+      공장에서의 강점을 만듭니다.
+    </p>
+
+    <div class="flow-diagram">
+      <div class="flow-node" style="--node-color: var(--color-warning)">
+        <div class="flow-node-icon">💡</div>
+        <div class="flow-node-title">IR 프로젝터</div>
+        <div class="flow-node-desc">적외선 점 패턴 투사</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="--node-color: var(--color-secondary)">
+        <div class="flow-node-icon">👁️👁️</div>
+        <div class="flow-node-title">좌·우 IR 카메라</div>
+        <div class="flow-node-desc">두 눈으로 동시 촬영</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="--node-color: var(--color-accent)">
+        <div class="flow-node-icon">🧮</div>
+        <div class="flow-node-title">Vision Processor D4</div>
+        <div class="flow-node-desc">카메라 안에서 거리 계산</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="--node-color: var(--color-primary)">
+        <div class="flow-node-icon">🗺️</div>
+        <div class="flow-node-title">깊이 맵 출력</div>
+        <div class="flow-node-desc">밀리미터 단위 3D</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">👀</div>
+      <div class="analogy-content">
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          리얼센스는 <strong>"사람의 두 눈"</strong>과 똑같아요. 왼쪽 눈과 오른쪽 눈이
+          본 약간 다른 그림을 뇌가 비교해서 "저게 얼마나 멀리 있는지"를 알아내듯,
+          리얼센스도 좌·우 카메라가 본 차이로 거리를 잽니다. 그리고 어두운 곳에서도
+          보이도록 <strong>적외선 손전등(IR 프로젝터)</strong>으로 보이지 않는 점무늬를 쏴줍니다.
+        </p>
+        <p class="analogy-real">
+          💡 <strong>실제로는</strong> — 두 IR 카메라의 시차(disparity)를 카메라 내부의
+          Vision Processor D4 칩이 직접 계산합니다. 그래서 연결된 PC는 거리 계산에
+          힘을 쓸 필요가 없습니다.
+        </p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMjYwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI2MCI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImJvZHkiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNDc1NTY5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+PC9saW5lYXJHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJsZW5zIiBjeD0iMC41IiBjeT0iMC40IiByPSIwLjYiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxZTNhOGEiLz48c3RvcCBvZmZzZXQ9IjAuNyIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAyMDYxNyIvPjwvcmFkaWFsR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0iaXIiIGN4PSIwLjUiIGN5PSIwLjQiIHI9IjAuNiI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdmMWQxZCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIyNjAiIGZpbGw9IiMwZjE3MmEiLz4KPCEtLSDrs7jssrQgLS0+CjxyZWN0IHg9IjEyMCIgeT0iOTUiIHdpZHRoPSI0MDAiIGhlaWdodD0iNzAiIHJ4PSIxMiIgZmlsbD0idXJsKCNib2R5KSIgc3Ryb2tlPSIjNjQ3NDhiIiBzdHJva2Utd2lkdGg9IjIiLz4KPHJlY3QgeD0iMTIwIiB5PSI5NSIgd2lkdGg9IjQwMCIgaGVpZ2h0PSIyMiIgcng9IjEyIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjA2Ii8+CjwhLS0g7KKMIElSIC0tPgo8Y2lyY2xlIGN4PSIxODAiIGN5PSIxMzAiIHI9IjIyIiBmaWxsPSJ1cmwoI2xlbnMpIiBzdHJva2U9IiMzMzQxNTUiIHN0cm9rZS13aWR0aD0iMyIvPgo8Y2lyY2xlIGN4PSIxODAiIGN5PSIxMzAiIHI9IjkiIGZpbGw9IiMxZTQwYWYiIG9wYWNpdHk9IjAuNiIvPgo8dGV4dCB4PSIxODAiIHk9IjIwMCIgZmlsbD0iIzkzYzVmZCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIj7soowgSVI8L3RleHQ+CjwhLS0gSVIg7ZSE66Gc7KCd7YSwIC0tPgo8Y2lyY2xlIGN4PSIyNzAiIGN5PSIxMzAiIHI9IjE2IiBmaWxsPSJ1cmwoI2lyKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KPHRleHQgeD0iMjcwIiB5PSIyMDAiIGZpbGw9IiNmY2E1YTUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+SVIg7ZSE66Gc7KCd7YSwPC90ZXh0Pgo8IS0tIFJHQiAtLT4KPGNpcmNsZSBjeD0iMzQ1IiBjeT0iMTMwIiByPSIxOCIgZmlsbD0iIzBmMTcyYSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KPGNpcmNsZSBjeD0iMzQ1IiBjeT0iMTMwIiByPSI3IiBmaWxsPSIjMjJkM2VlIiBvcGFjaXR5PSIwLjUiLz4KPHRleHQgeD0iMzQ1IiB5PSIyMDAiIGZpbGw9IiM2N2U4ZjkiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+UkdCPC90ZXh0Pgo8IS0tIOyasCBJUiAtLT4KPGNpcmNsZSBjeD0iNDU1IiBjeT0iMTMwIiByPSIyMiIgZmlsbD0idXJsKCNsZW5zKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KPGNpcmNsZSBjeD0iNDU1IiBjeT0iMTMwIiByPSI5IiBmaWxsPSIjMWU0MGFmIiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iNDU1IiB5PSIyMDAiIGZpbGw9IiM5M2M1ZmQiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+7JqwIElSPC90ZXh0Pgo8IS0tIOudvOuyqCAtLT4KPHRleHQgeD0iMzIwIiB5PSI1NSIgZmlsbD0iI2E3ZjNkMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI5MDAiPkludGVsIFJlYWxTZW5zZSBENDM1aTwvdGV4dD4KPHRleHQgeD0iMzIwIiB5PSI3OCIgZmlsbD0iIzk0YTNiOCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFjdGl2ZSBJUiBTdGVyZW8gwrcgR2xvYmFsIFNodXR0ZXIgwrcgSU1VIOuCtOyepSDCtyBJUDUyIOyVjOujqOuvuOuKhDwvdGV4dD4KPHRleHQgeD0iNTAwIiB5PSIxMzUiIGZpbGw9IiNjYmQ1ZTEiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj45MG1tPC90ZXh0Pgo8L3N2Zz4=" alt="Intel RealSense D435i 깊이 카메라 제품 사진">
+      <figcaption>Intel RealSense D435i — 좌·우 IR 스테레오 센서 + IR 프로젝터 + RGB 카메라 + IMU를 알루미늄 하우징에 담은 산업용 깊이 카메라</figcaption>
+    </figure>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">60%</div>
+        <div class="stat-label">전 세계 AMR 점유율</div>
+        <div class="stat-desc">자율이동로봇에 탑재</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">80%</div>
+        <div class="stat-label">휴머노이드 점유율</div>
+        <div class="stat-desc">휴머노이드 로봇에 탑재</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">3,000+</div>
+        <div class="stat-label">글로벌 고객사</div>
+        <div class="stat-desc">80+ 특허 보유</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">IP52</div>
+        <div class="stat-label">방진·방습 등급</div>
+        <div class="stat-desc">알루미늄 하우징</div>
+      </div>
+    </div>
+    <p style="font-size:0.8rem; color:var(--color-muted); text-align:center;">
+      ※ 출처: RealSense 분사 발표(2025) 및 업계 보고 기준
+    </p>
+  </div>
+</section>
+
+<!-- 3. 7대 강점 -->
+<section class="deep-dive">
+  <div class="container">
+    <span class="eyebrow">실제 사례로 보는</span>
+    <h2 class="section-title">공장에서 강한 7가지 이유</h2>
+    <p class="section-lead">각 강점마다 "왜 강한가(원리)" → "어디서 검증됐나(실제 사례)" 순서로 정리했습니다.</p>
+
+    <!-- 강점 1 -->
+    <div class="point">
+      <div class="point-head">
+        <div class="point-num">1</div>
+        <div>
+          <div class="point-title">글로벌 셔터 — 흔들려도 형태가 안 깨진다</div>
+          <div class="point-sub">Global Shutter · 움직임에 강함</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p>
+          공장은 "움직임 투성이"입니다. 컨베이어 위 부품은 빠르게 지나가고, 로봇은 진동하며,
+          AMR은 회전합니다. 리얼센스의 깊이 센서는 <strong>글로벌 셔터(Global Shutter)</strong>를
+          써서 화면 전체를 <em>같은 순간에</em> 한 번에 찍습니다. 휴대폰 카메라 같은 롤링 셔터는
+          위에서 아래로 줄줄이 찍기 때문에 빠른 물체가 비스듬히 휘어 보이는 "젤로 현상"이 생기지만,
+          글로벌 셔터는 이 왜곡이 없습니다.
+        </p>
+        <div class="analogy-box">
+          <div class="analogy-icon">📸</div>
+          <div class="analogy-content">
+            <div class="analogy-title">비유</div>
+            <p class="analogy-text">
+              빠르게 도는 선풍기를 일반 폰으로 찍으면 날개가 휘어져 나오죠? 그게 롤링 셔터예요.
+              글로벌 셔터는 <strong>"찰칵" 하고 순간을 통째로 얼리는 카메라</strong>라서,
+              아무리 빨라도 날개 모양 그대로 찍힙니다.
+            </p>
+          </div>
+        </div>
+        <div class="case">
+          <span class="case-tag">🚗 실제 사례 · Inbolt (자동차 공장)</span>
+          <div class="case-title">전 세계 70개 이상 공장의 움직이는 라인에서 부품 추적</div>
+          <p class="case-text">
+            Inbolt는 RealSense D435를 로봇에 장착해 <strong>전 세계 70개 이상 공장</strong>에 배치했고,
+            컨베이어가 계속 움직이거나 부품 박스가 흔들려도 부품을 실시간으로 다시 위치추적합니다.
+            인식부터 동작까지 지연시간이 <strong>80밀리초 미만</strong>이고, 일부 라인은 도입 후
+            <strong>2일 만에</strong> 가동에 들어갔습니다. 글로벌 셔터가 아니었다면 움직이는 라인에서
+            이런 정밀도는 불가능합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 강점 2 -->
+    <div class="point">
+      <div class="point-head">
+        <div class="point-num orange">2</div>
+        <div>
+          <div class="point-title">능동 IR 스테레오 — 조명·고온에 강하다</div>
+          <div class="point-sub">Active IR Stereo · ToF가 못 버티는 환경</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p>
+          공장 조명은 제각각이고, 주조·단조 현장엔 시뻘건 고온 물체가 강한 적외선을 내뿜습니다.
+          ToF 방식 카메라는 자기가 쏜 빛이 돌아오는 시간을 재기 때문에, <strong>외부 적외선
+          간섭에 약합니다.</strong> 반면 리얼센스의 스테레오 방식은 "두 눈의 시차"로 거리를 재기
+          때문에 이런 간섭에 훨씬 강합니다.
+        </p>
+        <div class="compare-grid">
+          <div class="compare-card">
+            <div class="compare-header" style="background: var(--color-primary)">
+              <span class="compare-icon">👁️👁️</span>
+              <h4>리얼센스 (IR 스테레오)</h4>
+            </div>
+            <div class="compare-body">
+              <div class="compare-item"><span class="compare-label">거리 측정</span><span class="compare-value">두 눈 시차</span></div>
+              <div class="compare-item"><span class="compare-label">고온 IR 환경</span><span class="compare-value" style="color:#059669">강함 ✓</span></div>
+              <div class="compare-item"><span class="compare-label">실내·외</span><span class="compare-value">모두 가능</span></div>
+              <div class="compare-item"><span class="compare-label">오목면·모서리</span><span class="compare-value" style="color:#059669">안정적</span></div>
+            </div>
+          </div>
+          <div class="compare-card">
+            <div class="compare-header" style="background: var(--color-muted)">
+              <span class="compare-icon">⏱️</span>
+              <h4>ToF (비행시간)</h4>
+            </div>
+            <div class="compare-body">
+              <div class="compare-item"><span class="compare-label">거리 측정</span><span class="compare-value">빛 왕복 시간</span></div>
+              <div class="compare-item"><span class="compare-label">고온 IR 환경</span><span class="compare-value" style="color:#DC2626">간섭 취약 ✗</span></div>
+              <div class="compare-item"><span class="compare-label">실내·외</span><span class="compare-value">직사광 약함</span></div>
+              <div class="compare-item"><span class="compare-label">오목면·모서리</span><span class="compare-value" style="color:#DC2626">다중경로 오차</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="case">
+          <span class="case-tag">🔥 실제 비교 테스트 · 주조·단조 현장</span>
+          <div class="case-title">용융 금속이 내뿜는 적외선이 ToF를 마비시킬 때</div>
+          <p class="case-text">
+            한 비교 테스트에 따르면, <strong>주조·단조처럼 고온 물체가 있는 산업 현장</strong>에서는
+            용융된 철이나 단조 강재가 내뿜는 강한 적외선이 ToF 카메라를 너무 심하게 간섭해
+            정상 이미징을 방해합니다. 이런 환경에서는 <strong>스테레오 카메라가 더 적합하다</strong>는
+            결론이 나왔습니다. 제철·금속 가공 공장에서 리얼센스 계열이 선택되는 이유입니다.
+          </p>
+        </div>
+        <div class="callout callout-info">
+          <div class="callout-icon">🔬</div>
+          <div class="callout-content">
+            <strong>IR Pass 필터 모델(D435if/f):</strong> 번쩍이는 공장 바닥의 조명 반사,
+            천장 파이프·바닥 타일 같은 반복 패턴, 흰 벽처럼 무늬 없는 면에서도 깊이 품질을
+            높이도록 750nm 적외선 필터를 공장 생산 단계에서 내장한 모델도 있습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 강점 3 -->
+    <div class="point">
+      <div class="point-head">
+        <div class="point-num blue">3</div>
+        <div>
+          <div class="point-title">강건한 하드웨어 — 6개월 무중단의 물리적 근거</div>
+          <div class="point-sub">IP52 · 알루미늄 하우징 · 열 안정성</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p>
+          빅맨님이 느끼신 "365일 잔고장 없음"의 뿌리입니다. D435i는 현장 배치를 위해
+          <strong>내구성 알루미늄 하우징, 먼지·습기 방어 IP52 등급, 열 안정성</strong>을 갖췄습니다.
+          알루미늄 본체는 플라스틱보다 열을 빨리 방출해, 워밍업 시간을 9분에서 3분 이내로 줄인다는
+          현장 보고도 있습니다.
+        </p>
+        <div class="case">
+          <span class="case-tag">📦 실제 사례 · 폴란드 물류 창고</span>
+          <div class="case-title">재캘리브레이션 없이 6개월 24시간 연속 가동</div>
+          <p class="case-text">
+            폴란드의 한 물류 창고에서 스타트업이 D435 <strong>4대</strong>로 팔레트 적재 높이를
+            실시간 모니터링했는데, 이 시스템은 <strong>재보정(recalibration) 없이 6개월간
+            24시간 연속</strong> 돌아갔습니다. 손대지 않아도 알아서 계속 정확하게 작동했다는
+            뜻입니다 — 바로 "잔고장 없음"의 실증입니다.
+          </p>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-number">6개월</div>
+            <div class="stat-label">무중단 연속 가동</div>
+            <div class="stat-desc">재보정 0회</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">24h</div>
+            <div class="stat-label">하루 가동 시간</div>
+            <div class="stat-desc">풀타임 운영</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">3분</div>
+            <div class="stat-label">워밍업 단축</div>
+            <div class="stat-desc">9분 → 3분 (알루미늄)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 강점 4 -->
+    <div class="point">
+      <div class="point-head">
+        <div class="point-num purple">4</div>
+        <div>
+          <div class="point-title">온보드 처리 — PC에 부담을 안 준다</div>
+          <div class="point-sub">Vision Processor D4 · 엣지에서 직접 계산</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p>
+          리얼센스는 깊이 계산을 <strong>카메라 안의 Vision Processor D4 칩</strong>이 직접 합니다.
+          그래서 연결된 PC(빅맨님 환경의 NUC 같은)는 거리 계산에 CPU를 쓰지 않아도 됩니다.
+          이게 저전력·플랫폼 독립을 가능하게 하고, 시스템 전체를 안정적으로 만듭니다.
+        </p>
+        <div class="analogy-box">
+          <div class="analogy-icon">🧮</div>
+          <div class="analogy-content">
+            <div class="analogy-title">비유</div>
+            <p class="analogy-text">
+              계산기가 내장된 자판기와 같아요. 손님(PC)이 일일이 거스름돈을 계산할 필요 없이,
+              자판기(카메라)가 <strong>스스로 다 계산해서 결과만 건네줍니다.</strong>
+              손님은 다른 일에 집중할 수 있죠.
+            </p>
+            <p class="analogy-real">
+              💡 <strong>빅맨님 환경 연결</strong> — NUC(192.168.0.65)가 YOLO·Grounding DINO 추론에
+              CPU를 온전히 쓸 수 있는 건, 깊이 계산을 카메라가 떠맡아주기 때문입니다.
+            </p>
+          </div>
+        </div>
+        <div class="case">
+          <span class="case-tag">🏪 실제 사례 · Simbe Robotics (Tally)</span>
+          <div class="case-title">"시중에서 가장 신뢰성 높은 멀티카메라 시스템"</div>
+          <p class="case-text">
+            매장 재고 점검 로봇 Tally는 D435·D415로 선반을 매핑하고 재고·가격을 확인하며
+            매장을 자율 주행합니다. Simbe는 RealSense를 고른 이유로
+            <strong>"즉시 쓸 수 있는(out-of-the-box) 경험과, 시장에서 가장 신뢰성 높은
+            멀티카메라 시스템"</strong>을 꼽았습니다. 온보드 처리 덕분에 여러 대를 붙여도
+            시스템이 흔들리지 않습니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 강점 5 -->
+    <div class="point">
+      <div class="point-head">
+        <div class="point-num">5</div>
+        <div>
+          <div class="point-title">자동 캘리브레이션 — 사람이 보정 안 해도 된다</div>
+          <div class="point-sub">Auto-Calibration · 동적 환경 대응</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p>
+          공장에서 카메라 한 대 한 대를 사람이 매번 보정하러 다닐 수는 없습니다. 진동·온도 변화로
+          광학 정렬이 미세하게 틀어져도 리얼센스는 <strong>스스로 보정</strong>합니다. RealSense
+          경영진은 높은 채택률(AMR 60%, 휴머노이드 80%)의 비결로 <strong>"깊이 기술의 정밀도와,
+          동적 환경에서 신뢰성 있게 자동 캘리브레이션하는 능력"</strong>을 직접 꼽았습니다.
+        </p>
+        <div class="callout callout-tip">
+          <div class="callout-icon">🔧</div>
+          <div class="callout-content">
+            <strong>교육 현장 연결:</strong> 빅맨님의 RealSense 9미션 실습에서 학생들이
+            카메라를 자주 옮기고 흔들어도 깊이 측정이 유지되는 건 이 자동 보정 덕분입니다.
+            ToF나 일부 구조광 카메라였다면 매번 보정 화면을 띄워야 했을 것입니다.
+          </div>
+        </div>
+        <figure>
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzAwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjMwMCI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImFybSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2UyZThmMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzk0YTNiOCIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0iY2FtIiBjeD0iMC41IiBjeT0iMC4zIiByPSIwLjciPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFlNDBhZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiMwZjE3MmEiLz4KPHRleHQgeD0iMzIwIiB5PSIzOCIgZmlsbD0iI2E3OGJmYSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI5MDAiPjNEIERlcHRoIEJpbiBQaWNraW5nPC90ZXh0Pgo8IS0tIOq5iuydtCDsubTrqZTrnbwgKOyDgeuLqCkgLS0+CjxyZWN0IHg9IjI4NSIgeT0iNjAiIHdpZHRoPSI3MCIgaGVpZ2h0PSIyNiIgcng9IjYiIGZpbGw9IiMzMzQxNTUiIHN0cm9rZT0iIzY0NzQ4YiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjMwNSIgY3k9IjczIiByPSI3IiBmaWxsPSJ1cmwoI2NhbSkiLz48Y2lyY2xlIGN4PSIzMzUiIGN5PSI3MyIgcj0iNyIgZmlsbD0idXJsKCNjYW0pIi8+Cjx0ZXh0IHg9IjMyMCIgeT0iMTA1IiBmaWxsPSIjYzRiNWZkIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UmVhbFNlbnNlIOq5iuydtCDsubTrqZTrnbw8L3RleHQ+CjwhLS0g7Iqk7LqUIOu5lCAtLT4KPHBhdGggZD0iTTMwMCA4NiBMMjEwIDIzMCBMNDMwIDIzMCBMMzQwIDg2IFoiIGZpbGw9IiM3YzNhZWQiIG9wYWNpdHk9IjAuMTIiLz4KPGcgc3Ryb2tlPSIjYTc4YmZhIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNCIgc3Ryb2tlLWRhc2hhcnJheT0iNCA0Ij4KPGxpbmUgeDE9IjMwNSIgeTE9Ijg2IiB4Mj0iMjQwIiB5Mj0iMjI1Ii8+PGxpbmUgeDE9IjMzNSIgeTE9Ijg2IiB4Mj0iNDAwIiB5Mj0iMjI1Ii8+CjwvZz4KPCEtLSDroZzrtIftjJQgLS0+CjxyZWN0IHg9IjYwIiB5PSIxMjAiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxMjAiIHJ4PSI2IiBmaWxsPSJ1cmwoI2FybSkiLz4KPHJlY3QgeD0iNzAiIHk9IjEyMCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSIyMCIgcng9IjgiIGZpbGw9InVybCgjYXJtKSIgdHJhbnNmb3JtPSJyb3RhdGUoMjAgNzAgMTMwKSIvPgo8Y2lyY2xlIGN4PSI3MSIgY3k9IjEzMCIgcj0iMTIiIGZpbGw9IiM2NDc0OGIiLz4KPHJlY3QgeD0iMTc1IiB5PSIxNzAiIHdpZHRoPSIxNiIgaGVpZ2h0PSI0MCIgcng9IjQiIGZpbGw9IiM0NzU1NjkiLz4KPCEtLSDqt7jrpqztjbwgLS0+CjxwYXRoIGQ9Ik0xNzAgMjA4IEwxNjUgMjI1IE0xOTEgMjA4IEwxOTYgMjI1IiBzdHJva2U9IiM0NzU1NjkiIHN0cm9rZS13aWR0aD0iNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIi8+CjwhLS0g67mIIOuwleyKpCArIOu2gO2SiCDrjZTrr7ggLS0+CjxyZWN0IHg9IjIxMCIgeT0iMjI1IiB3aWR0aD0iMjIwIiBoZWlnaHQ9IjU1IiByeD0iOCIgZmlsbD0iIzFlMjkzYiIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjMiLz4KPGcgZmlsbD0iI2Y1OWUwYiI+CjxyZWN0IHg9IjIzMCIgeT0iMjQwIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSI0IiB0cmFuc2Zvcm09InJvdGF0ZSgxNSAyNDQgMjU0KSIvPgo8cmVjdCB4PSIyODAiIHk9IjI0NSIgd2lkdGg9IjI2IiBoZWlnaHQ9IjI2IiByeD0iNCIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDI5MyAyNTgpIi8+CjxyZWN0IHg9IjMzMCIgeT0iMjM4IiB3aWR0aD0iMzAiIGhlaWdodD0iMjQiIHJ4PSI0IiB0cmFuc2Zvcm09InJvdGF0ZSg4IDM0NSAyNTApIi8+CjxyZWN0IHg9IjM3NSIgeT0iMjQ2IiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0IiB0cmFuc2Zvcm09InJvdGF0ZSgtMTIgMzg3IDI1OCkiLz4KPC9nPgo8dGV4dCB4PSIzMjAiIHk9IjI5NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuuSpOyEnuyduCDrtoDtkojsnYQgM0TroZwg7J247Iud7ZW0IOuhnOu0h+ydtCDtlZjrgpjslKkg7KeR7Ja064OEIOKAlCDsnpDrj5kg7LqY66as67iM66CI7J207IWY7J20IOygleuwgOuPhCDrs7TsnqU8L3RleHQ+Cjwvc3ZnPg==" alt="3D 깊이 카메라 기반 로봇 빈피킹 작업 장면">
+          <figcaption>3D 깊이 카메라 기반 빈피킹(Bin Picking) — 뒤섞인 부품을 로봇이 집어내려면 카메라 정렬이 항상 정확해야 하며, 자동 캘리브레이션이 이를 보장한다</figcaption>
+        </figure>
+        <div class="case">
+          <span class="case-tag">🤖 실제 사례 · RightHand Robotics (RightPick2)</span>
+          <div class="case-title">수천 종 SKU를 고속·고신뢰로 집어내는 이커머스 물류</div>
+          <p class="case-text">
+            전통적 산업 로봇은 한 가지 작업만 반복하지만, 이커머스 창고는 부품이 박스 안에
+            뒤죽박죽 섞여 있습니다. RightPick2는 깊이 카메라로 <strong>수천 종의 SKU를
+            고속·고신뢰</strong>로 집어 주문을 처리하며 인적 오류를 줄입니다. 매번 흔들리는
+            물체 더미를 정확히 잡으려면 카메라 정렬이 항상 맞아야 합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 강점 6 -->
+    <div class="point">
+      <div class="point-head">
+        <div class="point-num blue">6</div>
+        <div>
+          <div class="point-title">압도적 점유율 = 검증된 생태계</div>
+          <div class="point-sub">ROS 2 · 오픈소스 SDK · 방대한 자료</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p>
+          이건 "잔고장 없음"의 소프트웨어 버전입니다. 점유율이 높다는 건 곧 <strong>문제 해결
+          자료가 많다</strong>는 뜻입니다. 오픈소스 SDK 2.0, ROS 2 네이티브 지원, 활발한 커뮤니티,
+          방대한 문서가 학습 곡선을 낮춰줍니다. ANYbotics 엔지니어들도 RealSense를 고른 이유로
+          <strong>"즉시 작동하고 학습 곡선이 매우 완만하다"</strong>는 점을 꼽았습니다.
+        </p>
+        <div class="case">
+          <span class="case-tag">🐕 실제 사례 · ANYbotics ANYmal (BASF 화학공장)</span>
+          <div class="case-title">로봇 한 대에 RealSense D435 6개를 붙인 4족 점검 로봇</div>
+          <p class="case-text">
+            ANYmal은 <strong>각 로봇에 RealSense D435 모듈 6개</strong>를 달아 고도 지도(elevation map)를
+            만들고, 계단을 오르고 좁은 통로를 지나며 공장·발전소·화학플랜트를 자율 점검합니다.
+            세계 최대 화학단지인 <strong>BASF 루트비히스하펜(10㎢)</strong>에 투입돼 게이지 판독,
+            펌프 음향 측정, 열화상 핫스팟 점검을 수행했습니다. 6대를 한 몸에 묶어도 문제없이
+            돌아가는 건 검증된 생태계와 멀티카메라 안정성 덕분입니다.
+          </p>
+        </div>
+        <figure>
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzIwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjMyMCI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImZsb29yIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzFlMjkzYiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icmJvZHkiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmFjYzE1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjY2E4YTA0Ii8+PC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iNjQwIiBoZWlnaHQ9IjMyMCIgZmlsbD0iIzBmMTcyYSIvPgo8IS0tIOqzteyepSDrsLDqsr0g7YyM7J207ZSEIC0tPgo8ZyBvcGFjaXR5PSIwLjI1IiBzdHJva2U9IiM0NzU1NjkiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik00MCA2MCBINjAwIi8+PHBhdGggZD0iTTQwIDkwIEg2MDAiLz4KPHBhdGggZD0iTTEyMCA2MCBWNDAgSDIwMCBWNjAiLz48cGF0aCBkPSJNNDAwIDkwIFYxMTAgSDQ4MCBWOTAiLz4KPC9nPgo8IS0tIOuwlOuLpSAtLT4KPHJlY3QgeD0iMCIgeT0iMjcwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjUwIiBmaWxsPSJ1cmwoI2Zsb29yKSIvPgo8bGluZSB4MT0iMCIgeTE9IjI3MCIgeDI9IjY0MCIgeTI9IjI3MCIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjIiLz4KPCEtLSDri6TrpqwgLS0+CjxnIHN0cm9rZT0iIzFlMjkzYiIgc3Ryb2tlLXdpZHRoPSIzIj4KPHBhdGggZD0iTTI1MCAyMDAgTDIzNSAyNTAgTDI0NSAyNzAiIHN0cm9rZT0iIzMzNDE1NSIgc3Ryb2tlLXdpZHRoPSIxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0zMDAgMjAwIEwzMTUgMjUwIEwzMDUgMjcwIiBzdHJva2U9IiM0NzU1NjkiIHN0cm9rZS13aWR0aD0iMTAiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMzgwIDIwMCBMMzY4IDI1MCBMMzc4IDI3MCIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjEwIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTQyMCAyMDAgTDQzNSAyNTAgTDQyNSAyNzAiIHN0cm9rZT0iIzQ3NTU2OSIgc3Ryb2tlLXdpZHRoPSIxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjwvZz4KPCEtLSDrqrjthrUgLS0+CjxyZWN0IHg9IjIzNSIgeT0iMTU1IiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjU1IiByeD0iMTQiIGZpbGw9InVybCgjcmJvZHkpIiBzdHJva2U9IiM5MjQwMGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8cmVjdCB4PSIyMzUiIHk9IjE1NSIgd2lkdGg9IjIxMCIgaGVpZ2h0PSIxOCIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjIiLz4KPCEtLSDrqLjrpqwgKyDshLzshJwgLS0+CjxyZWN0IHg9IjQzMCIgeT0iMTM1IiB3aWR0aD0iNTUiIGhlaWdodD0iNDUiIHJ4PSIxMCIgZmlsbD0iIzMzNDE1NSIgc3Ryb2tlPSIjNjQ3NDhiIiBzdHJva2Utd2lkdGg9IjIiLz4KPGNpcmNsZSBjeD0iNDY1IiBjeT0iMTU3IiByPSIxMSIgZmlsbD0idXJsKCNsZW5zKSIvPgo8Y2lyY2xlIGN4PSI0NjUiIGN5PSIxNTciIHI9IjQiIGZpbGw9IiMzYjgyZjYiLz4KPCEtLSDquYrsnbQg7Lm066mU6528IDbqsJwg7ZGc7IucICjsoJApIC0tPgo8ZyBmaWxsPSIjM2I4MmY2Ij4KPGNpcmNsZSBjeD0iMjQ4IiBjeT0iMTUwIiByPSI1Ii8+PGNpcmNsZSBjeD0iMjQ4IiBjeT0iMjE1IiByPSI1Ii8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjE0OCIgcj0iNSIvPjxjaXJjbGUgY3g9IjM0MCIgY3k9IjIxNyIgcj0iNSIvPgo8L2c+Cjx0ZXh0IHg9IjMyMCIgeT0iNDAiIGZpbGw9IiNmYWNjMTUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIj5BTllib3RpY3MgQU5ZbWFsPC90ZXh0Pgo8dGV4dCB4PSIzMjAiIHk9IjMwMCIgZmlsbD0iIzk0YTNiOCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJlYWxTZW5zZSBENDM1IMOXIDbqsJzroZwg7ZeY7KeAIOyduOyLnSDCtyDqs7XsnqUv67Cc7KCE7IaML+2ZlO2Vme2UjOuenO2KuCDsnpDsnKgg7KCQ6rKAPC90ZXh0Pgo8IS0tIOq5iuydtCDruZQgLS0+CjxnIG9wYWNpdHk9IjAuNCI+CjxwYXRoIGQ9Ik00ODUgMTU1IEw2MDAgMTIwIEw2MDAgMjAwIFoiIGZpbGw9IiMzYjgyZjYiIG9wYWNpdHk9IjAuMTUiLz4KPC9nPgo8ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImxlbnMiIGN4PSIwLjUiIGN5PSIwLjQiIHI9IjAuNiI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMWUzYThhIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDIwNjE3Ii8+PC9yYWRpYWxHcmFkaWVudD48L2RlZnM+Cjwvc3ZnPg==" alt="ANYbotics ANYmal 4족 보행 점검 로봇이 산업 플랜트를 순찰하는 모습">
+          <figcaption>ANYbotics ANYmal — RealSense D435 6개로 험지를 인식하며 공장·발전소·화학플랜트를 자율 점검하는 4족 로봇</figcaption>
+        </figure>
+        <div class="callout callout-tip">
+          <div class="callout-icon">📚</div>
+          <div class="callout-content">
+            <strong>교육 현장 연결:</strong> 빅맨님의 RealSense 노하우 문서(이슈 1~14)가 검색으로
+            척척 해결되는 것도 이 거대한 생태계 덕분입니다. ToF 신생 브랜드였다면 stackoverflow에
+            답이 거의 없었을 것입니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 강점 7 -->
+    <div class="point">
+      <div class="point-head">
+        <div class="point-num orange">7</div>
+        <div>
+          <div class="point-title">장기 제조사 지원 — 논문도 인정한 선정 이유</div>
+          <div class="point-sub">Long-term Support · 안정적 로드맵</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p>
+          공장 설비는 한번 들어가면 수년을 씁니다. 그래서 "이 부품이 5년 뒤에도 지원되는가"가
+          핵심입니다. 실제로 한 자율주행 연구 논문은 D435i를 고른 근거로 <strong>"USB 2.0으로도
+          연결 가능하고, 제조사로부터 장기 기술 지원을 받는다"</strong>는 두 가지를 명시했습니다.
+        </p>
+        <div class="case">
+          <span class="case-tag">⚡ 실제 사례 · GE Vernova (발전소 점검)</span>
+          <div class="case-title">반응성 정비·건강 위험 최대 40% 감소</div>
+          <p class="case-text">
+            GE Vernova는 ANYmal(RealSense 탑재) 기반 점검을 자사 자산관리(APM) 소프트웨어와 결합해
+            이스라엘·미국·아일랜드 발전 현장에서 검증했고, <strong>계획 외 정지 감소와
+            반응성 정비·건강 위험 최대 40% 감소</strong> 효과를 확인했습니다. ANYmal은
+            <strong>생산 가동률을 1.5% 끌어올린</strong> 사례도 보고됐습니다.
+          </p>
+        </div>
+        <div class="callout callout-warning">
+          <div class="callout-icon">📌</div>
+          <div class="callout-content">
+            <strong>교육 자료에 꼭 짚을 최신 변수:</strong> RealSense는 2025년 7월 인텔에서
+            독립 회사로 분사(spinout)하고 5천만 달러 투자를 유치했습니다. 이는 <em>축소가 아니라
+            강화</em> 방향입니다 — 독립 회사는 D400 시리즈를 계속 판매·지원하고 SDK를 유지하며,
+            NVIDIA Jetson Thor·Isaac Sim과의 통합 협력을 발표했습니다. 빅맨님의 ROS2+Jetson
+            커리큘럼 방향과 정확히 일치합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 요약 표 -->
+<section>
+  <div class="container">
+    <span class="eyebrow">정리</span>
+    <h2 class="section-title">7가지 강점 ↔ 실제 사례 한눈에</h2>
+    <table class="summary-table">
+      <thead>
+        <tr><th>강점</th><th>왜 강한가 (원리)</th><th>검증된 실제 사례</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>① 글로벌 셔터</td><td>움직임·진동에도 왜곡 없음</td><td>Inbolt — 70개+ 공장, 지연 80ms 미만</td></tr>
+        <tr><td>② IR 스테레오</td><td>고온·조명 간섭에 강함</td><td>주조·단조 현장 (ToF 대비 우위)</td></tr>
+        <tr><td>③ 강건 하드웨어</td><td>IP52·알루미늄·열 안정성</td><td>폴란드 창고 — 6개월 무중단</td></tr>
+        <tr><td>④ 온보드 처리</td><td>PC에 연산 부담 없음</td><td>Simbe Tally — 멀티카메라 안정성</td></tr>
+        <tr><td>⑤ 자동 캘리브레이션</td><td>사람 보정 불필요</td><td>RightHand — 수천 SKU 빈피킹</td></tr>
+        <tr><td>⑥ 검증된 생태계</td><td>ROS2·SDK·방대한 자료</td><td>ANYmal — BASF 화학공장, D435 6개</td></tr>
+        <tr><td>⑦ 장기 지원</td><td>수년 로드맵·논문 인정</td><td>GE Vernova — 정비위험 40%↓</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-content">
+        <strong>한 줄 요약:</strong> 리얼센스가 공장에서 강한 이유 =
+        <strong>움직임에 강한 글로벌 셔터 + 고온·조명에 강한 IR 스테레오 + IP52 강건 하드웨어 +
+        PC 부담 0의 온보드 처리 + 자동 보정 + 검증된 생태계 + 장기 지원</strong>.
+        이 7가지가 "365일 잔고장 없음"이라는 현장 직관의 실체입니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. 토의 워크시트 -->
+<section>
+  <div class="container">
+    <div class="worksheet">
+      <h3>💬 함께 생각해 봅시다 (토의 워크시트)</h3>
+      <ol>
+        <li>
+          <strong>원리 → 강점 연결하기:</strong> 우리 교실의 RealSense 9미션 실습 중,
+          "글로벌 셔터"가 가장 중요하게 작용하는 미션은 무엇일까요? 반대로 별로 중요하지 않은
+          미션도 있을까요?
+        </li>
+        <li>
+          <strong>ToF vs 스테레오 판단:</strong> 만약 여러분이 <em>제철 공장</em>의 점검 로봇을
+          설계한다면 ToF와 리얼센스 중 무엇을 고르겠습니까? 그 이유를 강점 ②번과 연결해 설명해 보세요.
+        </li>
+        <li>
+          <strong>온보드 처리의 가치:</strong> 빅맨님 환경에서 NUC가 깊이 계산까지 직접 해야 한다면
+          어떤 문제가 생길까요? 강점 ④번을 우리 NUC·4090 분담 구조와 연결해 보세요.
+        </li>
+        <li>
+          <strong>리스크 토의:</strong> RealSense가 인텔에서 분사한 것은 우리 교육과정에 위험일까요,
+          기회일까요? 강점 ⑦번을 근거로 양쪽 입장을 모두 적어 보세요.
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 6. 출처 -->
+<section>
+  <div class="container">
+    <span class="eyebrow">참고 자료</span>
+    <h2 class="section-title" style="font-size:1.3rem;">출처 (Sources)</h2>
+    <ul class="sources">
+      <li>RealSense 공식 — Stereo Depth Cameras / D435 / D436 (realsenseai.com)</li>
+      <li>RealSense Case Studies — Inbolt, RightHand Robotics, Simbe, ANYbotics</li>
+      <li>ANYbotics — ANYmal at BASF Ludwigshafen / GE Vernova × ANYbotics (gevernova.com)</li>
+      <li>OpenELAB — Intel RealSense D435i / D435 Guide (글로벌 셔터·산업 적용)</li>
+      <li>Goermicro — Intel RealSense D435 vs Vzense ToF DS86 비교 테스트 (고온 환경)</li>
+      <li>Intel RealSense — Stereo Depth with IR Pass Filter (intelrealsense.com)</li>
+      <li>arXiv 2411.12535 — RGB-D 기반 장애물 회피 연구 (D435i 선정 근거)</li>
+      <li>Intel Capital / BusinessWire / The Robot Report — RealSense 인텔 분사 발표 (2025.7)</li>
+      <li>AliExpress wiki — D435 Mount 실측 (폴란드 창고 6개월 무중단 사례)</li>
+    </ul>
+    <p style="font-size:0.8rem; color:var(--color-muted); margin-top:1rem;">
+      ※ 본 자료는 교육 목적으로 글로벌 공개 자료를 분석·재구성한 것입니다. 수치와 사례는
+      출처 발표 시점 기준이며, 최신 제품·정책은 변동될 수 있습니다.
+    </p>
+  </div>
+</section>
+
+</body>
+</html>
