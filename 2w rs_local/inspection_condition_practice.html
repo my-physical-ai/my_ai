@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>현장 문제 해결 실습 — 무엇을, 어떤 조건으로 검사할까?</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    background: linear-gradient(165deg, #161b26 0%, #20283a 100%);
+    color: #e8edf3; min-height: 100vh; padding: 44px 20px; line-height: 1.6;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  .page-head { text-align: center; margin-bottom: 40px; }
+  .page-head .kicker { font-size: 13px; letter-spacing: 3px; color: #7f93a8; font-weight: 700; }
+  .page-head h1 { font-size: 29px; font-weight: 800; color: #fff; margin: 10px 0 8px; }
+  .page-head p { font-size: 15px; color: #9fb0c0; }
+
+  .p-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; letter-spacing: 1px; padding: 6px 14px; border-radius: 999px; margin-bottom: 14px; background: rgba(110,160,210,0.18); color: #9fc4ec; }
+  .p-title { font-size: 23px; font-weight: 800; color: #fff; margin-bottom: 20px; }
+
+  .card { background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 24px 26px; margin-bottom: 20px; box-shadow: 0 10px 28px rgba(0,0,0,0.25); }
+  .sec { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; color: #cfddec; }
+  .situation p { font-size: 16px; color: #dde6ef; }
+
+  .illust { padding: 12px; text-align: center; background: rgba(255,255,255,0.02); }
+  .illust svg { width: 100%; height: auto; max-width: 800px; }
+
+  .warn { background: linear-gradient(165deg,#3a2a2a,#311f1f); border: 1px solid rgba(220,120,110,0.35); }
+  .warn .sec { color: #f0b8b0; }
+  .warn p { font-size: 15px; color: #f3ddd8; }
+  .warn b { color: #ff9f93; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  th { color: #9fc4ec; font-weight: 700; font-size: 13px; letter-spacing: .5px; }
+  td.item { color: #fff; font-weight: 600; white-space: nowrap; }
+  td.guide { color: #8ea3b8; font-size: 13px; }
+  .blank { display: inline-block; min-width: 110px; border-bottom: 2px dashed #6e87a8; color: transparent; margin-right: 6px; }
+  .unit { color: #9fc4ec; font-size: 13px; }
+
+  .hint { display: flex; align-items: center; gap: 18px; background: linear-gradient(165deg,#26323f,#202a36); border:1px solid rgba(120,170,220,.25); }
+  .hint .who { font-size: 46px; flex-shrink: 0; }
+  .hint .bubble { position: relative; background:#19222d; border:1px solid rgba(150,190,230,.3); border-radius: 14px; padding: 14px 18px; font-size: 16px; color:#dfeaf5; }
+  .hint .bubble::before { content:""; position:absolute; left:-10px; top:22px; border:6px solid transparent; border-right-color:#19222d; }
+  .hint .role { font-size: 12px; font-weight: 700; letter-spacing: 1px; display: block; margin-bottom: 4px; color:#9fc4ec; }
+
+  @media (max-width: 680px) { .page-head h1{font-size:23px;} .p-title{font-size:20px;} .hint{flex-direction:column; text-align:center;} th,td{padding:9px 8px;} .blank{min-width:70px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-head">
+    <div class="kicker">현장 문제 · 직접 풀어보기</div>
+    <h1>무엇을, 어떤 조건으로 검사할까?</h1>
+    <p>검사 장비는 준비됐다. 이제 <b>어떤 제품을 고르고</b>, <b>어떤 조건으로 세팅할지</b> 직접 정해 보자.</p>
+  </div>
+
+  <span class="p-tag">🔵 실습 과제</span>
+  <div class="p-title">깊이 카메라로 병의 찌그러짐을 잡아내기</div>
+
+  <div class="card situation">
+    <div class="sec">📍 상황</div>
+    <p>
+      라인 위를 지나가는 병을 적외선 depth(깊이) 카메라로 찍어 찌그러진 불량을 골라낸다.
+      그런데 아무 병이나, 아무 거리에서나 잘 잡히는 게 아니다.
+      먼저 <b>검사하기 좋은 제품</b>을 고르고, 카메라 거리·워밍업·조명 같은 <b>세팅 조건</b>을 직접 정해야 한다.
+      잘못 고르면 멀쩡한 병도 불량으로 뜨거나, 불량을 놓친다.
+    </p>
+  </div>
+
+  <div class="card illust">
+    <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#283246"/><stop offset="1" stop-color="#1a2230"/></linearGradient>
+        <linearGradient id="belt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4150"/><stop offset="1" stop-color="#2b313d"/></linearGradient>
+      </defs>
+      <rect x="0" y="0" width="800" height="420" fill="url(#bg)"/>
+
+      <!-- conveyor belt -->
+      <rect x="60" y="300" width="680" height="40" rx="6" fill="url(#belt)" stroke="#4a5468"/>
+      <g stroke="#566276" stroke-width="2" opacity="0.6">
+        <line x1="110" y1="300" x2="110" y2="340"/><line x1="190" y1="300" x2="190" y2="340"/>
+        <line x1="270" y1="300" x2="270" y2="340"/><line x1="350" y1="300" x2="350" y2="340"/>
+        <line x1="430" y1="300" x2="430" y2="340"/><line x1="510" y1="300" x2="510" y2="340"/>
+        <line x1="590" y1="300" x2="590" y2="340"/><line x1="670" y1="300" x2="670" y2="340"/>
+      </g>
+      <circle cx="90" cy="345" r="14" fill="#3a4150" stroke="#4a5468"/>
+      <circle cx="710" cy="345" r="14" fill="#3a4150" stroke="#4a5468"/>
+
+      <!-- bottles on belt: opaque (good), label (ok), transparent (warning) -->
+      <!-- opaque bottle -->
+      <g>
+        <rect x="180" y="252" width="30" height="48" rx="6" fill="#4f8a6a"/>
+        <rect x="188" y="240" width="14" height="14" rx="3" fill="#3f7458"/>
+        <text x="195" y="318" font-size="9.5" fill="#9fd0b4" text-anchor="middle">불투명 ✅</text>
+      </g>
+      <!-- labeled bottle -->
+      <g>
+        <rect x="360" y="248" width="30" height="52" rx="6" fill="#d8d2c4" opacity="0.35"/>
+        <rect x="360" y="266" width="30" height="20" fill="#c98a4f"/>
+        <rect x="368" y="236" width="14" height="14" rx="3" fill="#b0a890"/>
+        <text x="375" y="318" font-size="9.5" fill="#e0c89a" text-anchor="middle">라벨부위 ✅</text>
+      </g>
+      <!-- transparent bottle (warning) -->
+      <g>
+        <rect x="540" y="248" width="30" height="52" rx="6" fill="#9fd6e6" opacity="0.18" stroke="#7fc4d6" stroke-dasharray="3 3"/>
+        <rect x="548" y="236" width="14" height="14" rx="3" fill="#7fc4d6" opacity="0.3"/>
+        <text x="555" y="318" font-size="9.5" fill="#ff9f93" text-anchor="middle">투명 ⚠️</text>
+        <!-- scattered/missing depth dots -->
+        <circle cx="548" cy="262" r="1.5" fill="#ff9f93"/><circle cx="562" cy="276" r="1.5" fill="#ff9f93"/>
+        <circle cx="552" cy="290" r="1.5" fill="#ff9f93"/>
+      </g>
+
+      <!-- depth camera on tripod -->
+      <g>
+        <rect x="380" y="95" width="80" height="40" rx="6" fill="#11181f" stroke="#6e9fd0" stroke-width="2"/>
+        <circle cx="400" cy="115" r="10" fill="#1b3a44" stroke="#6e9fd0"/>
+        <circle cx="400" cy="115" r="4" fill="#9fc4ec"/>
+        <circle cx="430" cy="115" r="6" fill="#1b3a44" stroke="#6e9fd0"/>
+        <text x="420" y="88" font-size="11" fill="#9fc4ec" text-anchor="middle">적외선 depth 카메라</text>
+        <!-- tripod -->
+        <line x1="420" y1="135" x2="420" y2="200" stroke="#5a6678" stroke-width="3"/>
+        <line x1="420" y1="200" x2="392" y2="298" stroke="#5a6678" stroke-width="3"/>
+        <line x1="420" y1="200" x2="448" y2="298" stroke="#5a6678" stroke-width="3"/>
+        <line x1="420" y1="240" x2="420" y2="298" stroke="#5a6678" stroke-width="3"/>
+        <text x="470" y="205" font-size="10" fill="#8ea3b8">🔒 고정</text>
+      </g>
+
+      <!-- depth cone + distance bracket -->
+      <polygon points="400,128 360,300 440,300" fill="#6e9fd0" opacity="0.12"/>
+      <line x1="500" y1="135" x2="500" y2="300" stroke="#9fc4ec" stroke-width="1" stroke-dasharray="4 4" opacity="0.7"/>
+      <text x="520" y="220" font-size="11" fill="#9fc4ec">거리 = ? cm</text>
+    </svg>
+  </div>
+
+  <div class="card warn">
+    <div class="sec">⚠️ 꼭 주의 — 투명 페트병</div>
+    <p>
+      적외선 depth 센서는 투명 페트병을 <b>통과·산란</b>시켜 측정값이 군데군데 빈다.
+      그래서 코드에 <b>“유효 비율”</b> 경고를 넣어, 유효 측정점이 <b>50% 미만이면 자동 알림</b>이 뜨도록 한다.
+      교육 첫 실습은 <b>불투명 병이나 라벨 부위</b>를 권장한다.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="sec">📝 검사 조건 — 직접 채워 보기</div>
+    <table>
+      <thead>
+        <tr><th>조건 항목</th><th>내가 정한 값</th><th>참고 가이드</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="item">카메라–물건 거리</td>
+          <td><span class="blank">______</span><span class="unit">cm</span></td>
+          <td class="guide">너무 가까우면 초점이 안 맞고, 너무 멀면 오차가 커진다 (최소 거리 존재)</td>
+        </tr>
+        <tr>
+          <td class="item">검출 가능 찌그러짐</td>
+          <td><span class="blank">______</span><span class="unit">mm 이상</span></td>
+          <td class="guide">거리에 따라 잡아낼 수 있는 최소 깊이가 달라진다</td>
+        </tr>
+        <tr>
+          <td class="item">카메라 워밍업</td>
+          <td><span class="blank">______</span><span class="unit">분</span></td>
+          <td class="guide">전원 직후엔 값이 흔들린다 — 안정될 때까지 대기</td>
+        </tr>
+        <tr>
+          <td class="item">카메라 고정</td>
+          <td><span class="blank">__________</span></td>
+          <td class="guide">등록 후 움직이면 기준이 틀어진다 (고정 방법은?)</td>
+        </tr>
+        <tr>
+          <td class="item">병 종류</td>
+          <td><span class="blank">__________</span></td>
+          <td class="guide">측정이 잘 되는 표면을 고른다 (투명 주의!)</td>
+        </tr>
+        <tr>
+          <td class="item">조명</td>
+          <td><span class="blank">__________</span></td>
+          <td class="guide">그림자·반사가 측정을 망친다 — 어떤 빛이 좋을까?</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card hint">
+    <div class="who">🧑‍🔬</div>
+    <div class="bubble">
+      <span class="role">검사 감독관</span>
+      “장비 탓하기 전에 <b>‘잘 보이는 조건’</b>부터 만들어. 거리·빛·표면 — 셋만 잡아도 절반은 끝나.”
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
