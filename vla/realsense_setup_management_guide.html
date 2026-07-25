@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리얼센스 설정부터 관리까지 — 완전 가이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --color-primary:#059669; --color-primary-light:#D1FAE5;
+  --color-secondary:#0891B2; --color-secondary-light:#CFFAFE;
+  --color-accent:#7C3AED; --color-accent-light:#EDE9FE;
+  --color-success:#059669; --color-success-light:#D1FAE5;
+  --color-warning:#D97706; --color-warning-light:#FEF3C7;
+  --color-danger:#DC2626; --color-danger-light:#FEE2E2;
+  --color-surface:#F8FAFC; --color-card:#FFFFFF;
+  --color-text:#1E293B; --color-muted:#64748B; --color-border:#E2E8F0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--color-text);background:var(--color-surface);line-height:1.75;}
+code,pre{font-family:'JetBrains Mono',monospace;}
+.container{max-width:900px;margin:0 auto;padding:0 1.5rem;}
+
+/* hero */
+.hero{background:linear-gradient(135deg,#064E3B,#059669 50%,#10B981);color:white;padding:4rem 0 3.2rem;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;bottom:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,0.12),transparent 70%);}
+.hero h1{font-size:2.7rem;font-weight:900;line-height:1.2;position:relative;}
+.hero-subtitle{font-size:1.12rem;margin-top:0.9rem;opacity:0.95;max-width:680px;position:relative;}
+.hero-tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;position:relative;}
+.pill{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);padding:0.3rem 0.9rem;border-radius:999px;font-size:0.8rem;font-weight:500;}
+
+/* toc */
+.toc{background:var(--color-card);border:1px solid var(--color-border);border-radius:16px;padding:1.5rem 1.8rem;margin:2.5rem 0;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.toc h3{font-size:1rem;color:var(--color-muted);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.05em;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.7rem;}
+.toc-item{display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.9rem;background:var(--color-surface);border-radius:10px;text-decoration:none;color:var(--color-text);font-size:0.9rem;font-weight:500;transition:background 0.15s,transform 0.15s;}
+.toc-item:hover{background:var(--color-primary-light);transform:translateX(3px);}
+.toc-num{width:1.6rem;height:1.6rem;border-radius:8px;background:var(--color-primary);color:white;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:900;flex-shrink:0;}
+
+section{padding:2.8rem 0;border-top:1px solid var(--color-border);}
+section:first-of-type{border-top:none;}
+h2.sec{font-size:1.85rem;font-weight:900;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.7rem;}
+.sec-badge{width:2.6rem;height:2.6rem;border-radius:12px;background:var(--sc,var(--color-primary));color:white;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;flex-shrink:0;}
+.sec-sub{color:var(--color-muted);font-size:1rem;margin:0.3rem 0 1.6rem;}
+
+/* command card */
+.cmd{background:var(--color-card);border:1px solid var(--color-border);border-radius:14px;overflow:hidden;margin-bottom:1.3rem;box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+.cmd-title{padding:0.85rem 1.3rem;font-weight:700;font-size:0.98rem;display:flex;align-items:center;gap:0.6rem;background:var(--ct,var(--color-primary));color:white;}
+.cmd-title .emoji{font-size:1.2rem;}
+.cmd-term{background:#0F172A;color:#E2E8F0;padding:1rem 1.3rem;font-size:0.87rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;line-height:1.7;}
+.cmd-term .prompt{color:#4ADE80;user-select:none;}
+.cmd-term .cmt{color:#64748B;}
+.cmd-term .out{color:#93C5FD;}
+.cmd-desc{padding:1.1rem 1.3rem;font-size:0.93rem;background:var(--color-card);}
+.cmd-desc .what{font-weight:600;margin-bottom:0.5rem;}
+.cmd-desc ul{list-style:none;padding:0;}
+.cmd-desc li{padding-left:1.3rem;position:relative;margin-bottom:0.35rem;font-size:0.9rem;color:var(--color-text);}
+.cmd-desc li::before{content:'▸';position:absolute;left:0;color:var(--color-primary);font-weight:700;}
+
+/* analogy */
+.analogy-box{display:flex;gap:1.1rem;padding:1.25rem;background:var(--color-accent-light);border-radius:12px;border-left:4px solid var(--color-accent);margin:1.2rem 0;}
+.analogy-icon{font-size:2rem;flex-shrink:0;}
+.analogy-title{font-weight:700;font-size:0.78rem;color:var(--color-accent);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.35rem;}
+.analogy-text{line-height:1.65;font-size:0.95rem;}
+
+/* callout */
+.callout{display:flex;gap:0.75rem;padding:1rem 1.25rem;border-radius:10px;align-items:flex-start;margin:1.1rem 0;}
+.callout-icon{font-size:1.25rem;flex-shrink:0;}
+.callout-content{font-size:0.92rem;line-height:1.6;}
+.callout-tip{background:var(--color-success-light);border-left:3px solid var(--color-success);}
+.callout-warning{background:var(--color-warning-light);border-left:3px solid var(--color-warning);}
+.callout-danger{background:var(--color-danger-light);border-left:3px solid var(--color-danger);}
+.callout-info{background:var(--color-secondary-light);border-left:3px solid var(--color-secondary);}
+
+/* flow */
+.flow-diagram{display:flex;align-items:center;justify-content:center;gap:0.4rem;padding:1.8rem 1rem;background:var(--color-card);border:1px solid var(--color-border);border-radius:16px;overflow-x:auto;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin:1.4rem 0;}
+.flow-node{background:var(--color-card);border:2px solid var(--node-color,var(--color-primary));border-radius:12px;padding:0.9rem 0.7rem;text-align:center;min-width:92px;}
+.flow-node-icon{font-size:1.5rem;margin-bottom:0.3rem;}
+.flow-node-title{font-weight:700;font-size:0.82rem;}
+.flow-node-desc{font-size:0.68rem;color:var(--color-muted);margin-top:0.1rem;}
+@media(max-width:768px){.flow-diagram{flex-direction:column;}.flow-arrow svg{transform:rotate(90deg);}}
+
+/* stat */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin:1.4rem 0;}
+.stat-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:12px;padding:1.3rem;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.stat-number{font-size:2rem;font-weight:900;color:var(--color-primary);line-height:1;}
+.stat-label{font-weight:700;font-size:0.85rem;margin-top:0.45rem;}
+.stat-desc{font-size:0.76rem;color:var(--color-muted);margin-top:0.2rem;}
+
+/* table */
+.tbl{background:var(--color-card);border:1px solid var(--color-border);border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin:1.3rem 0;}
+.tbl table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+.tbl th{background:var(--color-surface);text-align:left;padding:0.85rem 1.1rem;font-weight:700;border-bottom:2px solid var(--color-border);}
+.tbl td{padding:0.85rem 1.1rem;border-bottom:1px solid var(--color-border);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl code{background:#EEF2F7;color:#334155;padding:2px 6px;border-radius:5px;font-size:0.85em;}
+.tag-ok{color:var(--color-success);font-weight:700;}
+.tag-no{color:var(--color-danger);font-weight:700;}
+
+/* decision tree */
+.decision{background:var(--color-card);border:1px solid var(--color-border);border-radius:14px;padding:1.5rem;margin:1.3rem 0;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.dec-q{font-weight:700;font-size:0.95rem;padding:0.7rem 1rem;background:#1E293B;color:white;border-radius:10px;margin-bottom:0.8rem;}
+.dec-branch{display:flex;gap:0.8rem;margin-bottom:0.6rem;flex-wrap:wrap;}
+.dec-opt{flex:1;min-width:200px;border-radius:10px;padding:0.85rem 1rem;font-size:0.87rem;}
+.dec-yes{background:var(--color-success-light);border-left:3px solid var(--color-success);}
+.dec-no{background:var(--color-danger-light);border-left:3px solid var(--color-danger);}
+.dec-opt b{display:block;margin-bottom:0.25rem;}
+
+.footer{text-align:center;color:var(--color-muted);font-size:0.85rem;padding:2.5rem 0;border-top:1px solid var(--color-border);}
+@media print{.hero::after{display:none;}.cmd-term{background:#f5f5f5;color:#333;}.cmd-term .prompt{color:#059669;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="pill">📷 Intel RealSense</span>
+      <span class="pill">🐧 Ubuntu / Linux</span>
+      <span class="pill">🤖 LeRobot 연동</span>
+      <span class="pill">🎓 ZETA Physical AI</span>
+    </div>
+    <h1>리얼센스 설정부터 관리까지</h1>
+    <p class="hero-subtitle">시리얼 확인 · 연결 속도 점검 · udev 권한 · 펌웨어 관리까지 — RealSense 카메라를 처음 꽂는 순간부터 안정적으로 운영하기까지 필요한 모든 명령어를 한곳에.</p>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- TOC -->
+<div class="toc">
+  <h3>📚 목차</h3>
+  <div class="toc-grid">
+    <a class="toc-item" href="#s1"><span class="toc-num">1</span>카메라 인식·시리얼</a>
+    <a class="toc-item" href="#s2"><span class="toc-num">2</span>USB 연결 속도</a>
+    <a class="toc-item" href="#s3"><span class="toc-num">3</span>권한·udev</a>
+    <a class="toc-item" href="#s4"><span class="toc-num">4</span>스트림 확인</a>
+    <a class="toc-item" href="#s5"><span class="toc-num">5</span>펌웨어 관리</a>
+    <a class="toc-item" href="#s6"><span class="toc-num">6</span>2대 이상 운영</a>
+    <a class="toc-item" href="#s7"><span class="toc-num">7</span>문제 해결 맵</a>
+  </div>
+</div>
+
+<!-- 전체 흐름 -->
+<section style="border-top:none;padding-top:1rem;">
+  <h2 class="sec"><span class="sec-badge">🗺️</span>전체 흐름</h2>
+  <p class="sec-sub">RealSense를 꽂고 → 확인하고 → 권한 주고 → 스트림 보고 → 관리하는 순서입니다.</p>
+  <div class="flow-diagram">
+    <div class="flow-node" style="--node-color:#059669"><div class="flow-node-icon">🔌</div><div class="flow-node-title">연결</div><div class="flow-node-desc">USB3 포트</div></div>
+    <div class="flow-arrow"><svg width="30" height="20" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+    <div class="flow-node" style="--node-color:#0891B2"><div class="flow-node-icon">🔍</div><div class="flow-node-title">인식·시리얼</div><div class="flow-node-desc">enumerate</div></div>
+    <div class="flow-arrow"><svg width="30" height="20" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+    <div class="flow-node" style="--node-color:#0891B2"><div class="flow-node-icon">⚡</div><div class="flow-node-title">속도 확인</div><div class="flow-node-desc">lsusb -t</div></div>
+    <div class="flow-arrow"><svg width="30" height="20" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+    <div class="flow-node" style="--node-color:#7C3AED"><div class="flow-node-icon">🔑</div><div class="flow-node-title">권한</div><div class="flow-node-desc">udev rules</div></div>
+    <div class="flow-arrow"><svg width="30" height="20" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+    <div class="flow-node" style="--node-color:#D97706"><div class="flow-node-icon">📺</div><div class="flow-node-title">스트림</div><div class="flow-node-desc">viewer</div></div>
+    <div class="flow-arrow"><svg width="30" height="20" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+    <div class="flow-node" style="--node-color:#DC2626"><div class="flow-node-icon">🔧</div><div class="flow-node-title">관리</div><div class="flow-node-desc">펌웨어</div></div>
+  </div>
+</section>
+
+<!-- S1 인식·시리얼 -->
+<section id="s1">
+  <h2 class="sec"><span class="sec-badge" style="--sc:#0891B2">1</span>카메라 인식 &amp; 시리얼 확인</h2>
+  <p class="sec-sub">가장 먼저 하는 일. 카메라가 잡히는지, 시리얼 번호가 무엇인지 확인합니다.</p>
+
+  <div class="analogy-box">
+    <div class="analogy-icon">🪪</div>
+    <div class="analogy-content">
+      <div class="analogy-title">왜 시리얼이 중요할까</div>
+      <p class="analogy-text">시리얼 번호는 카메라의 <strong>주민등록번호</strong>예요. 카메라가 2대 이상이거나, LeRobot 같은 프로그램에서 특정 카메라를 콕 집어 쓰려면 이 번호가 꼭 필요해요. USB 포트를 바꿔 꽂아도 시리얼은 안 변해요.</p>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#0891B2">
+    <div class="cmd-title"><span class="emoji">🔍</span>연결된 카메라 + 시리얼 한눈에 보기</div>
+    <div class="cmd-term"><span class="prompt">$</span> rs-enumerate-devices -s
+
+<span class="out">Device Name          Serial Number    Firmware Version</span>
+<span class="out">Intel RealSense D456  318122301700     5.17.3.10</span>
+<span class="out">Intel RealSense D435  138422072965     5.17.3.10</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ 연결된 모든 RealSense의 이름·시리얼·펌웨어 버전을 표로 보여줍니다.</p>
+      <ul>
+        <li><code>-s</code>는 short(요약) 모드 — 핵심만 간단히</li>
+        <li>여기 나오는 시리얼(예: 318122301700)을 그대로 복사해 config에 사용</li>
+        <li>모델명(D435/D456)으로 어느 카메라가 어느 것인지 구분</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#0891B2">
+    <div class="cmd-title"><span class="emoji">📋</span>더 자세한 정보 (센서·옵션까지)</div>
+    <div class="cmd-term"><span class="prompt">$</span> rs-enumerate-devices <span class="cmt"># -s 없이 실행하면 전체 상세</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ 각 카메라의 지원 해상도, FPS, 센서 종류, 캘리브레이션 정보까지 모두 출력합니다.</p>
+      <ul>
+        <li>어떤 해상도·FPS 조합이 가능한지 확인할 때 사용</li>
+        <li>출력이 매우 기니 <code>rs-enumerate-devices | less</code>로 넘겨보면 편함</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#0891B2">
+    <div class="cmd-title"><span class="emoji">🐍</span>파이썬으로 확인 (conda 환경 점검용)</div>
+    <div class="cmd-term"><span class="prompt">$</span> python -c "import pyrealsense2 as rs; \
+print([d.get_info(rs.camera_info.serial_number) for d in rs.context().devices])"
+
+<span class="out">['318122301700', '138422072965']</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ conda 환경 안에서 pyrealsense2가 카메라를 잡는지 확인합니다.</p>
+      <ul>
+        <li>이게 되면 LeRobot 같은 파이썬 프로그램도 카메라를 쓸 수 있음</li>
+        <li>빈 리스트 <code>[]</code>가 나오면 → 권한(udev) 또는 USB 문제</li>
+        <li><code>ModuleNotFoundError</code>가 나오면 → <code>pip install pyrealsense2</code> 필요</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="callout-icon">💡</span>
+    <span class="callout-content"><strong>Viewer는 되는데 파이썬만 안 될 때:</strong> RealSense Viewer는 <strong>시스템</strong>에 깔린 프로그램이고, 파이썬은 <strong>conda 환경</strong>에서 돕니다. Viewer가 돼도 conda 환경에 <code>pyrealsense2</code>가 없으면 파이썬은 실패합니다 — 별개의 층이에요.</span>
+  </div>
+</section>
+
+<!-- S2 USB 속도 -->
+<section id="s2">
+  <h2 class="sec"><span class="sec-badge" style="--sc:#0891B2">2</span>USB 연결 속도 확인</h2>
+  <p class="sec-sub">RealSense는 USB3에서만 제대로 작동합니다. 실수로 USB2에 잡히면 화질·프레임이 무너져요.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-number">5000M</div><div class="stat-label">USB3 (정상)</div><div class="stat-desc">깊이+컬러 풀 스트림 OK</div></div>
+    <div class="stat-card"><div class="stat-number">480M</div><div class="stat-label">USB2 (문제)</div><div class="stat-desc">해상도·FPS 제한, 에러</div></div>
+    <div class="stat-card"><div class="stat-number">~3.2<span style="font-size:1rem">Gbps</span></div><div class="stat-label">USB3 실효 대역폭</div><div class="stat-desc">여러 대 쓸 때 기준</div></div>
+  </div>
+
+  <div class="cmd" style="--ct:#0891B2">
+    <div class="cmd-title"><span class="emoji">⚡</span>USB 링크 속도 확인 (가장 중요)</div>
+    <div class="cmd-term"><span class="prompt">$</span> lsusb -t | grep -i real
+
+<span class="cmt"># 예시 출력 (Driver=uvcvideo, 5000M 이면 USB3 정상)</span>
+<span class="out">|__ Port 2: Dev 5, ... Driver=uvcvideo, 5000M</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ 카메라가 USB2로 잡혔는지 USB3로 잡혔는지 확인합니다.</p>
+      <ul>
+        <li><code>5000M</code> = USB3, 정상</li>
+        <li><code>480M</code> = USB2로 잘못 잡힘 → 케이블 또는 포트 교체 필요</li>
+        <li>포트를 바꾸거나 케이블을 바꿔가며 5000M이 나오는 조합을 찾기</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#0891B2">
+    <div class="cmd-title"><span class="emoji">🌲</span>USB 버스 구조 전체 보기 (여러 대일 때)</div>
+    <div class="cmd-term"><span class="prompt">$</span> lsusb -t <span class="cmt"># 전체 USB 트리 — 어느 카메라가 어느 Bus(컨트롤러)에 있는지</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ 카메라 2대가 같은 컨트롤러(Bus)를 공유하는지 확인합니다.</p>
+      <ul>
+        <li>서로 다른 Bus 번호에 있으면 → 대역폭을 온전히 나눠 씀 (좋음)</li>
+        <li>같은 Bus에 몰려 있으면 → 대역폭 경쟁으로 끊길 수 있음</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-warning">
+    <span class="callout-icon">🔌</span>
+    <span class="callout-content"><strong>케이블이 범인일 때가 많습니다.</strong> 충전 전용 케이블이나 저품질 케이블은 USB2로 잡히거나 연결이 끊깁니다. RealSense는 반드시 <strong>데이터 지원 USB3 케이블</strong>을 쓰고, D456 같은 산업용은 정품/인증 케이블을 권장합니다.</span>
+  </div>
+</section>
+
+<!-- S3 권한 udev -->
+<section id="s3">
+  <h2 class="sec"><span class="sec-badge" style="--sc:#7C3AED">3</span>권한 &amp; udev 설정</h2>
+  <p class="sec-sub">일반 사용자가 sudo 없이 카메라에 접근하려면 권한 규칙이 필요합니다.</p>
+
+  <div class="analogy-box">
+    <div class="analogy-icon">🔑</div>
+    <div class="analogy-content">
+      <div class="analogy-title">udev 권한이란</div>
+      <p class="analogy-text">USB 장치는 기본적으로 <strong>관리자(root)만</strong> 만질 수 있어요. udev 규칙은 "이 카메라(Intel 제품)는 일반 사용자도 쓸 수 있게 열어줘"라고 리눅스에 알려주는 <strong>출입증</strong>이에요. 이게 없으면 파이썬에서 카메라가 안 잡혀요.</p>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#7C3AED">
+    <div class="cmd-title"><span class="emoji">✅</span>권한 규칙이 이미 있는지 확인</div>
+    <div class="cmd-term"><span class="prompt">$</span> ls -l /etc/udev/rules.d/ | grep -i realsense
+
+<span class="out">-rw-r--r-- 1 root root 10684 ... 99-realsense-libusb.rules</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ librealsense 설치 시 자동으로 깔리는 권한 규칙이 있는지 봅니다.</p>
+      <ul>
+        <li><code>99-realsense-libusb.rules</code>가 보이면 → 이미 완료, 추가 작업 불필요</li>
+        <li>이 규칙이 Intel 벤더 ID(8086)를 가진 모든 RealSense에 접근 권한을 부여</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#7C3AED">
+    <div class="cmd-title"><span class="emoji">⬇️</span>규칙이 없을 때만 — 공식 규칙 설치</div>
+    <div class="cmd-term"><span class="prompt">$</span> sudo wget -O /etc/udev/rules.d/99-realsense-libusb.rules \
+  https://raw.githubusercontent.com/IntelRealSense/librealsense/master/config/99-realsense-libusb.rules
+
+<span class="prompt">$</span> sudo udevadm control --reload-rules <span class="cmt"># 규칙 다시 읽기</span>
+<span class="prompt">$</span> sudo udevadm trigger <span class="cmt"># 즉시 적용</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ 공식 권한 규칙을 내려받고 즉시 적용합니다.</p>
+      <ul>
+        <li>다운로드 후 <strong>reload-rules + trigger</strong> 두 명령으로 적용</li>
+        <li>확실히 하려면 카메라 USB를 뽑았다 다시 꽂기</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">📷</span>
+    <span class="callout-content"><strong>RealSense는 심링크(이름표) udev가 필요 없습니다.</strong> LeRobot이 <strong>시리얼 번호로 직접</strong> 카메라를 찾기 때문이에요. 권한 규칙(<code>99-realsense-libusb.rules</code>)만 있으면 됩니다. 반면 <strong>로봇 팔 시리얼 포트</strong>나 <strong>USB 웹캠</strong>은 <code>/dev</code> 번호가 바뀌므로 이름 고정 udev가 필요합니다 — 장치를 "무엇으로 찾느냐"에 따라 갈립니다.</span>
+  </div>
+</section>
+
+<!-- S4 스트림 확인 -->
+<section id="s4">
+  <h2 class="sec"><span class="sec-badge" style="--sc:#D97706">4</span>스트림 확인 (영상 보기)</h2>
+  <p class="sec-sub">카메라가 실제로 영상을 내보내는지 눈으로 확인합니다.</p>
+
+  <div class="cmd" style="--ct:#D97706">
+    <div class="cmd-title"><span class="emoji">📺</span>GUI 뷰어 — 가장 직관적</div>
+    <div class="cmd-term"><span class="prompt">$</span> realsense-viewer</div>
+    <div class="cmd-desc">
+      <p class="what">▶ 그래픽 창으로 컬러·깊이(depth)·적외선 스트림을 실시간으로 봅니다.</p>
+      <ul>
+        <li>왼쪽 패널에서 카메라별로 Stereo(깊이)/RGB 스트림을 켜고 끔</li>
+        <li>여러 대 연결 시 상단 "Add Source"로 다른 카메라 추가</li>
+        <li><code>Info</code> 탭에서 시리얼·펌웨어·USB 타입 확인 가능</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#D97706">
+    <div class="cmd-title"><span class="emoji">🖥️</span>터미널에서 스트림 통계만 (SSH·헤드리스)</div>
+    <div class="cmd-term"><span class="prompt">$</span> rs-fw-update -l <span class="cmt"># 연결 목록 + 펌웨어(다음 섹션과 연결)</span>
+<span class="prompt">$</span> rs-depth <span class="cmt"># 깊이 스트림을 아스키로 터미널에 표시 (GUI 없이 테스트)</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ 모니터 없는 서버(헤드리스)에서 카메라가 도는지 확인할 때 사용합니다.</p>
+      <ul>
+        <li><code>rs-depth</code>는 깊이 데이터를 텍스트로 출력 — SSH 환경에서 유용</li>
+        <li>영상 자체보다 "스트림이 나오는가"를 확인하는 용도</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#D97706">
+    <div class="cmd-title"><span class="emoji">🤖</span>LeRobot에서 카메라 찾기</div>
+    <div class="cmd-term"><span class="prompt">$</span> lerobot-find-cameras realsense
+
+<span class="out"># 연결된 RealSense의 시리얼과 지원 스펙을 출력</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ LeRobot이 인식하는 RealSense 목록을 확인합니다.</p>
+      <ul>
+        <li>여기서 시리얼이 뜨면 LeRobot config에 바로 사용 가능</li>
+        <li>안 뜨면 → pyrealsense2 미설치 또는 권한 문제</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- S5 펌웨어 -->
+<section id="s5">
+  <h2 class="sec"><span class="sec-badge" style="--sc:#DC2626">5</span>펌웨어 관리</h2>
+  <p class="sec-sub">카메라 내부 소프트웨어(펌웨어)를 확인·업데이트합니다. 신중하게 다뤄야 합니다.</p>
+
+  <div class="cmd" style="--ct:#DC2626">
+    <div class="cmd-title"><span class="emoji">🔎</span>현재 펌웨어 버전 확인</div>
+    <div class="cmd-term"><span class="prompt">$</span> rs-fw-update -l
+
+<span class="out"># 연결된 카메라의 현재 펌웨어 버전 표시</span>
+<span class="out"># (rs-enumerate-devices -s 로도 Firmware Version 확인 가능)</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ 각 카메라의 현재 펌웨어 버전을 확인합니다.</p>
+      <ul>
+        <li>업데이트가 필요한지 판단하는 첫 단계</li>
+        <li>SDK 버전과 펌웨어 버전은 서로 호환되는 짝이 있음</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cmd" style="--ct:#DC2626">
+    <div class="cmd-title"><span class="emoji">⬆️</span>펌웨어 업데이트 (필요할 때만)</div>
+    <div class="cmd-term"><span class="prompt">$</span> rs-fw-update -f <펌웨어파일.bin> <span class="cmt"># 특정 펌웨어로 업데이트</span>
+<span class="cmt"># 또는 여러 대 중 하나만: -s <시리얼> 옵션 추가</span>
+<span class="prompt">$</span> rs-fw-update -s 318122301700 -f Signed_Image_UVC_5_17_3_10.bin</div>
+    <div class="cmd-desc">
+      <p class="what">▶ 카메라 펌웨어를 지정한 버전으로 업데이트합니다.</p>
+      <ul>
+        <li><code>-s</code>로 특정 시리얼만 골라 업데이트 (여러 대 연결 시 안전)</li>
+        <li>업데이트 중 <strong>절대 USB를 뽑지 말 것</strong> — 카메라가 망가질 수 있음</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-danger">
+    <span class="callout-icon">⚠️</span>
+    <span class="callout-content"><strong>펌웨어·SDK 업데이트는 신중하게!</strong> LeRobot이 쓰는 <code>pyrealsense2</code> 버전과 시스템 SDK/펌웨어가 어긋나면 <strong>잘 되던 카메라가 안 잡힐 수</strong> 있습니다. 지금 데이터 수집이 잘 되는 환경이라면 함부로 올리지 마세요. Viewer가 "Update Recommended" 팝업을 띄워도, 문제가 없으면 <strong>Dismiss</strong>로 닫아도 됩니다.</span>
+  </div>
+</section>
+
+<!-- S6 여러 대 -->
+<section id="s6">
+  <h2 class="sec"><span class="sec-badge" style="--sc:#059669">6</span>카메라 2대 이상 운영</h2>
+  <p class="sec-sub">여러 RealSense를 동시에 쓸 때 반드시 알아야 할 대역폭 규칙.</p>
+
+  <div class="tbl">
+    <table>
+      <tr><th>상황</th><th>결과</th><th>권장</th></tr>
+      <tr><td>2대를 <b>다른 USB3 컨트롤러</b>에 직결</td><td class="tag-ok">안정적</td><td>✅ 최선</td></tr>
+      <tr><td>2대를 <b>같은 USB 허브</b>에 연결</td><td class="tag-no">대역폭 경쟁·끊김</td><td>❌ 피하기</td></tr>
+      <tr><td>depth + RGB <b>둘 다 풀</b> 스트림 × 2대</td><td class="tag-no">대역폭 초과 위험</td><td>⚠️ 해상도↓ 또는 depth off</td></tr>
+      <tr><td>RGB만 (depth off) × 2대</td><td class="tag-ok">여유 있음</td><td>✅ VLA 학습용 권장</td></tr>
+    </table>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="callout-icon">📊</span>
+    <span class="callout-content"><strong>대역폭 계산:</strong> depth 스트림(848×480)은 약 442Mbps를 씁니다. USB3 실효 대역폭(~3.2Gbps)을 여러 대가 나눠 쓰므로, 안 쓰는 depth는 끄는 게 안전합니다. LeRobot은 <code>use_depth</code>를 안 넣으면 자동으로 RGB만 사용합니다.</span>
+  </div>
+
+  <div class="cmd" style="--ct:#059669">
+    <div class="cmd-title"><span class="emoji">🔀</span>2대 각각 다른 Bus인지 확인</div>
+    <div class="cmd-term"><span class="prompt">$</span> lsusb -t | grep -i real <span class="cmt"># Bus 번호가 서로 다르면 컨트롤러 분리됨</span></div>
+    <div class="cmd-desc">
+      <p class="what">▶ 두 카메라가 대역폭을 나눠 쓰지 않도록 물리적으로 분리됐는지 확인합니다.</p>
+      <ul>
+        <li>Bus 번호가 같으면 → 마더보드의 다른 위치 포트로 옮기기</li>
+        <li>데스크톱은 뒷면 포트가 보통 별도 컨트롤러에 물려 있음</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- S7 문제 해결 맵 -->
+<section id="s7">
+  <h2 class="sec"><span class="sec-badge" style="--sc:#DC2626">7</span>문제 해결 맵</h2>
+  <p class="sec-sub">증상별로 어디를 봐야 하는지 빠르게 찾기.</p>
+
+  <div class="decision">
+    <div class="dec-q">❓ 카메라가 아예 안 잡힌다 (rs-enumerate-devices에 안 나옴)</div>
+    <div class="dec-branch">
+      <div class="dec-opt dec-no"><b>USB2로 잡힘 (480M)</b>데이터 지원 USB3 케이블로 교체, 다른 포트로 이동</div>
+      <div class="dec-opt dec-no"><b>전원/케이블</b>케이블을 다른 것으로, 포트를 뒷면 직결로</div>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="dec-q">❓ Viewer는 되는데 파이썬/LeRobot에서만 안 잡힌다</div>
+    <div class="dec-branch">
+      <div class="dec-opt dec-yes"><b>pyrealsense2 설치</b>conda 환경에서 <code>pip install pyrealsense2</code></div>
+      <div class="dec-opt dec-yes"><b>권한 확인</b><code>99-realsense-libusb.rules</code> 존재 여부 확인</div>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="dec-q">❓ 스트리밍 중 "No such device" / VIDIOC_QBUF 에러</div>
+    <div class="dec-branch">
+      <div class="dec-opt dec-no"><b>대역폭 경쟁</b>2대를 다른 컨트롤러로 분리, depth 끄기</div>
+      <div class="dec-opt dec-no"><b>케이블 품질</b>산업용은 정품/인증 케이블로 교체</div>
+    </div>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <tr><th>증상</th><th>1순위 확인</th><th>명령어</th></tr>
+      <tr><td>안 잡힘</td><td>USB 속도</td><td><code>lsusb -t | grep real</code></td></tr>
+      <tr><td>파이썬만 안 됨</td><td>pyrealsense2</td><td><code>pip install pyrealsense2</code></td></tr>
+      <tr><td>권한 거부</td><td>udev 규칙</td><td><code>ls /etc/udev/rules.d/</code></td></tr>
+      <tr><td>스트림 끊김</td><td>대역폭·컨트롤러</td><td><code>lsusb -t</code></td></tr>
+      <tr><td>화질 이상</td><td>펌웨어 버전</td><td><code>rs-fw-update -l</code></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 명령어 요약 -->
+<section>
+  <h2 class="sec"><span class="sec-badge" style="--sc:#0891B2">📋</span>명령어 요약 치트시트</h2>
+  <div class="tbl">
+    <table>
+      <tr><th>목적</th><th>명령어</th></tr>
+      <tr><td>카메라+시리얼 확인</td><td><code>rs-enumerate-devices -s</code></td></tr>
+      <tr><td>상세 스펙 확인</td><td><code>rs-enumerate-devices</code></td></tr>
+      <tr><td>파이썬 감지 테스트</td><td><code>python -c "import pyrealsense2 as rs; print([d.get_info(rs.camera_info.serial_number) for d in rs.context().devices])"</code></td></tr>
+      <tr><td>USB 속도 확인</td><td><code>lsusb -t | grep -i real</code></td></tr>
+      <tr><td>권한 규칙 확인</td><td><code>ls -l /etc/udev/rules.d/ | grep realsense</code></td></tr>
+      <tr><td>udev 적용</td><td><code>sudo udevadm control --reload-rules && sudo udevadm trigger</code></td></tr>
+      <tr><td>GUI 뷰어</td><td><code>realsense-viewer</code></td></tr>
+      <tr><td>LeRobot 카메라 찾기</td><td><code>lerobot-find-cameras realsense</code></td></tr>
+      <tr><td>펌웨어 확인</td><td><code>rs-fw-update -l</code></td></tr>
+      <tr><td>펌웨어 업데이트</td><td><code>rs-fw-update -s &lt;시리얼&gt; -f &lt;파일.bin&gt;</code></td></tr>
+    </table>
+  </div>
+</section>
+
+<div class="footer">
+  🎓 ZETA Satellite Robotics · Physical AI 교육 프로그램<br>
+  리얼센스 설정부터 관리까지 — 완전 가이드 · 2026-07-05
+</div>
+
+</div>
+</body>
+</html>

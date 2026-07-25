@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>udev 완전 정복: 리눅스 장치 관리자의 탄생과 원리 - Physical AI Education</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-primary: #2563EB;       /* 하드웨어 블루 */
+      --color-primary-light: #DBEAFE;
+      --color-secondary: #7C3AED;
+      --color-secondary-light: #EDE9FE;
+      --color-success: #059669;
+      --color-success-light: #D1FAE5;
+      --color-warning: #D97706;
+      --color-warning-light: #FEF3C7;
+      --color-danger: #DC2626;
+      --color-danger-light: #FEE2E2;
+      --color-teal: #0891B2;
+      --color-teal-light: #CFFAFE;
+      --color-surface: #F8FAFC;
+      --color-card: #FFFFFF;
+      --color-text: #1E293B;
+      --color-muted: #64748B;
+      --color-border: #E2E8F0;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--color-text);
+      background: var(--color-surface);
+      line-height: 1.75;
+    }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 3rem 0; }
+    h2.section-title { font-size: 1.85rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.5rem; }
+    h3.sub-title { font-size: 1.25rem; font-weight: 700; margin: 2.2rem 0 0.75rem; }
+    .section-lead { color: var(--color-muted); margin-bottom: 2rem; }
+    .section-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2.2rem; height: 2.2rem; border-radius: 50%;
+      background: var(--color-primary); color: white;
+      font-weight: 900; font-size: 1.1rem; margin-right: 0.6rem;
+      vertical-align: middle;
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #1E3A8A, #3B82F6);
+      color: white; padding: 4rem 0 3.5rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 34px 34px;
+    }
+    .hero .container { position: relative; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .tag {
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
+      padding: 0.3rem 0.9rem; border-radius: 999px; font-size: 0.82rem; font-weight: 500;
+    }
+    .hero h1 { font-size: 2.7rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; }
+    .hero-subtitle { font-size: 1.12rem; opacity: 0.95; max-width: 660px; }
+    .hero-meta { margin-top: 1.5rem; font-size: 0.85rem; opacity: 0.8; }
+
+    /* Flow */
+    .flow-diagram {
+      display: flex; align-items: stretch; justify-content: center;
+      gap: 0.5rem; padding: 2rem;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px; overflow-x: auto;
+    }
+    .flow-node {
+      background: var(--color-card);
+      border: 2px solid var(--node-color, var(--color-primary));
+      border-radius: 12px; padding: 1.25rem 1rem;
+      text-align: center; min-width: 150px; flex: 1;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .flow-node:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+    .flow-node-step {
+      display: inline-block; background: var(--node-color, var(--color-primary));
+      color: white; font-size: 0.7rem; font-weight: 700;
+      padding: 0.1rem 0.6rem; border-radius: 999px; margin-bottom: 0.5rem;
+    }
+    .flow-node-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+    .flow-node-title { font-weight: 700; font-size: 0.95rem; }
+    .flow-node-desc { font-size: 0.78rem; color: var(--color-muted); margin-top: 0.25rem; line-height: 1.5; }
+    .flow-arrow { flex-shrink: 0; align-self: center; }
+
+    /* Analogy */
+    .analogy-box {
+      display: flex; gap: 1.25rem; padding: 1.5rem;
+      background: var(--color-primary-light);
+      border-radius: 12px; border-left: 4px solid var(--color-primary);
+      margin: 1.5rem 0;
+    }
+    .analogy-box.purple { background: var(--color-secondary-light); border-left-color: var(--color-secondary); }
+    .analogy-box.purple .analogy-title { color: var(--color-secondary); }
+    .analogy-box.purple .analogy-real { border-top-color: var(--color-secondary); }
+    .analogy-box.green { background: var(--color-success-light); border-left-color: var(--color-success); }
+    .analogy-box.green .analogy-title { color: var(--color-success); }
+    .analogy-box.green .analogy-real { border-top-color: var(--color-success); }
+    .analogy-box.teal { background: var(--color-teal-light); border-left-color: var(--color-teal); }
+    .analogy-box.teal .analogy-title { color: var(--color-teal); }
+    .analogy-box.teal .analogy-real { border-top-color: var(--color-teal); }
+    .analogy-icon { font-size: 2.5rem; flex-shrink: 0; }
+    .analogy-title {
+      font-weight: 700; font-size: 0.85rem; color: var(--color-primary);
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;
+    }
+    .analogy-text { line-height: 1.7; }
+    .analogy-real {
+      margin-top: 0.75rem; padding-top: 0.75rem;
+      border-top: 1px dashed var(--color-primary);
+      font-size: 0.9rem; color: var(--color-muted);
+    }
+
+    /* Timeline */
+    .timeline { position: relative; margin: 1.5rem 0; padding-left: 2.2rem; }
+    .timeline::before {
+      content: ""; position: absolute; left: 0.6rem; top: 0.4rem; bottom: 0.4rem;
+      width: 3px; background: var(--color-primary-light); border-radius: 2px;
+    }
+    .tl-item { position: relative; padding-bottom: 1.75rem; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-item::before {
+      content: ""; position: absolute; left: -1.95rem; top: 0.45rem;
+      width: 0.9rem; height: 0.9rem; border-radius: 50%;
+      background: var(--color-primary); border: 3px solid var(--color-primary-light);
+    }
+    .tl-era { font-weight: 700; color: var(--color-primary); font-size: 0.9rem; }
+    .tl-body { font-size: 0.95rem; margin-top: 0.25rem; }
+    .tl-card {
+      background: var(--color-card); border: 1px solid var(--color-border);
+      border-radius: 10px; padding: 1rem 1.25rem; margin-top: 0.6rem;
+      font-size: 0.88rem;
+    }
+
+    /* Command / code cards */
+    .cmd-card {
+      background: var(--color-card); border: 1px solid var(--color-border);
+      border-radius: 12px; overflow: hidden; margin-bottom: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .cmd-head {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.9rem 1.25rem;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      flex-wrap: wrap;
+    }
+    .cmd-badge {
+      background: var(--color-primary); color: white;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 0.15rem 0.65rem; border-radius: 999px; white-space: nowrap;
+    }
+    .cmd-head h4 { font-size: 1rem; font-weight: 700; }
+    .cmd-body { padding: 1.1rem 1.25rem; }
+    .cmd-body p { font-size: 0.92rem; margin-bottom: 0.7rem; }
+
+    pre.code {
+      background: #0F172A; color: #E2E8F0;
+      padding: 1rem 1.25rem; border-radius: 10px;
+      font-size: 0.85rem; line-height: 1.7; overflow-x: auto;
+    }
+    pre.code .cm { color: #64748B; }
+    pre.code .kw { color: #60A5FA; font-weight: 500; }
+    pre.code .out { color: #86EFAC; }
+    pre.code .warn { color: #FCA5A5; }
+    pre.code .hl { color: #FDE047; }
+
+    /* Org chart (subsystems) */
+    .org-chart {
+      background: var(--color-card); border: 1px solid var(--color-border);
+      border-radius: 16px; padding: 2rem; margin: 1.5rem 0;
+    }
+    .org-root {
+      background: var(--color-primary); color: white;
+      border-radius: 12px; padding: 0.9rem 1.5rem;
+      text-align: center; font-weight: 700;
+      max-width: 340px; margin: 0 auto 0.5rem;
+    }
+    .org-root small { display: block; font-weight: 400; font-size: 0.78rem; opacity: 0.85; }
+    .org-line { text-align: center; color: var(--color-muted); font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .org-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 0.9rem; }
+    .org-dept {
+      border: 2px solid var(--dept-color); border-radius: 12px;
+      padding: 0.9rem; text-align: center;
+      background: color-mix(in srgb, var(--dept-color) 6%, white);
+    }
+    .org-dept .d-icon { font-size: 1.6rem; }
+    .org-dept .d-name { font-weight: 900; color: var(--dept-color); font-size: 1rem; margin-top: 0.2rem; }
+    .org-dept .d-full { font-size: 0.72rem; color: var(--color-muted); }
+    .org-dept .d-devices { font-size: 0.78rem; margin-top: 0.5rem; line-height: 1.5; }
+    .org-dept .d-devices code { background: white; border: 1px solid var(--color-border); border-radius: 5px; padding: 0.05rem 0.3rem; font-size: 0.72rem; }
+
+    /* Tables */
+    table.summary {
+      width: 100%; border-collapse: collapse; margin: 1.25rem 0;
+      background: var(--color-card); border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-size: 0.88rem;
+    }
+    table.summary th {
+      background: var(--color-primary); color: white;
+      padding: 0.75rem 1rem; text-align: left; font-weight: 700;
+    }
+    table.summary td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+    table.summary tr:last-child td { border-bottom: none; }
+    table.summary tr:nth-child(even) td { background: #FBFDFF; }
+    table.summary code {
+      background: var(--color-surface); padding: 0.1rem 0.4rem;
+      border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--color-border);
+      white-space: nowrap;
+    }
+    table.summary .abbr { font-weight: 900; color: var(--color-primary); font-family: 'JetBrains Mono', monospace; }
+
+    /* Rule anatomy */
+    .rule-anatomy {
+      background: var(--color-card); border: 1px solid var(--color-border);
+      border-radius: 16px; padding: 1.75rem; margin: 1.5rem 0;
+    }
+    .rule-line {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.92rem;
+      background: #0F172A; border-radius: 10px; padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem; overflow-x: auto; white-space: nowrap;
+    }
+    .rule-line .r-cond1 { color: #60A5FA; }
+    .rule-line .r-cond2 { color: #FDE047; }
+    .rule-line .r-action { color: #86EFAC; }
+    .rule-line .r-plain { color: #94A3B8; }
+    .rule-parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+    .rule-part { border-radius: 10px; padding: 0.9rem 1.1rem; font-size: 0.86rem; line-height: 1.55; }
+    .rule-part b { display: block; margin-bottom: 0.2rem; }
+    .rp-1 { background: var(--color-primary-light); }
+    .rp-1 b { color: var(--color-primary); }
+    .rp-2 { background: var(--color-warning-light); }
+    .rp-2 b { color: var(--color-warning); }
+    .rp-3 { background: var(--color-success-light); }
+    .rp-3 b { color: var(--color-success); }
+
+    /* Compare cards */
+    .compare-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem; margin: 1.5rem 0;
+    }
+    .compare-card {
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      background: var(--color-card); display: flex; flex-direction: column;
+    }
+    .compare-header { padding: 1.25rem; color: white; text-align: center; }
+    .compare-header h4 { margin: 0.5rem 0 0; font-size: 1.05rem; }
+    .compare-icon { font-size: 2rem; }
+    .compare-body { padding: 1rem 1.25rem; flex: 1; }
+    .compare-item {
+      display: flex; justify-content: space-between; gap: 0.75rem;
+      padding: 0.65rem 0; border-bottom: 1px solid var(--color-border);
+      font-size: 0.88rem;
+    }
+    .compare-item:last-child { border-bottom: none; }
+    .compare-label { color: var(--color-muted); flex-shrink: 0; }
+    .compare-value { font-weight: 700; text-align: right; }
+    .verdict { padding: 0.7rem 1.25rem; text-align: center; font-weight: 700; font-size: 0.9rem; color: white; }
+
+    /* Use-case cards */
+    .case-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .case-card {
+      background: var(--color-card); border-radius: 12px;
+      border: 1px solid var(--color-border);
+      border-top: 4px solid var(--case-color, var(--color-primary));
+      padding: 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .case-card .c-head { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.6rem; }
+    .case-card .c-icon { font-size: 1.6rem; }
+    .case-card h4 { font-size: 1rem; }
+    .case-card .c-path {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: 6px; padding: 0.3rem 0.6rem; margin-bottom: 0.6rem;
+      display: inline-block;
+    }
+    .case-card p { font-size: 0.86rem; color: var(--color-muted); }
+    .case-card .c-lekiwi {
+      margin-top: 0.7rem; font-size: 0.8rem;
+      background: var(--color-primary-light); border-radius: 8px;
+      padding: 0.45rem 0.7rem; color: var(--color-text);
+    }
+
+    /* Callouts */
+    .callout {
+      display: flex; gap: 0.75rem; padding: 1rem 1.25rem;
+      border-radius: 10px; align-items: flex-start; margin: 1.25rem 0;
+    }
+    .callout-icon { font-size: 1.25rem; flex-shrink: 0; padding-top: 0.1rem; }
+    .callout-content { font-size: 0.95rem; line-height: 1.65; }
+    .callout-tip { background: var(--color-success-light); border-left: 3px solid var(--color-success); }
+    .callout-warning { background: var(--color-warning-light); border-left: 3px solid var(--color-warning); }
+    .callout-danger { background: var(--color-danger-light); border-left: 3px solid var(--color-danger); }
+
+    /* Accordion */
+    .accordion { border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; margin: 1.25rem 0; background: var(--color-card); }
+    .accordion-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.25rem; cursor: pointer; font-weight: 600;
+      background: var(--color-surface); user-select: none;
+    }
+    .accordion-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+      padding: 0 1.25rem; font-size: 0.93rem;
+    }
+    .accordion-toggle:checked ~ .accordion-body { max-height: 1500px; padding: 1rem 1.25rem 1.25rem; }
+    .accordion-toggle:checked ~ .accordion-header .accordion-chevron { transform: rotate(90deg); }
+    .accordion-chevron { transition: transform 0.2s; color: var(--color-primary); }
+
+    /* Key cards / stats */
+    .key-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .key-card {
+      background: var(--color-card); border-radius: 12px;
+      padding: 1.4rem; border-top: 4px solid var(--color-primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .key-card .k-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .key-card h4 { font-size: 1rem; margin-bottom: 0.4rem; }
+    .key-card p { font-size: 0.88rem; color: var(--color-muted); }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .stat-card {
+      background: var(--color-card); border-radius: 12px; padding: 1.4rem 1.1rem;
+      text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--color-border);
+    }
+    .stat-number { font-size: 1.9rem; font-weight: 900; color: var(--color-primary); line-height: 1.2; font-family: 'JetBrains Mono', monospace; }
+    .stat-label { font-weight: 700; font-size: 0.88rem; margin-top: 0.5rem; }
+    .stat-desc { font-size: 0.78rem; color: var(--color-muted); margin-top: 0.25rem; }
+
+    p.body-text { margin-bottom: 1rem; }
+    p.body-text code, li code {
+      background: var(--color-primary-light); padding: 0.1rem 0.4rem;
+      border-radius: 6px; font-size: 0.85em;
+    }
+    ul.plain { padding-left: 1.4rem; margin-bottom: 1rem; }
+    ul.plain li { margin-bottom: 0.4rem; font-size: 0.95rem; }
+
+    footer {
+      background: #1E3A8A; color: rgba(255,255,255,0.85);
+      padding: 2rem 0; text-align: center; font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.9rem; }
+      .flow-diagram { flex-direction: column; }
+      .flow-arrow svg { transform: rotate(90deg); }
+      .flow-arrow { align-self: center; }
+      .rule-line { white-space: pre-wrap; word-break: break-all; }
+    }
+
+    @media print {
+      .hero { background: white !important; color: black !important; }
+      .hero::before { display: none; }
+      .flow-node:hover { transform: none; }
+      .accordion-body { max-height: none !important; padding: 1rem 1.25rem !important; }
+      footer { background: white; color: var(--color-muted); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ 1. 히어로 ═══════════════ -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-tags">
+        <span class="tag">🐧 Linux Kernel</span>
+        <span class="tag">🔌 Hot-plug</span>
+        <span class="tag">🏷️ Device Naming</span>
+        <span class="tag">🤖 LeKiwi / Raspberry Pi 5</span>
+      </div>
+      <h1>udev 완전 정복<br><span style="font-size: 1.6rem; font-weight: 700; opacity: 0.9;">리눅스 장치 관리자의 탄생 비화와 원리</span></h1>
+      <p class="hero-subtitle">
+        USB를 꽂는 순서마다 이름이 바뀌는 혼돈의 시대는 어떻게 끝났을까요?
+        udev의 탄생 배경부터, 커널이 장치를 부서(서브시스템)로 나누는 이유,
+        tty·v4l·enp3s0 같은 암호 같은 약자의 뜻, 그리고 로봇 현장 적용까지 —
+        장치 관리의 모든 것을 담았습니다.
+      </p>
+      <div class="hero-meta">LeKiwi 교육 로봇 프로젝트 · Physical AI Education Series · udev 편</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ 2. Overview ═══════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">🗺️ 한눈에 보기: udev의 작동 원리</h2>
+      <p class="section-lead">
+        udev = <strong>u</strong>serspace <strong>/dev</strong>, 즉 "사용자 공간에서 /dev를 관리하는 프로그램"이라는 뜻입니다.
+        USB를 꽂는 순간, 아래 4단계가 순식간에 일어납니다.
+      </p>
+
+      <div class="flow-diagram">
+        <div class="flow-node" style="--node-color: var(--color-primary)">
+          <span class="flow-node-step">STEP 1</span>
+          <div class="flow-node-icon">🔌</div>
+          <div class="flow-node-title">장치 연결</div>
+          <div class="flow-node-desc">카메라, 모터 보드,<br>센서를 USB에 꽂음</div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="40" height="24" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flow-node" style="--node-color: var(--color-secondary)">
+          <span class="flow-node-step">STEP 2</span>
+          <div class="flow-node-icon">📢</div>
+          <div class="flow-node-title">커널의 방송</div>
+          <div class="flow-node-desc">커널이 "새 장치 발견!"<br>이벤트(uevent) 발송</div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="40" height="24" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#7C3AED" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flow-node" style="--node-color: var(--color-warning)">
+          <span class="flow-node-step">STEP 3</span>
+          <div class="flow-node-icon">📖</div>
+          <div class="flow-node-title">규칙 대조</div>
+          <div class="flow-node-desc">udev가 rules 파일을<br>순서대로 읽으며 매칭</div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="40" height="24" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#D97706" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flow-node" style="--node-color: var(--color-success)">
+          <span class="flow-node-step">STEP 4</span>
+          <div class="flow-node-icon">🏷️</div>
+          <div class="flow-node-title">3종 세트 부여</div>
+          <div class="flow-node-desc">이름(SYMLINK) + 그룹<br>+ 권한을 동적으로 설정</div>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong>핵심 한 문장:</strong> 커널은 "몇 번째로 인식됐는지"만 알고,
+          udev는 "그 장치가 <em>누구인지</em>(시리얼 번호·제조사)"를 압니다.
+          그래서 <strong>udev만이 고정 이름을 만들 수 있습니다.</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3. 챕터 1: 탄생 비화 ═══════════════ -->
+  <section style="background: white;">
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">1</span>탄생 비화: 세 번의 시대 교체</h2>
+      <p class="section-lead">
+        udev는 어느 날 갑자기 나타난 게 아닙니다. 두 번의 실패를 거쳐 2003년에 완성된 해답입니다.
+      </p>
+
+      <div class="analogy-box">
+        <div class="analogy-icon">🏘️</div>
+        <div class="analogy-content">
+          <div class="analogy-title">이해하기 쉽게!</div>
+          <p class="analogy-text">
+            옛날 시골 마을은 집이 몇 채 없어서 <strong>"첫 번째 집, 두 번째 집"</strong>이라 불러도 됐어요.
+            그런데 도시가 되면서 집이 생겼다 없어졌다 하니, 순서로 부르면 매번 주소가 바뀌죠.
+            그래서 집마다 고유한 <strong>도로명 주소(시리얼 번호)</strong>를 붙여주는
+            <strong>주소 관리소</strong>가 생긴 거예요. 그게 udev입니다.
+          </p>
+          <p class="analogy-real">
+            💡 <strong>실제로는</strong> — "순서 기반 이름(ttyACM0, ttyACM1)"의 혼란을
+            "신원 기반 이름(by-id)"으로 바꾼 것이 udev의 존재 이유입니다.
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-era">제1시대 · 1970~90년대 — 정적(static) /dev</div>
+          <div class="tl-body">
+            장치는 하드디스크, 프린터처럼 <strong>고정</strong>되어 있다고 가정했습니다.
+            그래서 <code>/dev</code> 폴더에 있을 법한 장치 파일 <strong>수천 개를 미리 전부</strong> 만들어 뒀어요.
+          </div>
+          <div class="tl-card">
+            😫 <strong>문제:</strong> 실제로 없는 장치 파일까지 잔뜩 존재. 새 장치를 사면
+            관리자가 <code>mknod</code> 명령으로 <strong>수동 등록</strong>해야 했습니다.
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-era">제2시대 · 1990년대 말 — devfs의 도전과 실패</div>
+          <div class="tl-body">
+            "커널이 직접 /dev를 동적으로 만들자!"라는 devfs가 등장했지만,
+            이름 정책이 커널 안에 고정되어 <strong>사용자가 이름 규칙을 바꿀 수 없었고</strong>,
+            경쟁 상태(race condition) 버그도 많았습니다.
+          </div>
+          <div class="tl-card">
+            📌 <strong>교훈:</strong> "장치 감지는 커널이, <strong>이름 짓기 정책은 사용자 공간이</strong>"
+            맡아야 한다는 설계 원칙이 여기서 나왔습니다. (udev의 u = userspace가 이 교훈의 흔적!)
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-era">전환점 · 2000년대 초 — USB 핫플러그 시대 💥</div>
+          <div class="tl-body">
+            USB가 대중화되며 장치가 <strong>컴퓨터가 켜진 채로</strong> 꽂혔다 빠지는 시대가 왔습니다.
+            꽂는 순서에 따라 이름이 뒤바뀌는(ttyACM0 ↔ ttyACM1) 혼란이 폭발했죠.
+            기존 방식으로는 감당이 불가능했습니다.
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-era">제3시대 · 2003년 — udev 탄생 (커널 2.6과 함께)</div>
+          <div class="tl-body">
+            커널 개발자 Greg Kroah-Hartman 등이 만든 udev가 devfs를 대체합니다.
+            커널이 <strong>uevent</strong>("장치 꽂혔어요!" 방송)를 보내면,
+            사용자 공간의 udev가 <strong>규칙(rules) 파일</strong>을 읽어
+            이름·권한·심볼릭 링크를 부여하는 구조입니다.
+          </div>
+          <div class="tl-card">
+            🔭 <strong>이후:</strong> 2012년 systemd 프로젝트에 합류해
+            현재는 <code>systemd-udevd</code>라는 이름의 서비스로 모든 리눅스에서 돌아가고 있습니다.
+            (우분투 24.04, 라즈베리파이 OS 모두 동일)
+          </div>
+        </div>
+      </div>
+
+      <div class="key-grid">
+        <div class="key-card">
+          <div class="k-icon">📛</div>
+          <h4>udev = userspace + /dev</h4>
+          <p>"/dev를 사용자 공간에서 관리한다"는 설계 철학이 이름에 그대로 담겨 있습니다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">⚖️</div>
+          <h4>역할 분담이 핵심</h4>
+          <p>감지는 커널, 이름 정책은 udev. devfs 실패에서 배운 교훈입니다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">🔥</div>
+          <h4>핫플러그가 낳은 자식</h4>
+          <p>USB 시대의 "순서 혼란"이 없었다면 udev도 필요 없었을 것입니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 4. 챕터 2: 커널의 부서 조직 ═══════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">2</span>커널의 조직도: 왜 그룹이 나누어지는가</h2>
+      <p class="section-lead">
+        v4l, tty, input… 암호 같은 이름들은 사실 커널이라는 회사의 <strong>부서명(서브시스템)</strong>입니다.
+        장치의 성격에 따라 담당 부서가 나뉘고, 부서마다 전용 폴더와 전용 그룹이 생깁니다.
+      </p>
+
+      <div class="analogy-box purple">
+        <div class="analogy-icon">🏢</div>
+        <div class="analogy-content">
+          <div class="analogy-title">이해하기 쉽게!</div>
+          <p class="analogy-text">
+            큰 회사에 신입사원이 들어오면 인사팀이 <strong>직무에 따라 부서를 배정</strong>하죠.
+            영상 다루면 영상팀, 통신 다루면 통신팀. 리눅스 커널도 똑같아요.
+            새 장치가 꽂히면 드라이버가 "이 장치의 직무"를 보고
+            <strong>서브시스템(부서)</strong>에 배정합니다. 부서가 정해지면
+            사무실 위치(/dev 경로)와 출입 권한(그룹)도 자동으로 따라옵니다.
+          </p>
+          <p class="analogy-real">
+            💡 <strong>실제로는</strong> — udev rule의 첫 조건이 항상
+            <code>SUBSYSTEM=="tty"</code>처럼 부서 확인으로 시작하는 이유입니다.
+          </p>
+        </div>
+      </div>
+
+      <div class="org-chart">
+        <div class="org-root">🐧 리눅스 커널<small>장치를 직무별 부서로 분류</small></div>
+        <div class="org-line">┌─────────┬─────────┼─────────┬─────────┐</div>
+        <div class="org-grid">
+          <div class="org-dept" style="--dept-color: var(--color-primary)">
+            <div class="d-icon">📡</div>
+            <div class="d-name">tty</div>
+            <div class="d-full">TeleTYpewriter<br>(전신 타자기)</div>
+            <div class="d-devices">시리얼 통신 담당<br><code>/dev/ttyACM0</code><br>모터보드·GPS·LiDAR<br>그룹: <strong>dialout</strong></div>
+          </div>
+          <div class="org-dept" style="--dept-color: var(--color-danger)">
+            <div class="d-icon">📷</div>
+            <div class="d-name">v4l</div>
+            <div class="d-full">Video4Linux<br>("for"를 4로!)</div>
+            <div class="d-devices">영상 캡처 담당<br><code>/dev/video0</code><br>웹캠·캡처보드<br>그룹: <strong>video</strong></div>
+          </div>
+          <div class="org-dept" style="--dept-color: var(--color-success)">
+            <div class="d-icon">🎮</div>
+            <div class="d-name">input</div>
+            <div class="d-full">Input Devices</div>
+            <div class="d-devices">사람 입력 담당<br><code>/dev/input/event0</code><br>키보드·조이스틱<br>그룹: <strong>input</strong></div>
+          </div>
+          <div class="org-dept" style="--dept-color: var(--color-warning)">
+            <div class="d-icon">💾</div>
+            <div class="d-name">block</div>
+            <div class="d-full">Block Devices</div>
+            <div class="d-devices">저장장치 담당<br><code>/dev/sda</code><br>USB메모리·SSD<br>그룹: <strong>disk</strong></div>
+          </div>
+          <div class="org-dept" style="--dept-color: var(--color-teal)">
+            <div class="d-icon">🌐</div>
+            <div class="d-name">net</div>
+            <div class="d-full">Network</div>
+            <div class="d-devices">네트워크 담당<br><code>enp3s0</code> (특이!)<br>/dev에 파일 없음<br>이름 자체를 부여</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="body-text">
+        <strong>왜 그룹이 부서별로 나누어질까요?</strong> 부서마다 위험의 성격이 다르기 때문입니다.
+        시리얼 포트(dialout)는 로봇 오작동 위험, 카메라(video)는 사생활 침해 위험,
+        저장장치(disk)는 데이터 파괴 위험 —
+        <strong>"카메라를 쓸 수 있는 사람"과 "모터를 움직일 수 있는 사람"을 따로 관리</strong>하는 것이
+        최소 권한 원칙에 맞습니다. 열쇠 꾸러미를 통째로 주지 않고, 방마다 열쇠를 따로 주는 것이죠.
+      </p>
+
+      <h3 class="sub-title">📖 약자 사전: 이름의 유래</h3>
+      <table class="summary">
+        <thead><tr><th style="width: 110px;">약자</th><th>원래 말</th><th>유래와 뜻</th></tr></thead>
+        <tbody>
+          <tr><td class="abbr">udev</td><td>userspace /dev</td><td>"/dev를 사용자 공간에서 관리" — devfs 실패의 교훈이 담긴 이름</td></tr>
+          <tr><td class="abbr">tty</td><td>TeleTYpewriter</td><td>1800년대 전신 타자기에서 유래. 시리얼 통신의 조상이라 이름이 남음</td></tr>
+          <tr><td class="abbr">ACM</td><td>Abstract Control Model</td><td>USB 통신 표준(CDC)의 한 방식. 모뎀 흉내를 내는 USB 시리얼 → ttyACM</td></tr>
+          <tr><td class="abbr">v4l</td><td>Video4Linux</td><td>"Video for Linux"의 for를 발음대로 4로 표기. 현재는 2세대(V4L2)</td></tr>
+          <tr><td class="abbr">uvc</td><td>USB Video Class</td><td>드라이버 없이 꽂으면 되는 카메라 표준. uvcvideo 드라이버가 v4l에 등록</td></tr>
+          <tr><td class="abbr">dialout</td><td>dial-out</td><td>"전화를 밖으로 걸다" — 모뎀 시절 전화요금을 지키던 그룹의 유산</td></tr>
+          <tr><td class="abbr">en / wl</td><td>ethernet / wireless lan</td><td>네트워크 이름 접두사. enp3s0 = ethernet + PCI bus 3 + slot 0</td></tr>
+          <tr><td class="abbr">uevent</td><td>userspace event</td><td>커널이 사용자 공간(udev)으로 보내는 "장치 변동 방송"</td></tr>
+          <tr><td class="abbr">GPIO</td><td>General Purpose Input/Output</td><td>범용 입출력 핀 — 라즈베리파이의 40핀 헤더</td></tr>
+          <tr><td class="abbr">I2C</td><td>Inter-Integrated Circuit</td><td>칩과 칩 사이 2선 통신 버스 (센서 연결의 단골)</td></tr>
+          <tr><td class="abbr">SPI</td><td>Serial Peripheral Interface</td><td>고속 4선 직렬 통신 버스</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong>tty가 "전신 타자기"라는 사실이 놀랍죠?</strong> dialout(모뎀), tty(전신기)처럼
+          리눅스 이름에는 100년 전 통신 기술의 화석이 그대로 남아 있습니다.
+          기술은 바뀌어도 <em>인터페이스 개념</em>은 이어지기 때문입니다.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 5. 챕터 3: by-id의 원리 ═══════════════ -->
+  <section style="background: white;">
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">3</span>by-id: 절대 바뀌지 않는 이름의 비밀</h2>
+      <p class="section-lead">
+        udev가 매일 하는 가장 중요한 일 — 순서 기반 이름 옆에 <strong>신원 기반 별명(심볼릭 링크)</strong>을 세워두는 것.
+      </p>
+
+      <div class="analogy-box green">
+        <div class="analogy-icon">🪪</div>
+        <div class="analogy-content">
+          <div class="analogy-title">이해하기 쉽게!</div>
+          <p class="analogy-text">
+            <code>/dev/ttyACM0</code>은 <strong>이사 갈 때마다 바뀌는 집 주소</strong>이고,
+            <code>/dev/serial/by-id/...</code>는 <strong>절대 안 바뀌는 주민등록번호</strong>예요.
+            by-id 폴더는 "주민번호 명부"이고, 화살표(<code>-&gt;</code>)는
+            "이 주민번호의 <strong>현재 거주지</strong>는 여기"라는 뜻입니다.
+          </p>
+          <p class="analogy-real">
+            💡 <strong>실제로는</strong> — by-id 이름은 제조사 + 제품명 + 시리얼 번호를 조합해 만들어지며,
+            우분투에 <strong>기본 내장된 udev 규칙</strong>(60-serial.rules 등)이 자동 생성합니다.
+            우리가 설정하지 않아도 이미 작동 중이에요!
+          </p>
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge">탐색</span>
+          <h4>시스템의 모든 by-id 폴더 찾기</h4>
+        </div>
+        <div class="cmd-body">
+          <pre class="code"><span class="kw">ls -d</span> /dev/*/by-id /dev/*/*/by-id 2&gt;/dev/null
+<span class="out">/dev/serial/by-id    ← 시리얼 (모터보드·GPS·LiDAR·IMU)
+/dev/v4l/by-id       ← 카메라
+/dev/disk/by-id      ← 저장장치
+/dev/input/by-id     ← 키보드·마우스·조이스틱</span></pre>
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge">해석</span>
+          <h4>화살표 읽는 법 + 역방향 조회</h4>
+        </div>
+        <div class="cmd-body">
+          <pre class="code"><span class="kw">ls -l</span> /dev/serial/by-id/
+<span class="out">usb-1a86_USB_Serial-if00 -&gt; ../../ttyACM0</span>
+<span class="cm">#  ↑ 고유 이름 (안 바뀜)          ↑ 실제 장치 (바뀔 수 있음)</span>
+
+<span class="cm"># 반대로, ttyACM0의 by-id 이름이 뭔지 조회</span>
+<span class="kw">udevadm info</span> -q symlink --name=/dev/ttyACM0
+
+<span class="cm"># 규칙 만들 때 쓰는 만능 조회 (모든 속성 출력)</span>
+<span class="kw">udevadm info</span> --name=/dev/ttyACM0 --attribute-walk | less</pre>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong>코드에서는 by-id 경로를 직접 써도 됩니다!</strong>
+          <code>serial.Serial("/dev/serial/by-id/usb-1a86_...-if00")</code>처럼 열면
+          udev rule을 따로 안 만들어도 순서 문제에서 해방됩니다.
+          rule을 만드는 이유는 <code>/dev/robot_wheels</code>처럼 <em>짧고 의미 있는 이름</em>을 원할 때입니다.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 6. 챕터 4: 규칙 문법 해부 + robot_wheels ═══════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">4</span>udev 규칙 해부: robot_wheels 만들기</h2>
+      <p class="section-lead">
+        규칙(rule) 한 줄은 <strong>"조건, 조건 → 행동"</strong> 구조입니다. LeKiwi 듀얼 보드 실전 예제로 해부해 봅시다.
+      </p>
+
+      <div class="rule-anatomy">
+        <div class="rule-line"><span class="r-cond1">SUBSYSTEM=="tty"</span><span class="r-plain">, </span><span class="r-cond2">ATTRS{serial}=="67890DEF"</span><span class="r-plain">, </span><span class="r-action">SYMLINK+="robot_wheels"</span></div>
+        <div class="rule-parts">
+          <div class="rule-part rp-1">
+            <b>조건 1 — 부서 확인 (==)</b>
+            "tty 부서(시리얼) 소속인가?"<br>
+            <code>==</code>는 <strong>비교</strong>를 뜻해요.
+          </div>
+          <div class="rule-part rp-2">
+            <b>조건 2 — 신원 확인 (==)</b>
+            "시리얼 번호가 67890DEF인가?"<br>
+            이 두 조건을 <strong>모두</strong> 만족해야 행동 실행.
+          </div>
+          <div class="rule-part rp-3">
+            <b>행동 — 별명 추가 (+=)</b>
+            "/dev/robot_wheels 링크를 <strong>추가</strong>하라"<br>
+            <code>+=</code>는 기존 이름을 유지하며 덧붙임.
+          </div>
+        </div>
+      </div>
+
+      <h3 class="sub-title">🛠️ 적용 4단계 (LeKiwi 듀얼 보드)</h3>
+
+      <div class="cmd-card">
+        <div class="cmd-head"><span class="cmd-badge">STEP 1</span><h4>각 보드의 시리얼 번호 알아내기</h4></div>
+        <div class="cmd-body">
+          <pre class="code"><span class="kw">udevadm info</span> --name=/dev/ttyACM0 | grep SERIAL_SHORT
+<span class="out">E: ID_SERIAL_SHORT=12345ABC   ← 팔 보드</span>
+<span class="kw">udevadm info</span> --name=/dev/ttyACM1 | grep SERIAL_SHORT
+<span class="out">E: ID_SERIAL_SHORT=67890DEF   ← 바퀴 보드</span></pre>
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-head"><span class="cmd-badge">STEP 2</span><h4>규칙 파일 작성</h4></div>
+        <div class="cmd-body">
+          <p><code>99-</code>는 우선순위입니다. 숫자가 클수록 늦게 실행되어 기본 규칙을 덮어씁니다.</p>
+          <pre class="code"><span class="kw">sudo nano</span> /etc/udev/rules.d/<span class="hl">99-lekiwi.rules</span>
+
+<span class="cm"># 파일 내용:</span>
+SUBSYSTEM=="tty", ATTRS{serial}=="12345ABC", SYMLINK+="robot_arm"
+SUBSYSTEM=="tty", ATTRS{serial}=="67890DEF", SYMLINK+="robot_wheels"</pre>
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-head"><span class="cmd-badge">STEP 3</span><h4>규칙 재로드 + 즉시 적용</h4></div>
+        <div class="cmd-body">
+          <pre class="code"><span class="kw">sudo udevadm control</span> --reload-rules
+<span class="kw">sudo udevadm trigger</span></pre>
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-head"><span class="cmd-badge">STEP 4</span><h4>확인 후 코드에서 사용</h4></div>
+        <div class="cmd-body">
+          <pre class="code"><span class="kw">ls -l</span> /dev/robot_wheels
+<span class="out">/dev/robot_wheels -&gt; ttyACM1   ← 성공!</span></pre>
+          <pre class="code" style="margin-top: 0.7rem;"><span class="cm"># Python — USB 순서가 바뀌어도 항상 바퀴!</span>
+robot_wheels = Robot(port=<span class="hl">"/dev/robot_wheels"</span>)</pre>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <input type="checkbox" id="acc-nokey" class="accordion-toggle" hidden>
+        <label for="acc-nokey" class="accordion-header">
+          <span>🔍 심화: 시리얼 번호가 없는 싸구려 칩(CH340)은 어떻게 구분하나?</span>
+          <span class="accordion-chevron">▸</span>
+        </label>
+        <div class="accordion-body">
+          <p style="margin-bottom: 0.75rem;">
+            값싼 CH340 변환칩은 시리얼 번호가 아예 없는 경우가 많습니다.
+            같은 칩을 쓰는 IMU 2개를 꽂으면 시리얼 번호로는 구분 불가!
+            이럴 땐 <strong>물리적 USB 포트 위치(KERNELS)</strong>로 구분합니다:
+          </p>
+          <pre class="code"><span class="cm"># "왼쪽 위 USB 포트에 꽂힌 것이 IMU다"라는 규칙</span>
+SUBSYSTEM=="tty", <span class="hl">KERNELS=="1-1.2"</span>, SYMLINK+="imu"
+<span class="cm"># 포트 위치 값은 udevadm info --attribute-walk에서 확인</span></pre>
+          <p style="margin-top: 0.75rem;">
+            단, 이 방식은 "항상 같은 포트에 꽂아야 한다"는 약속이 필요합니다.
+            교육 현장에서는 포트에 라벨 스티커를 붙여두는 것이 실전 노하우!
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 7. 챕터 5: 실전 적용 지도 ═══════════════ -->
+  <section style="background: white;">
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">5</span>실전 적용 지도: udev가 일하는 7곳</h2>
+      <p class="section-lead">
+        카메라·센서만이 아닙니다. 로봇 시스템 전체에서 udev가 어디서 일하고 있는지 한 번에 봅니다.
+      </p>
+
+      <div class="case-grid">
+        <div class="case-card" style="--case-color: var(--color-primary)">
+          <div class="c-head"><span class="c-icon">📡</span><h4>모터 보드 (시리얼)</h4></div>
+          <span class="c-path">/dev/serial/by-id/</span>
+          <p>시리얼 번호 매칭 → robot_arm / robot_wheels 고정 이름. 듀얼 보드 포트 뒤바뀜 원천 차단.</p>
+          <div class="c-lekiwi">🤖 LeKiwi: 챕터 4에서 적용한 바로 그 방법</div>
+        </div>
+        <div class="case-card" style="--case-color: var(--color-danger)">
+          <div class="c-head"><span class="c-icon">📷</span><h4>USB 카메라</h4></div>
+          <span class="c-path">/dev/v4l/by-id/</span>
+          <p>video0/video2 뒤바뀜 방지. uvcvideo 드라이버가 v4l 부서에 등록하면 udev가 by-id 링크 생성.</p>
+          <div class="c-lekiwi">🤖 LeKiwi: RealSense D456 + USB 웹캠 식별</div>
+        </div>
+        <div class="case-card" style="--case-color: var(--color-teal)">
+          <div class="c-head"><span class="c-icon">🌐</span><h4>네트워크 카드</h4></div>
+          <span class="c-path">enp3s0 / wlp2s0</span>
+          <p>유일하게 /dev 파일이 없는 부서. udev가 "물리적 위치 기반 이름"을 직접 부여 (Predictable Names).</p>
+          <div class="c-lekiwi">🤖 LeKiwi: netplan·FastDDS 화이트리스트의 토대</div>
+        </div>
+        <div class="case-card" style="--case-color: var(--color-success)">
+          <div class="c-head"><span class="c-icon">🎮</span><h4>조이스틱·게임패드</h4></div>
+          <span class="c-path">/dev/input/by-id/</span>
+          <p>input 그룹 + by-id 고정 이름. dialout과 완전히 같은 패턴 (<code>usermod -aG input</code>).</p>
+          <div class="c-lekiwi">🤖 LeKiwi: 텔레오퍼레이션 패드 연결</div>
+        </div>
+        <div class="case-card" style="--case-color: var(--color-warning)">
+          <div class="c-head"><span class="c-icon">📌</span><h4>GPIO / I2C / SPI</h4></div>
+          <span class="c-path">/dev/gpiochip0 · /dev/i2c-1</span>
+          <p>sudo 없이 핀을 쓰게 해주는 것도 udev rule. 장치 파일을 gpio/i2c/spi 그룹 소유로 변경.</p>
+          <div class="c-lekiwi">🤖 RPi5: 아래 상세 규칙 참고</div>
+        </div>
+        <div class="case-card" style="--case-color: var(--color-secondary)">
+          <div class="c-head"><span class="c-icon">🛰️</span><h4>LiDAR·RTK GPS·IMU</h4></div>
+          <span class="c-path">/dev/lidar · /dev/rtk_gps</span>
+          <p>내부는 제각각이어도 USB에선 전부 tty 부서로 입사 → 모터 보드와 100% 동일한 규칙 적용.</p>
+          <div class="c-lekiwi">🤖 향후 자율주행 확장 시 필수</div>
+        </div>
+        <div class="case-card" style="--case-color: var(--color-danger)">
+          <div class="c-head"><span class="c-icon">⚡</span><h4>자동 실행 (RUN)</h4></div>
+          <span class="c-path">RUN+="스크립트"</span>
+          <p>"이 장치가 꽂히면 이 프로그램 실행". 모터 보드 연결 → 로봇 서비스 자동 시작 같은 자동화.</p>
+          <div class="c-lekiwi">🤖 학생이 USB만 꽂으면 로봇 준비 완료!</div>
+        </div>
+      </div>
+
+      <h3 class="sub-title">🔬 사례 심화 ①: enp3s0 이름 해부</h3>
+      <div class="rule-anatomy">
+        <div class="rule-line"><span class="r-cond1">en</span><span class="r-cond2">p3</span><span class="r-action">s0</span><span class="r-plain">   /   </span><span class="r-cond1">wl</span><span class="r-cond2">p2</span><span class="r-action">s0</span></div>
+        <div class="rule-parts">
+          <div class="rule-part rp-1"><b>en / wl</b>ethernet(유선) / wireless lan(무선)</div>
+          <div class="rule-part rp-2"><b>p3</b>PCI bus 3 — 메인보드에서 꽂힌 버스 번호</div>
+          <div class="rule-part rp-3"><b>s0</b>slot 0 — 슬롯 번호</div>
+        </div>
+      </div>
+      <p class="body-text">
+        옛 이름 eth0/eth1은 <strong>부팅 때 먼저 인식된 순서</strong>였지만, enp3s0은
+        <strong>메인보드의 물리적 위치</strong>입니다. 아파트 "301호"가 입주 순서와 무관하듯,
+        위치는 부팅 순서와 무관해 절대 바뀌지 않죠. 덕분에 netplan 설정과
+        FastDDS 인터페이스 화이트리스트에 이름을 안심하고 박아둘 수 있습니다.
+      </p>
+
+      <h3 class="sub-title">🔬 사례 심화 ②: 라즈베리파이 GPIO 권한 규칙</h3>
+      <div class="cmd-card">
+        <div class="cmd-head"><span class="cmd-badge" style="background: var(--color-warning)">내장 규칙</span><h4>라즈베리파이 OS의 99-com.rules 핵심</h4></div>
+        <div class="cmd-body">
+          <pre class="code"><span class="cm"># "GPIO 장치가 나타나면 → 그룹 gpio, 권한 rw-rw로 바꿔라"</span>
+SUBSYSTEM=="gpiomem", GROUP="gpio", MODE="0660"
+SUBSYSTEM=="i2c-dev", GROUP="i2c",  MODE="0660"
+SUBSYSTEM=="spidev",  GROUP="spi",  MODE="0660"
+
+<span class="cm"># 사용자는 명단에만 오르면 끝 (dialout과 같은 패턴!)</span>
+<span class="kw">sudo usermod -aG</span> gpio,i2c,spi $USER</pre>
+        </div>
+      </div>
+      <div class="callout callout-danger">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-content">
+          <strong>RPi5 + Ubuntu 24.04 주의:</strong> 이 규칙과 그룹은 <em>라즈베리파이 OS</em>의 것이라
+          우분투에는 기본으로 없을 수 있습니다. 직접 추가하세요:
+          <pre class="code" style="margin-top: 0.6rem;"><span class="kw">sudo groupadd -f</span> gpio
+<span class="kw">sudo usermod -aG</span> gpio $USER
+echo 'SUBSYSTEM=="gpio*", GROUP="gpio", MODE="0660"' | <span class="kw">sudo tee</span> /etc/udev/rules.d/99-gpio.rules
+<span class="kw">sudo udevadm control</span> --reload-rules && <span class="kw">sudo udevadm trigger</span></pre>
+        </div>
+      </div>
+
+      <h3 class="sub-title">🔬 사례 심화 ③: 센서 4형제 한 파일로 정리</h3>
+      <div class="cmd-card">
+        <div class="cmd-head"><span class="cmd-badge" style="background: var(--color-secondary)">실전 규칙</span><h4>/etc/udev/rules.d/99-robot-sensors.rules</h4></div>
+        <div class="cmd-body">
+          <p>칩 종류가 다르면 제조사ID:제품ID(idVendor:idProduct)만으로 구분 가능합니다.</p>
+          <pre class="code"><span class="cm"># CP2102 칩 → LiDAR</span>
+SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="lidar"
+<span class="cm"># u-blox 자체 USB → RTK GPS</span>
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a9", SYMLINK+="rtk_gps"
+<span class="cm"># CH340 칩 → IMU</span>
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", SYMLINK+="imu"</pre>
+          <pre class="code" style="margin-top: 0.7rem;"><span class="cm"># 적용 후 — 순서가 어떻게 섞여도 안전</span>
+lidar = serial.Serial(<span class="hl">"/dev/lidar"</span>, 115200)
+gps   = serial.Serial(<span class="hl">"/dev/rtk_gps"</span>, 38400)</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 8. 챕터 6: udev의 한계 — 카메라 다운 ═══════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">6</span>udev의 한계: 카메라가 그래도 죽는 이유</h2>
+      <p class="section-lead">
+        "udev를 해놔도 다운된다" — 맞는 말입니다. 원인이 <strong>두 겹</strong>이기 때문입니다.
+      </p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-header" style="background: var(--color-primary)">
+            <span class="compare-icon">🏷️</span>
+            <h4>문제 A: 이름이 바뀜</h4>
+          </div>
+          <div class="compare-body">
+            <div class="compare-item"><span class="compare-label">현상</span><span class="compare-value">video0 → video2 변신</span></div>
+            <div class="compare-item"><span class="compare-label">원인</span><span class="compare-value">재인식 시 순서 변화</span></div>
+            <div class="compare-item"><span class="compare-label">결과</span><span class="compare-value">엉뚱한 장치 열기</span></div>
+          </div>
+          <div class="verdict" style="background: var(--color-primary)">✅ udev rule로 해결 가능</div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-header" style="background: var(--color-danger)">
+            <span class="compare-icon">🔌</span>
+            <h4>문제 B: 연결 자체가 끊김</h4>
+          </div>
+          <div class="compare-body">
+            <div class="compare-item"><span class="compare-label">현상</span><span class="compare-value">장치가 순간 사라짐</span></div>
+            <div class="compare-item"><span class="compare-label">원인</span><span class="compare-value">전원 부족·접촉 불량·USB 절전</span></div>
+            <div class="compare-item"><span class="compare-label">결과</span><span class="compare-value">잡고 있던 연결이 죽음</span></div>
+          </div>
+          <div class="verdict" style="background: var(--color-danger)">❌ udev만으로 해결 불가</div>
+        </div>
+      </div>
+
+      <p class="body-text">
+        udev는 <strong>A를 해결하고, B에서 다시 살아날 발판</strong>을 만들어 줍니다.
+        B까지 잡으려면 <strong>4종 세트</strong>가 필요합니다:
+      </p>
+
+      <div class="key-grid">
+        <div class="key-card" style="border-top-color: var(--color-primary)">
+          <div class="k-icon">1️⃣</div>
+          <h4>udev 고정 이름</h4>
+          <p>재인식되어도 항상 같은 이름 — <code>/dev/v4l/by-id/</code> 또는 SYMLINK 규칙</p>
+        </div>
+        <div class="key-card" style="border-top-color: var(--color-warning)">
+          <div class="k-icon">2️⃣</div>
+          <h4>USB 절전 끄기</h4>
+          <p>리눅스가 "안 쓰는 것 같으니 전원 절약" 하며 카메라를 꺼버리는 것 방지 — 이것도 udev rule로!</p>
+        </div>
+        <div class="key-card" style="border-top-color: var(--color-success)">
+          <div class="k-icon">3️⃣</div>
+          <h4>재연결 로직</h4>
+          <p>프로그램에서 끊김 감지 → by-id 경로로 다시 열기 (try-except + 재시도)</p>
+        </div>
+        <div class="key-card" style="border-top-color: var(--color-danger)">
+          <div class="k-icon">4️⃣</div>
+          <h4>전원 보강</h4>
+          <p>라즈베리파이 다운의 근본 원인 — 공식 27W 어댑터 또는 유전원 USB 허브</p>
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-head"><span class="cmd-badge" style="background: var(--color-warning)">2번 상세</span><h4>특정 장치만 USB 절전 금지하는 udev rule</h4></div>
+        <div class="cmd-body">
+          <pre class="code"><span class="cm"># Logitech 카메라(제조사ID 046d)는 절대 절전시키지 마라</span>
+SUBSYSTEM=="usb", ATTRS{idVendor}=="046d", ATTR{power/autosuspend}="-1"</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 9. 종합 정리 ═══════════════ -->
+  <section style="background: white;">
+    <div class="container">
+      <h2 class="section-title">🎓 종합 정리</h2>
+      <p class="section-lead">udev의 모든 것을 한 장에 담았습니다.</p>
+
+      <h3 class="sub-title" style="margin-top: 0;">명령어 치트시트</h3>
+      <table class="summary">
+        <thead><tr><th>목적</th><th>명령어</th></tr></thead>
+        <tbody>
+          <tr><td>by-id 폴더 전체 찾기</td><td><code>ls -d /dev/*/by-id /dev/*/*/by-id</code></td></tr>
+          <tr><td>고정 이름 목록 (시리얼/카메라)</td><td><code>ls -l /dev/serial/by-id/</code> · <code>ls -l /dev/v4l/by-id/</code></td></tr>
+          <tr><td>장치의 시리얼 번호 확인</td><td><code>udevadm info --name=/dev/ttyACM0 | grep SERIAL</code></td></tr>
+          <tr><td>규칙용 전체 속성 조회</td><td><code>udevadm info --name=... --attribute-walk</code></td></tr>
+          <tr><td>규칙 재로드 + 적용</td><td><code>sudo udevadm control --reload-rules && sudo udevadm trigger</code></td></tr>
+          <tr><td>실시간 이벤트 관찰 (디버깅)</td><td><code>udevadm monitor</code> — USB를 꽂으며 방송을 직접 구경!</td></tr>
+          <tr><td>규칙 시뮬레이션 테스트</td><td><code>udevadm test /sys/class/tty/ttyACM0</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub-title">핵심 개념 6가지</h3>
+      <div class="key-grid">
+        <div class="key-card">
+          <div class="k-icon">1️⃣</div>
+          <h4>udev = userspace /dev</h4>
+          <p>감지는 커널, 이름 정책은 사용자 공간 — devfs 실패에서 배운 설계.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">2️⃣</div>
+          <h4>핫플러그가 낳은 해답</h4>
+          <p>2003년, USB 시대의 "순서 기반 이름 혼란"을 끝내려 탄생했다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">3️⃣</div>
+          <h4>부서(서브시스템) 분류</h4>
+          <p>tty·v4l·input·block·net — 직무별 부서가 폴더와 그룹을 결정한다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">4️⃣</div>
+          <h4>그룹이 나뉘는 이유</h4>
+          <p>위험의 성격이 달라서. 모터 열쇠와 카메라 열쇠는 따로 관리한다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">5️⃣</div>
+          <h4>규칙 = 조건 → 행동</h4>
+          <p>SUBSYSTEM 확인 + 신원 확인 → SYMLINK/GROUP/RUN 부여.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">6️⃣</div>
+          <h4>udev는 만능이 아니다</h4>
+          <p>이름 문제는 해결, 물리 끊김은 절전 끄기·재연결·전원 보강으로.</p>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-number">2003</div>
+          <div class="stat-label">udev 탄생</div>
+          <div class="stat-desc">커널 2.6과 함께</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">주요 부서</div>
+          <div class="stat-desc">tty·v4l·input·block·net</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">3</div>
+          <div class="stat-label">부여하는 것</div>
+          <div class="stat-desc">이름·그룹·권한</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">7</div>
+          <div class="stat-label">실전 적용처</div>
+          <div class="stat-desc">모터·카메라·넷·패드·핀·센서·자동실행</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      udev 완전 정복: 리눅스 장치 관리자의 탄생과 원리 · LeKiwi Physical AI Education Series · 2026-07-25
+    </div>
+  </footer>
+
+</body>
+</html>

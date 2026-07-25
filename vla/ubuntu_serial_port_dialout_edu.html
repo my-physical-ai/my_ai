@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우분투 시리얼 포트 & dialout 권한 완전 정복 - Physical AI Education</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* === Reset & Base === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-primary: #0891B2;       /* 네트워크/통신 티얼 */
+      --color-primary-light: #CFFAFE;
+      --color-secondary: #7C3AED;
+      --color-secondary-light: #EDE9FE;
+      --color-success: #059669;
+      --color-success-light: #D1FAE5;
+      --color-warning: #D97706;
+      --color-warning-light: #FEF3C7;
+      --color-danger: #DC2626;
+      --color-danger-light: #FEE2E2;
+      --color-surface: #F8FAFC;
+      --color-card: #FFFFFF;
+      --color-text: #1E293B;
+      --color-muted: #64748B;
+      --color-border: #E2E8F0;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--color-text);
+      background: var(--color-surface);
+      line-height: 1.75;
+    }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 3rem 0; }
+    h2.section-title {
+      font-size: 1.85rem; font-weight: 700; line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+    .section-lead { color: var(--color-muted); margin-bottom: 2rem; }
+    .section-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2.2rem; height: 2.2rem; border-radius: 50%;
+      background: var(--color-primary); color: white;
+      font-weight: 900; font-size: 1.1rem; margin-right: 0.6rem;
+      vertical-align: middle;
+    }
+
+    /* === Hero === */
+    .hero {
+      background: linear-gradient(135deg, #164E63, #22D3EE);
+      color: white;
+      padding: 4rem 0 3.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.12) 1.5px, transparent 1.5px);
+      background-size: 26px 26px;
+    }
+    .hero .container { position: relative; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .tag {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      padding: 0.3rem 0.9rem; border-radius: 999px;
+      font-size: 0.82rem; font-weight: 500;
+    }
+    .hero h1 { font-size: 2.7rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; }
+    .hero-subtitle { font-size: 1.12rem; opacity: 0.95; max-width: 640px; }
+    .hero-meta { margin-top: 1.5rem; font-size: 0.85rem; opacity: 0.8; }
+
+    /* === Flow Diagram === */
+    .flow-diagram {
+      display: flex; align-items: stretch; justify-content: center;
+      gap: 0.5rem; padding: 2rem;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      overflow-x: auto;
+    }
+    .flow-node {
+      background: var(--color-card);
+      border: 2px solid var(--node-color, var(--color-primary));
+      border-radius: 12px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      min-width: 150px;
+      flex: 1;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .flow-node:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+    .flow-node-step {
+      display: inline-block; background: var(--node-color, var(--color-primary));
+      color: white; font-size: 0.7rem; font-weight: 700;
+      padding: 0.1rem 0.6rem; border-radius: 999px; margin-bottom: 0.5rem;
+    }
+    .flow-node-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+    .flow-node-title { font-weight: 700; font-size: 0.95rem; }
+    .flow-node-desc { font-size: 0.78rem; color: var(--color-muted); margin-top: 0.25rem; line-height: 1.5; }
+    .flow-arrow { flex-shrink: 0; align-self: center; }
+
+    /* === Analogy Box === */
+    .analogy-box {
+      display: flex; gap: 1.25rem; padding: 1.5rem;
+      background: var(--color-primary-light);
+      border-radius: 12px; border-left: 4px solid var(--color-primary);
+      margin: 1.5rem 0;
+    }
+    .analogy-box.purple { background: var(--color-secondary-light); border-left-color: var(--color-secondary); }
+    .analogy-box.purple .analogy-title { color: var(--color-secondary); }
+    .analogy-box.purple .analogy-real { border-top-color: var(--color-secondary); }
+    .analogy-box.green { background: var(--color-success-light); border-left-color: var(--color-success); }
+    .analogy-box.green .analogy-title { color: var(--color-success); }
+    .analogy-box.green .analogy-real { border-top-color: var(--color-success); }
+    .analogy-icon { font-size: 2.5rem; flex-shrink: 0; }
+    .analogy-title {
+      font-weight: 700; font-size: 0.85rem; color: var(--color-primary);
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;
+    }
+    .analogy-text { line-height: 1.7; }
+    .analogy-real {
+      margin-top: 0.75rem; padding-top: 0.75rem;
+      border-top: 1px dashed var(--color-primary);
+      font-size: 0.9rem; color: var(--color-muted);
+    }
+
+    /* === Command Cards === */
+    .cmd-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .cmd-head {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.9rem 1.25rem;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .cmd-badge {
+      background: var(--color-primary); color: white;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 0.15rem 0.65rem; border-radius: 999px;
+      white-space: nowrap;
+    }
+    .cmd-head h4 { font-size: 1rem; font-weight: 700; }
+    .cmd-body { padding: 1.1rem 1.25rem; }
+    .cmd-body p { font-size: 0.92rem; margin-bottom: 0.7rem; }
+
+    pre.code {
+      background: #0F172A; color: #E2E8F0;
+      padding: 1rem 1.25rem; border-radius: 10px;
+      font-size: 0.85rem; line-height: 1.7;
+      overflow-x: auto;
+    }
+    pre.code .cm { color: #64748B; }
+    pre.code .kw { color: #22D3EE; font-weight: 500; }
+    pre.code .out { color: #86EFAC; }
+    pre.code .warn { color: #FCA5A5; }
+
+    /* === Compare Cards === */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .compare-card {
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      background: var(--color-card);
+      display: flex; flex-direction: column;
+    }
+    .compare-header { padding: 1.25rem; color: white; text-align: center; }
+    .compare-header h4 { margin: 0.5rem 0 0; font-size: 1.05rem; }
+    .compare-icon { font-size: 2rem; }
+    .compare-body { padding: 1rem 1.25rem; flex: 1; }
+    .compare-item {
+      display: flex; justify-content: space-between; gap: 0.75rem;
+      padding: 0.7rem 0; border-bottom: 1px solid var(--color-border);
+      font-size: 0.9rem;
+    }
+    .compare-item:last-child { border-bottom: none; }
+    .compare-label { color: var(--color-muted); flex-shrink: 0; }
+    .compare-value { font-weight: 700; text-align: right; }
+    .verdict {
+      padding: 0.7rem 1.25rem; text-align: center;
+      font-weight: 700; font-size: 0.9rem; color: white;
+    }
+
+    /* === Permission Diagram === */
+    .perm-diagram {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 2rem; margin: 1.5rem 0;
+    }
+    .perm-string {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.35rem; font-weight: 500;
+      text-align: center; letter-spacing: 0.05em;
+      margin-bottom: 1.75rem;
+      word-break: break-all;
+    }
+    .perm-string .p-root { color: var(--color-danger); background: var(--color-danger-light); padding: 0.15rem 0.35rem; border-radius: 6px; }
+    .perm-string .p-group { color: var(--color-primary); background: var(--color-primary-light); padding: 0.15rem 0.35rem; border-radius: 6px; }
+    .perm-string .p-other { color: var(--color-muted); background: var(--color-surface); padding: 0.15rem 0.35rem; border-radius: 6px; border: 1px dashed var(--color-border); }
+    .perm-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .perm-item {
+      display: flex; gap: 0.75rem; align-items: flex-start;
+      padding: 0.9rem 1rem; border-radius: 10px;
+      font-size: 0.88rem; line-height: 1.55;
+    }
+    .perm-item .dot { font-size: 1.3rem; flex-shrink: 0; }
+    .perm-item.p1 { background: var(--color-danger-light); }
+    .perm-item.p2 { background: var(--color-primary-light); }
+    .perm-item.p3 { background: var(--color-surface); border: 1px dashed var(--color-border); }
+
+    /* === Arch Diagram === */
+    .arch-diagram {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 2rem;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px; margin: 1.5rem 0;
+    }
+    .arch-layer {
+      width: 100%; max-width: 620px;
+      background: color-mix(in srgb, var(--layer-color) 8%, white);
+      border: 2px solid var(--layer-color);
+      border-radius: 12px; padding: 1.1rem 1.25rem;
+    }
+    .arch-layer-label {
+      font-weight: 700; color: var(--layer-color);
+      font-size: 0.82rem; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 0.7rem;
+    }
+    .arch-boxes { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+    .arch-box {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 8px; padding: 0.45rem 0.95rem;
+      font-size: 0.88rem; font-weight: 500;
+    }
+    .arch-box code { font-size: 0.82rem; }
+    .arch-connector { color: var(--color-muted); font-size: 1.2rem; padding: 0.3rem 0; }
+
+    /* === Stat Cards === */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .stat-card {
+      background: var(--color-card);
+      border-radius: 12px; padding: 1.5rem 1.25rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--color-border);
+    }
+    .stat-number { font-size: 2rem; font-weight: 900; color: var(--color-primary); line-height: 1.2; font-family: 'JetBrains Mono', monospace; }
+    .stat-label { font-weight: 700; font-size: 0.9rem; margin-top: 0.5rem; }
+    .stat-desc { font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem; }
+
+    /* === Callouts === */
+    .callout {
+      display: flex; gap: 0.75rem;
+      padding: 1rem 1.25rem; border-radius: 10px;
+      align-items: flex-start; margin: 1.25rem 0;
+    }
+    .callout-icon { font-size: 1.25rem; flex-shrink: 0; padding-top: 0.1rem; }
+    .callout-content { font-size: 0.95rem; line-height: 1.65; }
+    .callout-tip { background: var(--color-success-light); border-left: 3px solid var(--color-success); }
+    .callout-warning { background: var(--color-warning-light); border-left: 3px solid var(--color-warning); }
+
+    /* === Timeline === */
+    .timeline { position: relative; margin: 1.5rem 0; padding-left: 2rem; }
+    .timeline::before {
+      content: ""; position: absolute; left: 0.55rem; top: 0.4rem; bottom: 0.4rem;
+      width: 3px; background: var(--color-primary-light); border-radius: 2px;
+    }
+    .tl-item { position: relative; padding-bottom: 1.5rem; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-item::before {
+      content: ""; position: absolute; left: -1.85rem; top: 0.5rem;
+      width: 0.85rem; height: 0.85rem; border-radius: 50%;
+      background: var(--color-primary); border: 3px solid var(--color-primary-light);
+    }
+    .tl-era { font-weight: 700; color: var(--color-primary); font-size: 0.85rem; }
+    .tl-body { font-size: 0.95rem; }
+
+    /* === Accordion === */
+    .accordion { border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; margin: 1.25rem 0; background: var(--color-card); }
+    .accordion-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.25rem; cursor: pointer; font-weight: 600;
+      background: var(--color-surface); user-select: none;
+    }
+    .accordion-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+      padding: 0 1.25rem; font-size: 0.93rem;
+    }
+    .accordion-toggle:checked ~ .accordion-body { max-height: 1200px; padding: 1rem 1.25rem 1.25rem; }
+    .accordion-toggle:checked ~ .accordion-header .accordion-chevron { transform: rotate(90deg); }
+    .accordion-chevron { transition: transform 0.2s; color: var(--color-primary); }
+
+    /* === Summary Table === */
+    table.summary {
+      width: 100%; border-collapse: collapse; margin: 1.5rem 0;
+      background: var(--color-card); border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-size: 0.9rem;
+    }
+    table.summary th {
+      background: var(--color-primary); color: white;
+      padding: 0.8rem 1rem; text-align: left; font-weight: 700;
+    }
+    table.summary td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+    table.summary tr:last-child td { border-bottom: none; }
+    table.summary code {
+      background: var(--color-surface); padding: 0.1rem 0.45rem;
+      border-radius: 6px; font-size: 0.82rem; border: 1px solid var(--color-border);
+      white-space: nowrap;
+    }
+
+    /* === Key point cards === */
+    .key-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .key-card {
+      background: var(--color-card); border-radius: 12px;
+      padding: 1.4rem; border-top: 4px solid var(--color-primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .key-card .k-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .key-card h4 { font-size: 1rem; margin-bottom: 0.4rem; }
+    .key-card p { font-size: 0.88rem; color: var(--color-muted); }
+
+    /* === Footer === */
+    footer {
+      background: #164E63; color: rgba(255,255,255,0.85);
+      padding: 2rem 0; text-align: center; font-size: 0.85rem;
+    }
+
+    p.body-text { margin-bottom: 1rem; }
+    p.body-text code, li code {
+      background: var(--color-primary-light); padding: 0.1rem 0.4rem;
+      border-radius: 6px; font-size: 0.85em;
+    }
+    ul.plain { padding-left: 1.4rem; margin-bottom: 1rem; }
+    ul.plain li { margin-bottom: 0.4rem; font-size: 0.95rem; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.9rem; }
+      .flow-diagram { flex-direction: column; }
+      .flow-arrow svg { transform: rotate(90deg); }
+      .flow-arrow { align-self: center; }
+      .perm-string { font-size: 1rem; }
+    }
+
+    @media print {
+      .hero { background: white !important; color: black !important; }
+      .hero::before { display: none; }
+      .flow-node:hover { transform: none; }
+      .accordion-body { max-height: none !important; padding: 1rem 1.25rem !important; }
+      footer { background: white; color: var(--color-muted); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ 1. 히어로 ═══════════════ -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-tags">
+        <span class="tag">🐧 Ubuntu 24.04</span>
+        <span class="tag">🔌 Serial Port</span>
+        <span class="tag">🤖 LeRobot / LeKiwi</span>
+        <span class="tag">🔐 Linux 권한</span>
+      </div>
+      <h1>우분투 시리얼 포트 &amp;<br>dialout 권한 완전 정복</h1>
+      <p class="hero-subtitle">
+        로봇 모터 보드를 연결하면 왜 <code>/dev/ttyACM0</code>이 생길까요?
+        왜 <code>dialout</code> 그룹에 들어가야만 로봇을 제어할 수 있을까요?
+        포트 명령어부터 리눅스 권한 철학까지, 근본 원리를 이해합니다.
+      </p>
+      <div class="hero-meta">LeKiwi 교육 로봇 프로젝트 · Physical AI Education Series</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ 2. 개념 Overview ═══════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">🗺️ 한눈에 보기: USB 연결부터 로봇 제어까지</h2>
+      <p class="section-lead">
+        모터 보드의 USB를 꽂는 순간부터 LeRobot이 모터를 움직이기까지,
+        우분투 안에서는 아래 4단계가 일어납니다. 이 문서 전체가 이 그림 하나를 설명합니다.
+      </p>
+
+      <div class="flow-diagram">
+        <div class="flow-node" style="--node-color: var(--color-primary)">
+          <span class="flow-node-step">STEP 1</span>
+          <div class="flow-node-icon">🔌</div>
+          <div class="flow-node-title">USB 연결</div>
+          <div class="flow-node-desc">Feetech 모터 보드를<br>USB 포트에 꽂음</div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="40" height="24" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#0891B2" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flow-node" style="--node-color: var(--color-secondary)">
+          <span class="flow-node-step">STEP 2</span>
+          <div class="flow-node-icon">📄</div>
+          <div class="flow-node-title">장치 파일 생성</div>
+          <div class="flow-node-desc">커널이 <code>/dev/ttyACM0</code><br>파일을 자동 생성</div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="40" height="24" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#7C3AED" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flow-node" style="--node-color: var(--color-warning)">
+          <span class="flow-node-step">STEP 3</span>
+          <div class="flow-node-icon">🔐</div>
+          <div class="flow-node-title">권한 검사</div>
+          <div class="flow-node-desc">udev가 파일을 <code>dialout</code><br>그룹 소유로 설정</div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="40" height="24" viewBox="0 0 40 24"><path d="M0 12h30M24 4l8 8-8 8" stroke="#D97706" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flow-node" style="--node-color: var(--color-success)">
+          <span class="flow-node-step">STEP 4</span>
+          <div class="flow-node-icon">🦾</div>
+          <div class="flow-node-title">로봇 제어</div>
+          <div class="flow-node-desc">dialout 멤버인 내 계정이<br>LeRobot으로 모터 제어</div>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong>핵심 질문 두 가지</strong> — ① 포트 목록은 어떻게 보나요? (챕터 1)
+          ② 왜 dialout 그룹이 필요한가요? (챕터 2~4)
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3-1. 챕터 1: 포트 명령어 ═══════════════ -->
+  <section style="background: white;">
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">1</span>포트를 확인하는 5가지 명령어</h2>
+      <p class="section-lead">
+        <code>lerobot-find-port</code>는 "찾기" 명령이고, 목록을 보는 기본 명령은 따로 있습니다.
+      </p>
+
+      <div class="analogy-box">
+        <div class="analogy-icon">📬</div>
+        <div class="analogy-content">
+          <div class="analogy-title">이해하기 쉽게!</div>
+          <p class="analogy-text">
+            아파트 <strong>우편함</strong>을 떠올려보세요.
+            <code>ls /dev/ttyACM*</code>는 우편함 전체를 <strong>쭉 둘러보는 것</strong>이고,
+            <code>lerobot-find-port</code>는 편지를 넣었다 빼면서(USB를 뽑았다 꽂으면서)
+            <strong>"내 우편함이 몇 호인지" 정확히 짚어주는 것</strong>이에요.
+          </p>
+          <p class="analogy-real">
+            💡 <strong>실제로는</strong> — lerobot-find-port는 USB 연결 전/후의 포트 목록 차이를 비교해서
+            방금 꽂은 장치의 포트를 알려줍니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- 명령어 카드 1 -->
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge">기본 · 가장 많이 사용</span>
+          <h4>① 포트 목록 보기 — <code>ls</code></h4>
+        </div>
+        <div class="cmd-body">
+          <p>연결된 시리얼 포트 장치 파일을 나열합니다. <strong>"리스트 명령어"의 정답</strong>입니다.</p>
+          <pre class="code"><span class="cm"># 시리얼 포트 목록 확인</span>
+<span class="kw">ls</span> /dev/ttyACM* /dev/ttyUSB* 2&gt;/dev/null
+<span class="out">/dev/ttyACM0  /dev/ttyACM1   ← 연결된 포트들</span></pre>
+          <ul class="plain" style="margin-top: 0.8rem;">
+            <li><code>ttyACM*</code> → Feetech 모터 보드처럼 USB로 직접 통신하는 장치 (CDC-ACM 방식)</li>
+            <li><code>ttyUSB*</code> → USB-시리얼 변환칩(FTDI, CH340 등)을 쓰는 장치</li>
+            <li><code>2&gt;/dev/null</code> → 장치가 없을 때 나오는 에러 메시지를 숨김</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 명령어 카드 2 -->
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge" style="background: var(--color-warning)">권한 확인</span>
+          <h4>② 자세한 정보 보기 — <code>ls -l</code></h4>
+        </div>
+        <div class="cmd-body">
+          <p>소유자·그룹·권한까지 표시합니다. <strong>dialout 그룹이 여기서 등장</strong>합니다.</p>
+          <pre class="code"><span class="kw">ls -l</span> /dev/ttyACM*
+<span class="out">crw-rw---- 1 root dialout 166, 0  7월 25 10:30 /dev/ttyACM0</span>
+<span class="cm">#            ↑     ↑
+#          소유자  그룹 ← 내가 이 그룹에 없으면 접근 불가!</span></pre>
+        </div>
+      </div>
+
+      <!-- 명령어 카드 3 -->
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge" style="background: var(--color-secondary)">장치 식별</span>
+          <h4>③ USB 장치 전체 보기 — <code>lsusb</code></h4>
+        </div>
+        <div class="cmd-body">
+          <p>포트가 아니라 <strong>어떤 USB 장치가 물리적으로 꽂혀 있는지</strong>를 보여줍니다.</p>
+          <pre class="code"><span class="kw">lsusb</span>
+<span class="out">Bus 001 Device 005: ID 1a86:55d3 QinHeng Electronics USB Serial</span></pre>
+        </div>
+      </div>
+
+      <!-- 명령어 카드 4 -->
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge" style="background: var(--color-secondary)">연결 추적</span>
+          <h4>④ 방금 꽂은 장치의 포트 확인 — <code>dmesg</code></h4>
+        </div>
+        <div class="cmd-body">
+          <p>커널 로그에서 <strong>"방금 꽂은 장치가 어느 포트로 잡혔는지"</strong> 확인합니다.</p>
+          <pre class="code"><span class="kw">sudo dmesg</span> | grep tty
+<span class="out">cdc_acm 1-2:1.0: ttyACM0: USB ACM device</span></pre>
+        </div>
+      </div>
+
+      <!-- 명령어 카드 5 -->
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge" style="background: var(--color-success)">듀얼 보드 필수</span>
+          <h4>⑤ 고유 이름으로 보기 — <code>/dev/serial/by-id/</code></h4>
+        </div>
+        <div class="cmd-body">
+          <p>시리얼 번호 기반 이름이라 <strong>재부팅·재연결해도 바뀌지 않습니다.</strong>
+          팔/바퀴 듀얼 보드에서 포트가 뒤바뀌는 문제의 해결 열쇠입니다.</p>
+          <pre class="code"><span class="kw">ls -l</span> /dev/serial/by-id/
+<span class="out">usb-1a86_USB_Serial-if00 -&gt; ../../ttyACM0</span>
+
+<span class="cm"># 시리얼 번호로 udev rule 고정 포트 만들기</span>
+<span class="kw">udevadm info</span> --name=/dev/ttyACM0 | grep SERIAL</pre>
+        </div>
+      </div>
+
+      <!-- 비교: ls vs lerobot-find-port -->
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 0.5rem;">
+        📊 ls vs lerobot-find-port — 역할이 다릅니다
+      </h3>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-header" style="background: var(--color-primary)">
+            <span class="compare-icon">📋</span>
+            <h4>ls /dev/ttyACM*</h4>
+          </div>
+          <div class="compare-body">
+            <div class="compare-item"><span class="compare-label">역할</span><span class="compare-value">목록 보기</span></div>
+            <div class="compare-item"><span class="compare-label">알려주는 것</span><span class="compare-value">포트가 몇 개 있는지</span></div>
+            <div class="compare-item"><span class="compare-label">USB 조작</span><span class="compare-value">불필요</span></div>
+            <div class="compare-item"><span class="compare-label">속도</span><span class="compare-value">즉시</span></div>
+          </div>
+          <div class="verdict" style="background: var(--color-primary)">우편함 전체 둘러보기</div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-header" style="background: var(--color-success)">
+            <span class="compare-icon">🎯</span>
+            <h4>lerobot-find-port</h4>
+          </div>
+          <div class="compare-body">
+            <div class="compare-item"><span class="compare-label">역할</span><span class="compare-value">특정 장치 찾기</span></div>
+            <div class="compare-item"><span class="compare-label">알려주는 것</span><span class="compare-value">어느 포트가 그 장치인지</span></div>
+            <div class="compare-item"><span class="compare-label">USB 조작</span><span class="compare-value">뽑았다 꽂기 필요</span></div>
+            <div class="compare-item"><span class="compare-label">유용한 상황</span><span class="compare-value">듀얼 보드 식별</span></div>
+          </div>
+          <div class="verdict" style="background: var(--color-success)">내 우편함 정확히 짚기</div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong>LeRobot 0.4.4 변경사항:</strong> Python API의 <code>find_port()</code> 함수는 삭제되었습니다.
+          스크립트에서는 <code>ls /dev/ttyACM*</code>로 포트를 확인하는 방식을 권장합니다.
+          (CLI 명령 <code>lerobot-find-port</code>와 혼동 주의)
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3-2. 챕터 2: 모든 것이 파일 ═══════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">2</span>리눅스 철학: "모든 것이 파일"</h2>
+      <p class="section-lead">
+        dialout 권한을 이해하려면 먼저 이 질문에 답해야 합니다 —
+        왜 USB 포트가 <strong>파일</strong>로 보일까요?
+      </p>
+
+      <div class="analogy-box purple">
+        <div class="analogy-icon">🗄️</div>
+        <div class="analogy-content">
+          <div class="analogy-title">이해하기 쉽게!</div>
+          <p class="analogy-text">
+            리눅스는 모든 하드웨어를 <strong>서류함의 서류철</strong>처럼 다룹니다.
+            키보드도, 모니터도, 모터 보드도 전부 <code>/dev/</code> 폴더 안의
+            "파일"이라는 서류철 하나로 표현돼요. 서류철에 글을 쓰면 → 장치로 데이터가 나가고,
+            서류철을 읽으면 → 장치에서 데이터가 들어옵니다.
+          </p>
+          <p class="analogy-real">
+            💡 <strong>실제로는</strong> — "Everything is a file"은 UNIX의 핵심 설계 철학입니다.
+            <code>/dev/ttyACM0</code>은 디스크의 일반 파일이 아니라 커널이 만든
+            <strong>캐릭터 장치 파일(character device)</strong>이에요. (권한 표시 맨 앞의 <code>c</code>가 그 표시)
+          </p>
+        </div>
+      </div>
+
+      <p class="body-text">
+        이 설계의 결정적 장점: 하드웨어가 파일이 되는 순간,
+        <strong>리눅스의 파일 권한 규칙(소유자/그룹/기타)이 하드웨어에 그대로 적용</strong>됩니다.
+        새로운 보안 체계를 만들 필요 없이, 기존 파일 권한 하나로 모든 장치의 접근을 통제할 수 있죠.
+      </p>
+
+      <div class="arch-diagram">
+        <div class="arch-layer" style="--layer-color: var(--color-secondary)">
+          <div class="arch-layer-label">응용 프로그램 (Application)</div>
+          <div class="arch-boxes">
+            <div class="arch-box">LeRobot</div>
+            <div class="arch-box">Python pyserial</div>
+            <div class="arch-box">lerobot-setup-motors</div>
+          </div>
+        </div>
+        <div class="arch-connector">▼ &nbsp;파일처럼 열고 읽고 씀 (open / read / write)</div>
+        <div class="arch-layer" style="--layer-color: var(--color-primary)">
+          <div class="arch-layer-label">장치 파일 (Device File)</div>
+          <div class="arch-boxes">
+            <div class="arch-box"><code>/dev/ttyACM0</code></div>
+            <div class="arch-box">🔐 여기서 권한 검사!</div>
+          </div>
+        </div>
+        <div class="arch-connector">▼ &nbsp;커널 드라이버가 변환 (cdc_acm)</div>
+        <div class="arch-layer" style="--layer-color: var(--color-success)">
+          <div class="arch-layer-label">하드웨어 (Hardware)</div>
+          <div class="arch-boxes">
+            <div class="arch-box">USB 케이블</div>
+            <div class="arch-box">Feetech 모터 보드</div>
+            <div class="arch-box">STS3215 모터 ×9</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-grid">
+        <div class="key-card">
+          <div class="k-icon">📄</div>
+          <h4>하드웨어 = 파일</h4>
+          <p>USB 포트, 카메라, 디스크 모두 /dev/ 아래의 파일로 표현됩니다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">🔁</div>
+          <h4>읽기/쓰기 = 통신</h4>
+          <p>파일에 쓰면 모터로 명령이 나가고, 읽으면 모터 상태가 들어옵니다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">🔐</div>
+          <h4>파일 권한 = 장치 보안</h4>
+          <p>파일이니까 소유자/그룹/기타 3단계 권한 규칙이 그대로 적용됩니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3-3. 챕터 3: dialout의 유래와 최소 권한 원칙 ═══════════════ -->
+  <section style="background: white;">
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">3</span>dialout 그룹은 왜 만들어졌나</h2>
+      <p class="section-lead">
+        이름부터 힌트입니다 — dial-out, "전화를 밖으로 걸다".
+      </p>
+
+      <div class="analogy-box green">
+        <div class="analogy-icon">🎙️</div>
+        <div class="analogy-content">
+          <div class="analogy-title">이해하기 쉽게!</div>
+          <p class="analogy-text">
+            학교 <strong>방송실</strong>을 떠올려보세요. 방송실 마이크는 아무나 쓰면 안 되죠.
+            그래서 "방송부원 명단"을 만들고, 명단에 있는 학생만 열쇠를 받습니다.
+            <code>dialout</code> 그룹이 바로 이 <strong>방송부원 명단</strong>입니다.
+          </p>
+          <p class="analogy-real">
+            💡 <strong>실제로는</strong> — <code>sudo usermod -aG dialout $USER</code> =
+            "내 계정을 명단에 올려주세요"
+          </p>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">📜 이름의 역사</h3>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-era">1970~80년대 · UNIX 시절</div>
+          <div class="tl-body">
+            시리얼 포트에는 주로 <strong>전화 모뎀</strong>이 연결되어 있었습니다.
+            모뎀으로 몰래 국제전화를 걸면 전화비 폭탄 💸 —
+            그래서 "전화를 걸(dial-out) 수 있는 사람"을 그룹으로 제한했습니다.
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-era">1990~2000년대 · 리눅스 보급</div>
+          <div class="tl-body">
+            모뎀은 사라져 갔지만, 시리얼 포트 권한 관리 체계는 그대로 유지되었습니다.
+            데비안/우분투 계열이 <code>dialout</code> 그룹을 시리얼 장치의 표준 그룹으로 채택했습니다.
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-era">현재 · 로봇/IoT 시대</div>
+          <div class="tl-body">
+            아두이노, 라즈베리파이, <strong>Feetech 모터 보드</strong>까지 —
+            USB 시리얼 장치는 전부 dialout 그룹으로 보호됩니다. 이름만 옛날 유산으로 남은 것이죠.
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin: 2rem 0 0.75rem;">🛡️ 근본 원리: 최소 권한 원칙</h3>
+      <p class="body-text">
+        어렵게 말하면 <strong>최소 권한 원칙(Principle of Least Privilege)</strong>이지만,
+        쉽게 말하면 <strong>"꼭 필요한 사람에게만 열쇠를 준다"</strong>입니다.
+        시리얼 포트를 아무나 쓰게 두면:
+      </p>
+      <ul class="plain">
+        <li><strong>옛날:</strong> 몰래 모뎀으로 국제전화 → 요금 폭탄</li>
+        <li><strong>지금:</strong> 아무 프로그램이나 로봇 모터를 마음대로 제어하거나, 다른 사용자가 쓰는 포트를 가로챌 수 있음</li>
+      </ul>
+
+      <!-- 권한 문자열 해부 -->
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin: 2rem 0 0.75rem;">🔬 권한 문자열 해부하기</h3>
+      <div class="perm-diagram">
+        <div class="perm-string">
+          c<span class="p-root">rw-</span><span class="p-group">rw-</span><span class="p-other">---</span>&nbsp; root&nbsp; dialout&nbsp; /dev/ttyACM0
+        </div>
+        <div class="perm-legend">
+          <div class="perm-item p1">
+            <span class="dot">👑</span>
+            <div><strong>소유자 root: rw-</strong><br>읽기 ⭕ 쓰기 ⭕ — 시스템 관리자는 항상 접근 가능</div>
+          </div>
+          <div class="perm-item p2">
+            <span class="dot">🎫</span>
+            <div><strong>dialout 그룹: rw-</strong><br>읽기 ⭕ 쓰기 ⭕ — 명단에 오른 사용자만 통과</div>
+          </div>
+          <div class="perm-item p3">
+            <span class="dot">🚫</span>
+            <div><strong>나머지 모두: ---</strong><br>접근 불가 ❌ — 명단에 없으면 Permission denied</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          맨 앞의 <code>c</code>는 <strong>캐릭터 장치(character device)</strong> 표시입니다.
+          일반 파일은 <code>-</code>, 폴더는 <code>d</code>로 시작해요.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3-4. 챕터 4: 왜 그룹 방식인가 ═══════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">4</span>왜 하필 "그룹" 방식인가</h2>
+      <p class="section-lead">
+        접근을 통제하는 방법은 세 가지가 가능했습니다. 리눅스는 왜 그룹을 택했을까요?
+      </p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-header" style="background: var(--color-danger)">
+            <span class="compare-icon">👑</span>
+            <h4>방법 1: root만 사용</h4>
+          </div>
+          <div class="compare-body">
+            <div class="compare-item"><span class="compare-label">보안</span><span class="compare-value">높음</span></div>
+            <div class="compare-item"><span class="compare-label">편의성</span><span class="compare-value">매번 sudo 😫</span></div>
+            <div class="compare-item"><span class="compare-label">위험</span><span class="compare-value">root로 실행되는<br>프로그램은 위험</span></div>
+          </div>
+          <div class="verdict" style="background: var(--color-danger)">❌ 불편 + 오히려 위험</div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-header" style="background: var(--color-warning)">
+            <span class="compare-icon">🚪</span>
+            <h4>방법 2: 전체 개방</h4>
+          </div>
+          <div class="compare-body">
+            <div class="compare-item"><span class="compare-label">보안</span><span class="compare-value">없음 😱</span></div>
+            <div class="compare-item"><span class="compare-label">편의성</span><span class="compare-value">최고</span></div>
+            <div class="compare-item"><span class="compare-label">위험</span><span class="compare-value">아무 프로그램이나<br>모터 제어 가능</span></div>
+          </div>
+          <div class="verdict" style="background: var(--color-warning)">❌ 보안 구멍</div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-header" style="background: var(--color-success)">
+            <span class="compare-icon">🎫</span>
+            <h4>방법 3: 그룹(dialout)</h4>
+          </div>
+          <div class="compare-body">
+            <div class="compare-item"><span class="compare-label">보안</span><span class="compare-value">필요한 만큼</span></div>
+            <div class="compare-item"><span class="compare-label">편의성</span><span class="compare-value">sudo 불필요</span></div>
+            <div class="compare-item"><span class="compare-label">관리</span><span class="compare-value">명단에 추가만<br>하면 끝</span></div>
+          </div>
+          <div class="verdict" style="background: var(--color-success)">✅ 보안과 편의의 균형</div>
+        </div>
+      </div>
+
+      <p class="body-text">
+        그룹 방식은 <strong>보안(잠가둠)과 편의(sudo 없이 사용)의 중간 해법</strong>입니다.
+        게다가 우분투는 USB 시리얼 장치가 꽂힐 때마다
+        <strong>udev</strong>라는 장치 관리자가 자동으로 파일을 <code>dialout</code> 그룹 소유로
+        만들어주기 때문에, 사용자는 명단에 이름 한 번만 올리면 됩니다.
+      </p>
+
+      <div class="accordion">
+        <input type="checkbox" id="acc-udev" class="accordion-toggle" hidden>
+        <label for="acc-udev" class="accordion-header">
+          <span>🔍 심화: udev는 어떻게 그룹을 자동 지정할까?</span>
+          <span class="accordion-chevron">▸</span>
+        </label>
+        <div class="accordion-body">
+          <p style="margin-bottom: 0.75rem;">
+            우분투에는 <code>/usr/lib/udev/rules.d/</code>에 미리 정의된 규칙 파일들이 있습니다.
+            "tty 서브시스템 장치는 dialout 그룹으로" 같은 규칙이 이미 들어있어서,
+            USB를 꽂는 순간 자동 적용됩니다.
+          </p>
+          <p style="margin-bottom: 0.75rem;">
+            LeKiwi 듀얼 보드에서 사용하는 <strong>고정 포트 이름 만들기</strong>도 같은 원리입니다.
+            <code>/etc/udev/rules.d/99-lekiwi.rules</code>에 시리얼 번호 기반 규칙을 추가하면
+            <code>/dev/robot_arm</code>, <code>/dev/robot_wheels</code> 같은 이름을 만들 수 있죠:
+          </p>
+          <pre class="code">SUBSYSTEM=="tty", ATTRS{serial}=="12345ABC", SYMLINK+="robot_arm"
+SUBSYSTEM=="tty", ATTRS{serial}=="67890DEF", SYMLINK+="robot_wheels"</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 3-5. 챕터 5: 실습 — 권한 설정 ═══════════════ -->
+  <section style="background: white;">
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">5</span>실습: 권한 설정과 재로그인의 비밀</h2>
+      <p class="section-lead">
+        명단에 이름을 올리는 실제 명령과, "왜 재로그인해야 하나요?"에 대한 답입니다.
+      </p>
+
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge" style="background: var(--color-success)">필수 설정</span>
+          <h4>dialout 그룹에 내 계정 추가하기</h4>
+        </div>
+        <div class="cmd-body">
+          <pre class="code"><span class="cm"># 1. 현재 내 그룹 확인</span>
+<span class="kw">groups</span>
+<span class="out">bigman sudo   ← dialout이 없다!</span>
+
+<span class="cm"># 2. dialout 그룹에 추가 (-aG: 기존 그룹 유지하며 추가)</span>
+<span class="kw">sudo usermod -aG</span> dialout $USER
+
+<span class="cm"># 3. ⚠️ 재로그인 또는 재부팅 (필수!)</span>
+<span class="kw">sudo reboot</span>
+
+<span class="cm"># 4. 재접속 후 다시 확인</span>
+<span class="kw">groups</span>
+<span class="out">bigman sudo dialout   ← 성공!</span></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong><code>-aG</code>에서 <code>-a</code>(append)를 빼먹지 마세요!</strong>
+          <code>usermod -G dialout</code>만 쓰면 기존 그룹(sudo 등)이 전부 사라져서
+          관리자 권한을 잃을 수 있습니다.
+        </div>
+      </div>
+
+      <div class="analogy-box">
+        <div class="analogy-icon">🎟️</div>
+        <div class="analogy-content">
+          <div class="analogy-title">왜 재로그인이 필요할까?</div>
+          <p class="analogy-text">
+            놀이공원 <strong>입장 팔찌</strong>를 생각해보세요. 팔찌는 입장할 때 한 번만 채워주죠.
+            입장 후에 자유이용권을 결제해도, <strong>다시 입장해야</strong> 새 팔찌를 받을 수 있습니다.
+            리눅스도 마찬가지 — 그룹 명단은 <strong>로그인하는 순간 한 번만</strong> 읽혀서
+            세션에 도장처럼 찍힙니다.
+          </p>
+          <p class="analogy-real">
+            💡 <strong>실제로는</strong> — 로그인 시 프로세스에 그룹 목록이 부여되고,
+            이미 실행 중인 세션에는 소급 적용되지 않습니다. 그래서 재로그인(또는 재부팅)이 필요해요.
+            (터미널 한 개만 임시로 갱신하려면 <code>newgrp dialout</code>도 가능)
+          </p>
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-head">
+          <span class="cmd-badge">확인</span>
+          <h4>권한이 잘 적용됐는지 최종 테스트</h4>
+        </div>
+        <div class="cmd-body">
+          <pre class="code"><span class="cm"># LeKiwi 모터 설정이 sudo 없이 되면 성공!</span>
+<span class="kw">lerobot-setup-motors</span> --robot.type=lekiwi --robot.port=/dev/ttyACM0
+
+<span class="cm"># 만약 이런 에러가 나면 → 재로그인을 안 한 것</span>
+<span class="warn">PermissionError: [Errno 13] Permission denied: '/dev/ttyACM0'</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ 4. 종합 정리 ═══════════════ -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">🎓 종합 정리</h2>
+      <p class="section-lead">오늘 배운 내용을 한 장에 담았습니다.</p>
+
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">명령어 치트시트</h3>
+      <table class="summary">
+        <thead>
+          <tr><th>목적</th><th>명령어</th><th>기억법</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>목록 보기</strong> (리스트)</td><td><code>ls /dev/ttyACM*</code></td><td>우편함 전체 둘러보기</td></tr>
+          <tr><td>권한 확인</td><td><code>ls -l /dev/ttyACM*</code></td><td>dialout 그룹이 보이는지</td></tr>
+          <tr><td>USB 장치 확인</td><td><code>lsusb</code></td><td>뭐가 꽂혀 있나</td></tr>
+          <tr><td>방금 꽂은 포트 추적</td><td><code>sudo dmesg | grep tty</code></td><td>커널의 일기장 읽기</td></tr>
+          <tr><td>고정 이름 확인</td><td><code>ls -l /dev/serial/by-id/</code></td><td>안 바뀌는 주민번호</td></tr>
+          <tr><td>특정 장치 짚어내기</td><td><code>lerobot-find-port</code></td><td>뽑았다 꽂아서 찾기</td></tr>
+          <tr><td>권한 부여</td><td><code>sudo usermod -aG dialout $USER</code></td><td>명단에 이름 올리기 + 재로그인</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin: 2rem 0 0.5rem;">핵심 개념 5가지</h3>
+      <div class="key-grid">
+        <div class="key-card">
+          <div class="k-icon">1️⃣</div>
+          <h4>리스트 명령의 정답은 ls</h4>
+          <p><code>ls /dev/ttyACM*</code>가 포트 목록, <code>lerobot-find-port</code>는 특정 장치 찾기.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">2️⃣</div>
+          <h4>모든 것이 파일</h4>
+          <p>하드웨어도 파일이라서 파일 권한 규칙이 그대로 적용된다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">3️⃣</div>
+          <h4>dialout은 모뎀 시대의 유산</h4>
+          <p>"전화 걸 수 있는 사람 명단"이 시리얼 장치 보호 그룹으로 이어졌다.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">4️⃣</div>
+          <h4>최소 권한 원칙</h4>
+          <p>root 독점은 불편, 전체 개방은 위험 → 그룹이 균형점.</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">5️⃣</div>
+          <h4>그룹 변경엔 재로그인</h4>
+          <p>그룹 명단은 로그인 순간에만 읽힌다. 놀이공원 팔찌처럼!</p>
+        </div>
+        <div class="key-card">
+          <div class="k-icon">🤖</div>
+          <h4>LeKiwi 실전 연결</h4>
+          <p>듀얼 보드는 by-id/udev rule로 고정 포트를, 교육용은 단일 보드를.</p>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">포트 확인 명령어</div>
+          <div class="stat-desc">ls · ls -l · lsusb · dmesg · by-id</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">3</div>
+          <div class="stat-label">권한 단계</div>
+          <div class="stat-desc">소유자 / 그룹 / 기타</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">1</div>
+          <div class="stat-label">필요한 그룹</div>
+          <div class="stat-desc">dialout 하나면 충분</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">1회</div>
+          <div class="stat-label">재로그인</div>
+          <div class="stat-desc">그룹 추가 후 필수</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      우분투 시리얼 포트 &amp; dialout 권한 완전 정복 · LeKiwi Physical AI Education Series · 2026-07-25
+    </div>
+  </footer>
+
+</body>
+</html>
