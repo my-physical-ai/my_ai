@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>생성 모델 계보도 (가로형) 2013 → 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans KR', sans-serif; background: #F8FAFC; color: #1E293B; padding: 1.5rem; }
+.wrap { max-width: 1700px; margin: 0 auto; }
+h1 { font-size: 1.6rem; font-weight: 900; text-align: center; margin-bottom: 0.3rem; }
+.sub { text-align: center; color: #64748B; font-size: 0.95rem; margin-bottom: 1rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; justify-content: center; margin-bottom: 1.25rem; font-size: 0.82rem; }
+.legend-item { display: flex; align-items: center; gap: 0.4rem; }
+.legend-line { width: 34px; height: 0; border-top-width: 3px; border-top-style: solid; }
+.diagram-scroll { overflow-x: auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); padding: 0.5rem; }
+svg { display: block; }
+.hint { text-align: center; color: #94A3B8; font-size: 0.8rem; margin-top: 0.75rem; }
+@media print { body { padding: 0; } .diagram-scroll { box-shadow: none; border: none; } .hint { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>생성 모델 계보도 (2013 → 2026) · 가로형</h1>
+  <div class="sub">왼쪽(과거) → 오른쪽(현재)으로 시간이 흐릅니다 · 선의 색 = 계승된 계열, 실선/점선 = 계승 강도</div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-line" style="border-color:#059669;"></span>Autoencoder 계열</div>
+    <div class="legend-item"><span class="legend-line" style="border-color:#7C3AED;"></span>Diffusion 계열</div>
+    <div class="legend-item"><span class="legend-line" style="border-color:#0891B2;"></span>Flow/Score 계열</div>
+    <div class="legend-item"><span class="legend-line" style="border-color:#DC2626;"></span>Transformer 계열</div>
+    <div class="legend-item"><span class="legend-line" style="border-color:#D97706;"></span>가속·증류</div>
+    <div class="legend-item"><span class="legend-line" style="border-color:#DB2777; border-top-style:dotted;"></span>라이벌(점선)</div>
+  </div>
+
+  <div class="diagram-scroll">
+    <svg viewBox="0 0 1660 900" width="1660" height="900" xmlns="http://www.w3.org/2000/svg" font-family="'Noto Sans KR', sans-serif">
+      <defs>
+        <marker id="ah-green" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0 0 L8 3.5 L0 7 z" fill="#059669"/></marker>
+        <marker id="ah-purple" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0 0 L8 3.5 L0 7 z" fill="#7C3AED"/></marker>
+        <marker id="ah-teal" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0 0 L8 3.5 L0 7 z" fill="#0891B2"/></marker>
+        <marker id="ah-blue" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0 0 L8 3.5 L0 7 z" fill="#2563EB"/></marker>
+        <marker id="ah-red" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0 0 L8 3.5 L0 7 z" fill="#DC2626"/></marker>
+        <marker id="ah-orange" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0 0 L8 3.5 L0 7 z" fill="#D97706"/></marker>
+        <marker id="ah-pink" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0 0 L8 3.5 L0 7 z" fill="#DB2777"/></marker>
+      </defs>
+
+      <!-- ===== 연도 세로 눈금 (가로축) ===== -->
+      <g font-size="15" font-weight="700" fill="#94A3B8" text-anchor="middle" font-family="'JetBrains Mono', monospace">
+        <line x1="150" y1="70" x2="150" y2="850" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <line x1="440" y1="70" x2="440" y2="850" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <line x1="720" y1="70" x2="720" y2="850" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <line x1="1000" y1="70" x2="1000" y2="850" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <line x1="1280" y1="70" x2="1280" y2="850" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <line x1="1540" y1="70" x2="1540" y2="850" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <text x="150" y="55">2013</text>
+        <text x="440" y="55">2015</text>
+        <text x="720" y="55">2017~2019</text>
+        <text x="1000" y="55">2020</text>
+        <text x="1280" y="55">2022</text>
+        <text x="1540" y="55">2025+</text>
+      </g>
+
+      <!-- ============ 연결선 (박스보다 먼저 그려서 뒤에 깔림) ============ -->
+      <!-- Autoencoder → VAE (진화, green) -->
+      <path d="M150 165 C150 220, 150 240, 150 295" fill="none" stroke="#059669" stroke-width="3" marker-end="url(#ah-green)"/>
+      <text x="130" y="245" font-size="13" fill="#059669" font-weight="700" text-anchor="end">진화</text>
+
+      <!-- VAE → Diffusion (인코더로 포함, green 곡선 오른쪽으로) -->
+      <path d="M262 335 C500 360, 780 380, 878 425" fill="none" stroke="#059669" stroke-width="3" marker-end="url(#ah-green)"/>
+      <text x="560" y="375" font-size="13" fill="#059669" font-weight="700" text-anchor="middle">인코더로 포함됨</text>
+
+      <!-- Normalizing Flows → Score-Based (확률밀도 관점, teal 점선) -->
+      <path d="M440 165 C440 240, 620 250, 700 300" fill="none" stroke="#0891B2" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah-teal)"/>
+      <text x="600" y="235" font-size="13" fill="#0891B2" font-weight="700" text-anchor="middle">확률밀도 관점</text>
+
+      <!-- Score-Based → Diffusion (수학적 통합, purple) -->
+      <path d="M720 375 C760 400, 800 410, 862 430" fill="none" stroke="#7C3AED" stroke-width="3" marker-end="url(#ah-purple)"/>
+      <text x="800" y="392" font-size="13" fill="#7C3AED" font-weight="700" text-anchor="middle">수학적 통합</text>
+
+      <!-- Normalizing Flows → Flow Matching (가역변환 아이디어, teal 큰 곡선) -->
+      <path d="M470 130 C1120 150, 1180 480, 900 690" fill="none" stroke="#0891B2" stroke-width="3" marker-end="url(#ah-teal)"/>
+      <text x="1130" y="360" font-size="13" fill="#0891B2" font-weight="700" text-anchor="middle">가역변환 아이디어 계승</text>
+
+      <!-- Autoregressive → Transformer (계승, orange→red 영역, red) -->
+      <path d="M1180 130 C1320 160, 1380 200, 1420 245" fill="none" stroke="#DC2626" stroke-width="3" marker-end="url(#ah-red)"/>
+      <text x="1360" y="175" font-size="13" fill="#DC2626" font-weight="700" text-anchor="middle">계승</text>
+
+      <!-- GAN ↔ Diffusion (라이벌, pink 점선 곡선) -->
+      <path d="M470 165 C520 300, 700 360, 878 445" fill="none" stroke="#DB2777" stroke-width="2.5" stroke-dasharray="3 6" marker-end="url(#ah-pink)"/>
+      <text x="600" y="330" font-size="13" fill="#DB2777" font-weight="700" text-anchor="middle">라이벌</text>
+
+      <!-- Diffusion → Consistency (학생-스승 증류, orange 직선) -->
+      <path d="M1098 445 C1180 445, 1220 445, 1300 445" fill="none" stroke="#D97706" stroke-width="3.5" marker-end="url(#ah-orange)"/>
+      <text x="1200" y="428" font-size="13" fill="#D97706" font-weight="700" text-anchor="middle">파생·스승(증류)</text>
+
+      <!-- Diffusion → Latent Diffusion (가속화, purple 아래로) -->
+      <path d="M960 480 C960 540, 720 560, 560 620" fill="none" stroke="#7C3AED" stroke-width="3" marker-end="url(#ah-purple)"/>
+      <text x="800" y="545" font-size="13" fill="#7C3AED" font-weight="700" text-anchor="middle">경량화(잠재공간)</text>
+
+      <!-- Latent Diffusion → World Model (점선 purple 아래로) -->
+      <path d="M490 660 C440 720, 430 740, 430 775" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#ah-purple)"/>
+      <text x="360" y="725" font-size="13" fill="#7C3AED" font-weight="700" text-anchor="middle">미래 상상</text>
+
+      <!-- Flow Matching → VLA (blue 아래로) -->
+      <path d="M900 660 C1000 700, 1050 740, 1130 775" fill="none" stroke="#2563EB" stroke-width="3" marker-end="url(#ah-blue)"/>
+      <text x="960" y="720" font-size="13" fill="#2563EB" font-weight="700" text-anchor="middle">행동 생성 엔진</text>
+
+      <!-- Transformer → VLA (red 큰 곡선 아래로) -->
+      <path d="M1420 315 C1420 550, 1350 700, 1290 775" fill="none" stroke="#DC2626" stroke-width="3" marker-end="url(#ah-red)"/>
+      <text x="1470" y="560" font-size="13" fill="#DC2626" font-weight="700" text-anchor="middle">백본(언어·비전)</text>
+
+      <!-- Consistency → VLA (orange 점선 아래로) -->
+      <path d="M1360 480 C1360 620, 1300 720, 1260 775" fill="none" stroke="#D97706" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#ah-orange)"/>
+      <text x="1400" y="640" font-size="13" fill="#D97706" font-weight="700" text-anchor="middle">빠른 추론</text>
+
+      <!-- ============ 노드 박스 ============ -->
+      <!-- 공통 스타일: rect + 제목 + 부제 -->
+      <!-- Autoencoder -->
+      <g>
+        <rect x="70" y="105" width="180" height="60" rx="12" fill="#D1FAE5" stroke="#059669" stroke-width="2.5"/>
+        <text x="160" y="132" font-size="16" font-weight="900" fill="#065F46" text-anchor="middle">Autoencoder</text>
+        <text x="160" y="152" font-size="12" fill="#047857" text-anchor="middle">압축→복원 (2013)</text>
+      </g>
+      <!-- VAE -->
+      <g>
+        <rect x="172" y="295" width="180" height="60" rx="12" fill="#D1FAE5" stroke="#059669" stroke-width="2.5"/>
+        <text x="262" y="322" font-size="16" font-weight="900" fill="#065F46" text-anchor="middle">VAE</text>
+        <text x="262" y="342" font-size="12" fill="#047857" text-anchor="middle">확률적 압축 (2013)</text>
+      </g>
+      <!-- GAN -->
+      <g>
+        <rect x="380" y="105" width="180" height="60" rx="12" fill="#FCE7F3" stroke="#DB2777" stroke-width="2.5"/>
+        <text x="470" y="132" font-size="16" font-weight="900" fill="#9D174D" text-anchor="middle">GAN</text>
+        <text x="470" y="152" font-size="12" fill="#BE185D" text-anchor="middle">경쟁 학습 (2014)</text>
+      </g>
+      <!-- Normalizing Flows -->
+      <g>
+        <rect x="350" y="70" width="240" height="60" rx="12" fill="#CFFAFE" stroke="#0891B2" stroke-width="2.5"/>
+        <text x="470" y="97" font-size="16" font-weight="900" fill="#155E75" text-anchor="middle">Normalizing Flows</text>
+        <text x="470" y="117" font-size="12" fill="#0E7490" text-anchor="middle">가역변환 (2015)</text>
+      </g>
+      <!-- Autoregressive -->
+      <g>
+        <rect x="1060" y="70" width="200" height="60" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+        <text x="1160" y="97" font-size="16" font-weight="900" fill="#92400E" text-anchor="middle">Autoregressive</text>
+        <text x="1160" y="117" font-size="12" fill="#B45309" text-anchor="middle">순차 예측 (2015~)</text>
+      </g>
+      <!-- Score-Based -->
+      <g>
+        <rect x="600" y="300" width="240" height="66" rx="12" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2.5"/>
+        <text x="720" y="326" font-size="16" font-weight="900" fill="#5B21B6" text-anchor="middle">Score-Based</text>
+        <text x="720" y="348" font-size="11.5" fill="#6D28D9" text-anchor="middle">score = ∇ log P(x) (2019)</text>
+      </g>
+      <!-- Transformer -->
+      <g>
+        <rect x="1330" y="245" width="190" height="70" rx="12" fill="#FEE2E2" stroke="#DC2626" stroke-width="2.5"/>
+        <text x="1425" y="273" font-size="16" font-weight="900" fill="#991B1B" text-anchor="middle">Transformer</text>
+        <text x="1425" y="294" font-size="12" fill="#B91C1C" text-anchor="middle">Attention (2017)</text>
+      </g>
+      <!-- Diffusion (DDPM) -->
+      <g>
+        <rect x="862" y="410" width="236" height="70" rx="12" fill="#EDE9FE" stroke="#7C3AED" stroke-width="3"/>
+        <text x="980" y="438" font-size="17" font-weight="900" fill="#5B21B6" text-anchor="middle">Diffusion (DDPM)</text>
+        <text x="980" y="460" font-size="12" fill="#6D28D9" text-anchor="middle">노이즈 점진 제거 (2020)</text>
+      </g>
+      <!-- Consistency -->
+      <g>
+        <rect x="1300" y="410" width="200" height="70" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+        <text x="1400" y="438" font-size="16" font-weight="900" fill="#92400E" text-anchor="middle">Consistency</text>
+        <text x="1400" y="460" font-size="12" fill="#B45309" text-anchor="middle">1스텝 (2023)</text>
+      </g>
+      <!-- Latent Diffusion -->
+      <g>
+        <rect x="400" y="620" width="220" height="66" rx="12" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2.5"/>
+        <text x="510" y="646" font-size="15" font-weight="900" fill="#5B21B6" text-anchor="middle">Latent Diffusion</text>
+        <text x="510" y="668" font-size="12" fill="#6D28D9" text-anchor="middle">Stable Diffusion (2022)</text>
+      </g>
+      <!-- Flow Matching -->
+      <g>
+        <rect x="780" y="620" width="220" height="66" rx="12" fill="#DBEAFE" stroke="#2563EB" stroke-width="2.5"/>
+        <text x="890" y="646" font-size="16" font-weight="900" fill="#1E40AF" text-anchor="middle">Flow Matching</text>
+        <text x="890" y="668" font-size="12" fill="#1D4ED8" text-anchor="middle">속도장 학습 (2022)</text>
+      </g>
+      <!-- World Model -->
+      <g>
+        <rect x="320" y="775" width="220" height="66" rx="12" fill="#FCE7F3" stroke="#DB2777" stroke-width="2.5"/>
+        <text x="430" y="801" font-size="15" font-weight="900" fill="#9D174D" text-anchor="middle">World Model</text>
+        <text x="430" y="823" font-size="11.5" fill="#BE185D" text-anchor="middle">NVIDIA Cosmos, Dreamer</text>
+      </g>
+      <!-- VLA -->
+      <g>
+        <rect x="1130" y="775" width="230" height="66" rx="12" fill="#EDE9FE" stroke="#7C3AED" stroke-width="3"/>
+        <text x="1245" y="801" font-size="17" font-weight="900" fill="#5B21B6" text-anchor="middle">VLA</text>
+        <text x="1245" y="823" font-size="12" fill="#6D28D9" text-anchor="middle">SmolVLA, π0, RT-2</text>
+      </g>
+
+    </svg>
+  </div>
+  <div class="hint">💡 그림이 잘리면 좌우로 스크롤하세요 · 인쇄(Ctrl+P) 시 배경 그래픽 옵션을 켜면 색이 그대로 나옵니다</div>
+</div>
+</body>
+</html>
