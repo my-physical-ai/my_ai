@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT 4타입 학습 명령어 소스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --B: #64748B; --C: #10B981; --D: #8B5CF6; --E: #F59E0B;
+    --surface: #0F172A; --card: #1E293B; --text: #E2E8F0; --muted: #94A3B8; --border: #334155;
+  }
+  body { font-family: 'Noto Sans KR', sans-serif; color: var(--text); background: #0B1120; line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 2rem 0; }
+
+  .hero { background: linear-gradient(135deg, #0F172A, #1E3A5F); color: white; padding: 3rem 0 2.5rem; border-bottom: 1px solid var(--border); }
+  .hero-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .pill { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500; }
+  .hero h1 { font-size: 2.2rem; font-weight: 900; line-height: 1.25; }
+  .hero-subtitle { font-size: 1rem; margin-top: 0.75rem; color: var(--muted); }
+
+  /* 타입 네비 */
+  .type-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1.5rem; }
+  .type-nav a { text-decoration: none; border-radius: 12px; padding: 0.85rem; text-align: center; color: white; font-weight: 700; transition: transform 0.15s; display: block; }
+  .type-nav a:hover { transform: translateY(-3px); }
+  .type-nav .letter { font-size: 1.5rem; font-weight: 900; }
+  .type-nav .nm { font-size: 0.82rem; opacity: 0.95; }
+  .type-nav .sp { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; opacity: 0.8; margin-top: 0.2rem; }
+  .nB { background: linear-gradient(135deg,#475569,#64748B); }
+  .nC { background: linear-gradient(135deg,#047857,#10B981); }
+  .nD { background: linear-gradient(135deg,#6D28D9,#8B5CF6); }
+  .nE { background: linear-gradient(135deg,#B45309,#F59E0B); }
+
+  /* 코드 블록 */
+  .code-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .code-head { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1.25rem; }
+  .code-letter { flex-shrink: 0; width: 2.2rem; height: 2.2rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; color: white; }
+  .code-name { font-weight: 700; font-size: 1.05rem; color: white; }
+  .code-name small { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-top: 0.1rem; }
+  .code-copy { margin-left: auto; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: var(--text); border-radius: 8px; padding: 0.4rem 0.85rem; font-size: 0.82rem; font-family: 'Noto Sans KR', sans-serif; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.15s; }
+  .code-copy:hover { background: rgba(255,255,255,0.16); }
+  .code-copy.copied { background: #10B981; border-color: #10B981; color: white; }
+  .hcB { background: #334155; } .hcC { background: #064E3B; } .hcD { background: #4C1D95; } .hcE { background: #78350F; }
+  .lB { background: var(--B); } .lC { background: var(--C); } .lD { background: var(--D); } .lE { background: var(--E); }
+
+  pre.code { margin: 0; padding: 1.25rem 1.4rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.85; background: #0F172A; }
+  pre.code .cmt { color: #64748B; }
+  pre.code .cmd { color: #38BDF8; font-weight: 700; }
+  pre.code .flag { color: #A5B4FC; }
+  pre.code .val { color: #FCD34D; }
+  pre.code .str { color: #6EE7B7; }
+  pre.code .var { color: #F9A8D4; }
+  pre.code .env { color: #FB923C; font-weight: 700; }
+  pre.code .cont { color: #475569; }
+
+  .section-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.4rem; color: white; }
+  .section-lead { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+
+  /* 차이 요약 표 */
+  table.diff { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  table.diff th { padding: 0.65rem 0.8rem; text-align: center; color: white; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+  table.diff th:first-child { text-align: left; background: #334155; font-family: 'Noto Sans KR'; }
+  table.diff th.dB { background: var(--B); } table.diff th.dC { background: var(--C); }
+  table.diff th.dD { background: var(--D); } table.diff th.dE { background: var(--E); }
+  table.diff td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+  table.diff td:first-child { text-align: left; color: var(--muted); background: rgba(255,255,255,0.02); }
+  table.diff tr:last-child td { border-bottom: none; }
+
+  .gpu-note { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--E); border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem; font-size: 0.9rem; }
+  .gpu-note code { background: rgba(255,255,255,0.08); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #FCD34D; }
+  .run-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #6EE7B7; background: #0F172A; border-radius: 8px; padding: 0.6rem 0.9rem; margin-top: 0.75rem; }
+  .run-hint .p { color: #4ADE80; }
+
+  @media (max-width: 768px) { .hero h1 { font-size: 1.7rem; } .type-nav { grid-template-columns: repeat(2,1fr); } pre.code { font-size: 0.72rem; } table.diff { font-size: 0.72rem; } }
+  @media print { body { background: white; color: black; } pre.code { background: #F8FAFC; color: #1E293B; } .hero { -webkit-print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="pill">🧠 ACT</span>
+      <span class="pill">💻 lerobot-train 소스</span>
+      <span class="pill">📋 복사해서 바로 실행</span>
+    </div>
+    <h1>ACT 4타입 학습 명령어 소스</h1>
+    <p class="hero-subtitle">설명은 뺐습니다. 팀별로 맡은 타입의 명령어를 복사해 바로 실행하세요.</p>
+    <div class="type-nav">
+      <a href="#B" class="nB"><div class="letter">B</div><div class="nm">원본 안정</div><div class="sp">batch auto/80k</div></a>
+      <a href="#C" class="nC"><div class="letter">C</div><div class="nm">균형</div><div class="sp">batch64/70k</div></a>
+      <a href="#D" class="nD"><div class="letter">D</div><div class="nm">정밀</div><div class="sp">batch64/100k</div></a>
+      <a href="#E" class="nE"><div class="letter">E</div><div class="nm">증강</div><div class="sp">batch48/80k</div></a>
+    </div>
+  </div>
+</header>
+
+<!-- 공통 실행법 -->
+<section>
+  <div class="container">
+    <div class="gpu-note">
+      🎛️ <strong>실행 전 공통:</strong> 각 스크립트 상단의 <code>REPO_ID</code> · <code>DATASET_ROOT</code>만 자기 데이터로 수정 → <code>bash gpu_check.sh</code>로 GPU 점유 확인 → 아래 명령 실행.
+      <div class="run-hint"><span class="p">$</span> PYTORCH_ALLOC_CONF=expandable_segments:True lerobot-train ...</div>
+    </div>
+  </div>
+</section>
+
+<!-- B -->
+<section id="B">
+  <div class="container">
+    <div class="code-card">
+      <div class="code-head hcB">
+        <div class="code-letter lB">B</div>
+        <div class="code-name">타입 B — 원본 안정<small>batch 32(자동 16~32) · 80,000 steps · lr 1e-5</small></div>
+        <button class="code-copy" data-target="codeB">📋 복사</button>
+      </div>
+<pre class="code" id="codeB"><span class="cmt"># GPU VRAM 자동 감지 → batch 결정 (24GB:32 / 12GB:24 / 8GB:16)</span>
+<span class="var">TOTAL_MB</span>=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1)
+<span class="cmd">if</span>   [ <span class="str">"$TOTAL_MB"</span> -ge 20000 ]; <span class="cmd">then</span> <span class="var">BATCH_SIZE</span>=32
+<span class="cmd">elif</span> [ <span class="str">"$TOTAL_MB"</span> -ge 11000 ]; <span class="cmd">then</span> <span class="var">BATCH_SIZE</span>=24
+<span class="cmd">else</span> <span class="var">BATCH_SIZE</span>=16; <span class="cmd">fi</span>
+
+<span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeB_batch32</span> \
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> \
+  <span class="flag">--batch_size</span>=<span class="str">"${BATCH_SIZE}"</span> \
+  <span class="flag">--num_workers</span>=<span class="val">4</span> \
+  <span class="flag">--steps</span>=<span class="val">80000</span> \
+  <span class="flag">--save_freq</span>=<span class="val">10000</span> \
+  <span class="flag">--log_freq</span>=<span class="val">200</span> \
+  <span class="flag">--policy.chunk_size</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_action_steps</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_obs_steps</span>=<span class="val">1</span> \
+  <span class="flag">--policy.vision_backbone</span>=<span class="val">resnet18</span> \
+  <span class="flag">--policy.pretrained_backbone_weights</span>=<span class="val">ResNet18_Weights.IMAGENET1K_V1</span> \
+  <span class="flag">--policy.dim_model</span>=<span class="val">512</span> \
+  <span class="flag">--policy.dim_feedforward</span>=<span class="val">3200</span> \
+  <span class="flag">--policy.n_encoder_layers</span>=<span class="val">4</span> \
+  <span class="flag">--policy.n_decoder_layers</span>=<span class="val">1</span> \
+  <span class="flag">--policy.n_heads</span>=<span class="val">8</span> \
+  <span class="flag">--policy.use_vae</span>=<span class="val">true</span> \
+  <span class="flag">--policy.kl_weight</span>=<span class="val">10.0</span> \
+  <span class="flag">--policy.optimizer_lr</span>=<span class="val">1e-5</span> \
+  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1e-5</span> \
+  <span class="flag">--policy.optimizer_weight_decay</span>=<span class="val">1e-4</span> \
+  <span class="flag">--dataset.image_transforms.enable</span>=<span class="val">false</span> \
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- C -->
+<section id="C">
+  <div class="container">
+    <div class="code-card">
+      <div class="code-head hcC">
+        <div class="code-letter lC">C</div>
+        <div class="code-name">타입 C — 균형<small>batch 64 · 70,000 steps · lr 1.4e-5</small></div>
+        <button class="code-copy" data-target="codeC">📋 복사</button>
+      </div>
+<pre class="code" id="codeC"><span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeC_batch64</span> \
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> \
+  <span class="flag">--batch_size</span>=<span class="val">64</span> \
+  <span class="flag">--num_workers</span>=<span class="val">4</span> \
+  <span class="flag">--steps</span>=<span class="val">70000</span> \
+  <span class="flag">--save_freq</span>=<span class="val">10000</span> \
+  <span class="flag">--log_freq</span>=<span class="val">200</span> \
+  <span class="flag">--policy.chunk_size</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_action_steps</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_obs_steps</span>=<span class="val">1</span> \
+  <span class="flag">--policy.vision_backbone</span>=<span class="val">resnet18</span> \
+  <span class="flag">--policy.pretrained_backbone_weights</span>=<span class="val">ResNet18_Weights.IMAGENET1K_V1</span> \
+  <span class="flag">--policy.dim_model</span>=<span class="val">512</span> \
+  <span class="flag">--policy.dim_feedforward</span>=<span class="val">3200</span> \
+  <span class="flag">--policy.n_encoder_layers</span>=<span class="val">4</span> \
+  <span class="flag">--policy.n_decoder_layers</span>=<span class="val">1</span> \
+  <span class="flag">--policy.n_heads</span>=<span class="val">8</span> \
+  <span class="flag">--policy.use_vae</span>=<span class="val">true</span> \
+  <span class="flag">--policy.kl_weight</span>=<span class="val">10.0</span> \
+  <span class="flag">--policy.optimizer_lr</span>=<span class="val">1.4e-5</span> \
+  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1.4e-5</span> \
+  <span class="flag">--policy.optimizer_weight_decay</span>=<span class="val">1e-4</span> \
+  <span class="flag">--dataset.image_transforms.enable</span>=<span class="val">false</span> \
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- D -->
+<section id="D">
+  <div class="container">
+    <div class="code-card">
+      <div class="code-head hcD">
+        <div class="code-letter lD">D</div>
+        <div class="code-name">타입 D — 정밀<small>batch 64 · 100,000 steps · cosine 스케줄러(peak 5e-5→1e-6)</small></div>
+        <button class="code-copy" data-target="codeD">📋 복사</button>
+      </div>
+<pre class="code" id="codeD"><span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeD_precision_v2</span> \
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> \
+  <span class="flag">--policy.use_amp</span>=<span class="val">false</span> \
+  <span class="flag">--batch_size</span>=<span class="val">64</span> \
+  <span class="flag">--num_workers</span>=<span class="val">4</span> \
+  <span class="flag">--steps</span>=<span class="val">100000</span> \
+  <span class="flag">--save_freq</span>=<span class="val">10000</span> \
+  <span class="flag">--log_freq</span>=<span class="val">200</span> \
+  <span class="flag">--policy.chunk_size</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_action_steps</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_obs_steps</span>=<span class="val">1</span> \
+  <span class="flag">--policy.vision_backbone</span>=<span class="val">resnet18</span> \
+  <span class="flag">--policy.pretrained_backbone_weights</span>=<span class="val">ResNet18_Weights.IMAGENET1K_V1</span> \
+  <span class="flag">--policy.dim_model</span>=<span class="val">512</span> \
+  <span class="flag">--policy.dim_feedforward</span>=<span class="val">3200</span> \
+  <span class="flag">--policy.n_encoder_layers</span>=<span class="val">4</span> \
+  <span class="flag">--policy.n_decoder_layers</span>=<span class="val">1</span> \
+  <span class="flag">--policy.n_heads</span>=<span class="val">8</span> \
+  <span class="flag">--policy.use_vae</span>=<span class="val">true</span> \
+  <span class="flag">--policy.kl_weight</span>=<span class="val">10.0</span> \
+  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1e-5</span> \
+  <span class="flag">--optimizer.type</span>=<span class="val">adamw</span> \
+  <span class="flag">--optimizer.lr</span>=<span class="val">5e-5</span> \
+  <span class="flag">--optimizer.weight_decay</span>=<span class="val">1e-4</span> \
+  <span class="flag">--optimizer.grad_clip_norm</span>=<span class="val">0.5</span> \
+  <span class="flag">--scheduler.type</span>=<span class="val">cosine_decay_with_warmup</span> \
+  <span class="flag">--scheduler.num_warmup_steps</span>=<span class="val">2000</span> \
+  <span class="flag">--scheduler.num_decay_steps</span>=<span class="val">98000</span> \
+  <span class="flag">--scheduler.peak_lr</span>=<span class="val">5e-5</span> \
+  <span class="flag">--scheduler.decay_lr</span>=<span class="val">1e-6</span> \
+  <span class="flag">--dataset.image_transforms.enable</span>=<span class="val">false</span> \
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- E -->
+<section id="E">
+  <div class="container">
+    <div class="code-card">
+      <div class="code-head hcE">
+        <div class="code-letter lE">E</div>
+        <div class="code-name">타입 E — 증강<small>batch 48 · 80,000 steps · image_transforms ON</small></div>
+        <button class="code-copy" data-target="codeE">📋 복사</button>
+      </div>
+<pre class="code" id="codeE"><span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeE_augment</span> \
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> \
+  <span class="flag">--batch_size</span>=<span class="val">48</span> \
+  <span class="flag">--num_workers</span>=<span class="val">4</span> \
+  <span class="flag">--steps</span>=<span class="val">80000</span> \
+  <span class="flag">--save_freq</span>=<span class="val">10000</span> \
+  <span class="flag">--log_freq</span>=<span class="val">200</span> \
+  <span class="flag">--policy.chunk_size</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_action_steps</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_obs_steps</span>=<span class="val">1</span> \
+  <span class="flag">--policy.vision_backbone</span>=<span class="val">resnet18</span> \
+  <span class="flag">--policy.pretrained_backbone_weights</span>=<span class="val">ResNet18_Weights.IMAGENET1K_V1</span> \
+  <span class="flag">--policy.dim_model</span>=<span class="val">512</span> \
+  <span class="flag">--policy.dim_feedforward</span>=<span class="val">3200</span> \
+  <span class="flag">--policy.n_encoder_layers</span>=<span class="val">4</span> \
+  <span class="flag">--policy.n_decoder_layers</span>=<span class="val">1</span> \
+  <span class="flag">--policy.n_heads</span>=<span class="val">8</span> \
+  <span class="flag">--policy.use_vae</span>=<span class="val">true</span> \
+  <span class="flag">--policy.kl_weight</span>=<span class="val">10.0</span> \
+  <span class="flag">--policy.optimizer_lr</span>=<span class="val">1.2e-5</span> \
+  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1.2e-5</span> \
+  <span class="flag">--policy.optimizer_weight_decay</span>=<span class="val">1e-4</span> \
+  <span class="flag">--dataset.image_transforms.enable</span>=<span class="val">true</span> \
+  <span class="flag">--dataset.image_transforms.max_num_transforms</span>=<span class="val">3</span> \
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 차이 요약 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">📊 타입별 차이 (다른 값만)</h2>
+    <p class="section-lead">나머지 파라미터(구조·VAE·chunk 등)는 네 타입 모두 동일합니다.</p>
+    <table class="diff">
+      <thead><tr><th>flag</th><th class="dB">B</th><th class="dC">C</th><th class="dD">D</th><th class="dE">E</th></tr></thead>
+      <tbody>
+        <tr><td>batch_size</td><td>32*</td><td>64</td><td>64</td><td>48</td></tr>
+        <tr><td>steps</td><td>80000</td><td>70000</td><td>100000</td><td>80000</td></tr>
+        <tr><td>optimizer_lr</td><td>1e-5</td><td>1.4e-5</td><td>5e-5→1e-6</td><td>1.2e-5</td></tr>
+        <tr><td>lr_backbone</td><td>1e-5</td><td>1.4e-5</td><td>1e-5</td><td>1.2e-5</td></tr>
+        <tr><td>use_amp</td><td>—</td><td>—</td><td>false</td><td>—</td></tr>
+        <tr><td>optimizer.type</td><td>—</td><td>—</td><td>adamw</td><td>—</td></tr>
+        <tr><td>grad_clip_norm</td><td>—</td><td>—</td><td>0.5</td><td>—</td></tr>
+        <tr><td>scheduler</td><td>—</td><td>—</td><td>cosine+warmup2k</td><td>—</td></tr>
+        <tr><td>image_transforms</td><td>false</td><td>false</td><td>false</td><td>true(3)</td></tr>
+      </tbody>
+    </table>
+    <div class="gpu-note" style="border-left-color:var(--B);">
+      * 타입 B는 GPU VRAM 자동 감지: <code>24GB→32</code> / <code>12GB→24</code> / <code>8GB(RTX 3070)→16</code>
+    </div>
+  </div>
+</section>
+
+<footer style="background:#0F172A; color:#64748B; padding:2rem 0; text-align:center; font-size:0.85rem; border-top:1px solid var(--border);">
+  <div class="container">Physical AI Master Course · ACT 4 Types — Source Commands Only</div>
+</footer>
+
+<script>
+  document.querySelectorAll('.code-copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var pre = document.getElementById(btn.getAttribute('data-target'));
+      var text = pre.innerText;
+      var done = function(){
+        var o = btn.innerHTML; btn.innerHTML = '✅ 복사됨'; btn.classList.add('copied');
+        setTimeout(function(){ btn.innerHTML = o; btn.classList.remove('copied'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function(){ fb(text,done); });
+      } else { fb(text,done); }
+    });
+  });
+  function fb(t,d){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); d(); }
+</script>
+</body>
+</html>
