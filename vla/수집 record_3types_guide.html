@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실습 가이드 데이터 수집 3타입</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #2563EB; --secondary: #7C3AED;
+    --t1: #3B82F6; --t2: #8B5CF6; --t3: #10B981;
+    --success: #059669; --success-light: #D1FAE5;
+    --warning: #D97706; --warning-light: #FEF3C7;
+    --danger: #DC2626; --danger-light: #FEE2E2;
+    --surface: #F8FAFC; --card: #FFFFFF; --text: #1E293B; --muted: #64748B; --border: #E2E8F0;
+  }
+  body { font-family: 'Noto Sans KR', sans-serif; color: var(--text); background: var(--surface); line-height: 1.75; }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 2.5rem 0; }
+
+  .hero { background: linear-gradient(135deg, #0F766E, #14B8A6); color: white; padding: 3.25rem 0 2.75rem; }
+  .hero-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+  .pill { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500; }
+  .hero h1 { font-size: 2.3rem; font-weight: 900; line-height: 1.25; }
+  .hero-subtitle { font-size: 1.03rem; margin-top: 0.85rem; opacity: 0.95; }
+
+  .section-title { font-size: 1.65rem; font-weight: 900; margin-bottom: 0.45rem; }
+  .section-lead { color: var(--muted); margin-bottom: 1.75rem; }
+
+  /* 3타입 요약 */
+  .t3grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+  .t3card { border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border: 1px solid var(--border); background: var(--card); }
+  .t3head { padding: 1rem 1.15rem; color: white; }
+  .t3head .num { font-size: 1.5rem; font-weight: 900; }
+  .t3head .nm { font-size: 0.95rem; font-weight: 700; }
+  .t3head .cam { font-size: 0.75rem; opacity: 0.92; margin-top: 0.15rem; }
+  .t3body { padding: 1rem 1.15rem; font-size: 0.85rem; }
+  .t3body .kv { display: flex; justify-content: space-between; padding: 0.2rem 0; border-bottom: 1px dashed var(--border); }
+  .t3body .kv:last-child { border-bottom: none; }
+  .t3body .kv span { color: var(--muted); }
+  .t3body .kv b { font-weight: 700; }
+  .h1c { background: linear-gradient(135deg,#1D4ED8,#3B82F6); }
+  .h2c { background: linear-gradient(135deg,#6D28D9,#8B5CF6); }
+  .h3c { background: linear-gradient(135deg,#047857,#10B981); }
+
+  /* 검증 배너 */
+  .verify { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .verify-item { display: flex; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .verify-item:last-child { border-bottom: none; }
+  .verify-ico { flex-shrink: 0; font-size: 1.2rem; }
+  .verify-item p { font-size: 0.92rem; }
+  .verify-item strong { color: var(--primary); }
+
+  /* 코드 */
+  .code-card { background: #1E293B; border-radius: 14px; overflow: hidden; margin-top: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .code-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.75rem 1.1rem; }
+  .code-copy { margin-left: auto; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #E2E8F0; border-radius: 8px; padding: 0.35rem 0.8rem; font-size: 0.8rem; font-family: 'Noto Sans KR', sans-serif; font-weight: 500; cursor: pointer; }
+  .code-copy:hover { background: rgba(255,255,255,0.18); }
+  .code-copy.copied { background: #10B981; border-color: #10B981; }
+  .code-title { color: white; font-weight: 700; font-size: 0.92rem; font-family: 'JetBrains Mono', monospace; }
+  pre.code { margin: 0; padding: 1.1rem 1.3rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.8; background: #0F172A; color: #E2E8F0; }
+  pre.code .cmd { color: #38BDF8; font-weight: 700; }
+  pre.code .flag { color: #A5B4FC; }
+  pre.code .val { color: #FCD34D; }
+  pre.code .str { color: #6EE7B7; }
+  pre.code .cmt { color: #64748B; }
+
+  .explain { margin-top: 1.25rem; }
+  .explain h5 { font-size: 0.95rem; font-weight: 700; color: var(--primary); margin: 1rem 0 0.4rem; display: flex; align-items: center; gap: 0.4rem; }
+  .explain p { font-size: 0.93rem; margin-bottom: 0.5rem; }
+  .explain strong { color: var(--primary); }
+
+  .analogy-box { display: flex; gap: 0.9rem; padding: 0.9rem 1.05rem; background: #EDE9FE; border-radius: 10px; border-left: 3px solid var(--secondary); margin: 0.8rem 0; }
+  .analogy-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .analogy-text { line-height: 1.6; font-size: 0.88rem; }
+
+  .callout { display: flex; gap: 0.75rem; padding: 0.95rem 1.2rem; border-radius: 10px; align-items: flex-start; margin-top: 1rem; }
+  .callout-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .callout-content { font-size: 0.9rem; line-height: 1.6; }
+  .callout-tip { background: var(--success-light); border-left: 3px solid var(--success); }
+  .callout-warning { background: var(--warning-light); border-left: 3px solid var(--warning); }
+
+  table.nice { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-top: 1rem; font-size: 0.85rem; }
+  table.nice th { background: var(--secondary); color: white; padding: 0.65rem 0.8rem; text-align: left; }
+  table.nice td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+  table.nice tr:last-child td { border-bottom: none; }
+  table.nice tr:nth-child(even) td { background: var(--surface); }
+  table.nice code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: #F1F5F9; padding: 0.1rem 0.4rem; border-radius: 4px; }
+  .c1 { color: var(--t1); font-weight: 700; } .c2 { color: var(--t2); font-weight: 700; } .c3 { color: var(--t3); font-weight: 700; }
+
+  kbd { display: inline-block; background: #1E293B; color: #E2E8F0; border-radius: 5px; padding: 0.05rem 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+  .src-note { font-size: 0.8rem; color: var(--muted); margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--border); }
+
+  @media (max-width: 768px) { .hero h1 { font-size: 1.75rem; } .t3grid { grid-template-columns: 1fr; } pre.code { font-size: 0.7rem; } }
+  @media print { .hero, .t3head, table.nice th { -webkit-print-color-adjust: exact; print-color-adjust: exact; } pre.code { background:#F8FAFC; color:#1E293B; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="pill">🎥 lerobot-record</span>
+      <span class="pill">📷 카메라 3구성</span>
+      <span class="pill">🌐 글로벌 검증</span>
+      <span class="pill">🤖 SO-ARM101</span>
+    </div>
+    <h1>실습 가이드 데이터 수집 3타입</h1>
+    <p class="hero-subtitle">수집 명령어를 카메라 구성에 따라 3가지로 정리했습니다. 가진 장비에 맞는 타입을 골라 시범을 녹화하세요.</p>
+  </div>
+</header>
+
+<!-- 3타입 요약 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">📷 세 가지 카메라 구성</h2>
+    <p class="section-lead">수집의 핵심 차이는 <strong>어떤 카메라를 쓰느냐</strong>입니다. 나머지(로봇 포트, 에피소드 등)는 거의 같아요.</p>
+    <div class="t3grid">
+      <div class="t3card">
+        <div class="t3head h1c"><div class="num">1</div><div class="nm">RealSense 2대</div><div class="cam">top + side (고품질)</div></div>
+        <div class="t3body">
+          <div class="kv"><span>카메라</span><b>RealSense ×2</b></div>
+          <div class="kv"><span>비용</span><b>높음</b></div>
+          <div class="kv"><span>품질</span><b>최상 (+깊이)</b></div>
+          <div class="kv"><span>인코딩</span><b>h264/비스트리밍</b></div>
+          <div class="kv"><span>적합</span><b>연구·정밀</b></div>
+        </div>
+      </div>
+      <div class="t3card">
+        <div class="t3head h2c"><div class="num">2</div><div class="nm">혼합</div><div class="cam">웹캠 + RealSense</div></div>
+        <div class="t3body">
+          <div class="kv"><span>카메라</span><b>OpenCV+RS</b></div>
+          <div class="kv"><span>비용</span><b>중간</b></div>
+          <div class="kv"><span>품질</span><b>상 (전체 뷰만 고급)</b></div>
+          <div class="kv"><span>인코딩</span><b>h264/비스트리밍</b></div>
+          <div class="kv"><span>적합</span><b>실무 절충</b></div>
+        </div>
+      </div>
+      <div class="t3card">
+        <div class="t3head h3c"><div class="num">3</div><div class="nm">웹캠 3대</div><div class="cam">top+side+wrist</div></div>
+        <div class="t3body">
+          <div class="kv"><span>카메라</span><b>OpenCV ×3</b></div>
+          <div class="kv"><span>비용</span><b>낮음</b></div>
+          <div class="kv"><span>품질</span><b>중 (다각도)</b></div>
+          <div class="kv"><span>인코딩</span><b>스트리밍 OK</b></div>
+          <div class="kv"><span>적합</span><b>수업·입문</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 검증 반영 -->
+<section style="background:white;">
+  <div class="container">
+    <h2 class="section-title">🌐 글로벌 검증에서 조정한 3가지</h2>
+    <p class="section-lead">업로드하신 명령어를 공식 가이드와 대조해 아래 3가지를 다듬었습니다.</p>
+    <div class="verify">
+      <div class="verify-item">
+        <span class="verify-ico">🎞️</span>
+        <p><strong>인코딩 설정을 카메라 대수에 맞췄습니다.</strong> 공식 스트리밍 가이드에 따르면 <strong>2대 640×480@30 조합은 스트리밍 인코딩이 캡처 루프와 경쟁</strong>할 수 있어, h264 코덱 + <code>streaming_encoding=false</code>(에피소드 사이 인코딩)를 권장합니다. 반면 <strong>3대 640×480@30은 기본 스트리밍이 잘 작동</strong>하고 오히려 스레드를 낮춰도 됩니다. 그래서 타입1·2는 비스트리밍, 타입3은 스트리밍으로 나눴습니다.</p>
+      </div>
+      <div class="verify-item">
+        <span class="verify-ico">🔥</span>
+        <p><strong>RealSense에 <code>warmup_s: 15</code>를 넣었습니다.</strong> RealSense는 켜자마자 안정적인 프레임을 못 내보내요. 15초 예열을 주면 초반 흔들린 프레임이 데이터에 섞이는 걸 막습니다. (업로드 2번엔 있었고 1번엔 없었는데, 둘 다 넣어 통일)</p>
+      </div>
+      <div class="verify-item">
+        <span class="verify-ico">📼</span>
+        <p><strong>OpenCV 카메라에 <code>fourcc: "MJPG"</code>를 통일했습니다.</strong> USB 웹캠 여러 대를 30fps로 동시에 돌리면 대역폭이 부족해 프레임이 떨어져요. MJPG 압축 포맷을 쓰면 대역폭을 아껴 안정적으로 30fps가 나옵니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 타입 1 -->
+<section>
+  <div class="container">
+    <h2 class="section-title" style="color:var(--t1);">1️⃣ 타입 1 — RealSense 2대</h2>
+    <p class="section-lead">고품질 컬러(옵션으로 깊이까지). 정밀 작업이나 연구 트랙에 적합해요.</p>
+    <div class="code-card">
+      <div class="code-head"><span class="code-title">record_type1_realsense2.sh</span><button class="code-copy" data-target="c1">📋 복사</button></div>
+<pre class="code" id="c1"><span class="cmd">lerobot-record</span> \
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> \
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> \
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> \
+  <span class="flag">--robot.cameras</span>=<span class="str">"{ top: {type: intelrealsense, serial_number_or_name: 116622071569,
+                width: 640, height: 480, fps: 30, warmup_s: 15},
+       side: {type: intelrealsense, serial_number_or_name: 047322070492,
+                width: 640, height: 480, fps: 30, warmup_s: 15} }"</span> \
+  <span class="flag">--teleop.type</span>=<span class="val">so101_leader</span> \
+  <span class="flag">--teleop.port</span>=<span class="val">/dev/ttyACM0</span> \
+  <span class="flag">--teleop.id</span>=<span class="val">my_leader</span> \
+  <span class="flag">--display_data</span>=<span class="val">true</span> \
+  <span class="flag">--dataset.repo_id</span>=<span class="val">data/pink_task_2rs</span> \
+  <span class="flag">--dataset.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--dataset.num_episodes</span>=<span class="val">30</span> \
+  <span class="flag">--dataset.single_task</span>=<span class="str">"pink block into the box of yellow"</span> \
+  <span class="flag">--dataset.vcodec</span>=<span class="val">h264</span> \
+  <span class="flag">--dataset.streaming_encoding</span>=<span class="val">false</span> \
+  <span class="flag">--dataset.encoder_threads</span>=<span class="val">4</span></pre>
+    </div>
+    <div class="explain">
+      <h5>💡 이 타입의 특징</h5>
+      <p>RealSense는 <strong>깊이(거리) 정보</strong>까지 얻을 수 있는 고급 카메라예요(필요하면 <code>use_depth: true</code> 추가). 두 대를 위·옆에 놓아 입체적으로 상황을 봅니다.</p>
+      <div class="analogy-box"><div class="analogy-icon">📸</div><div class="analogy-text">전문가용 DSLR 두 대로 촬영하는 것과 같아요. 화질과 정보량은 최고지만, 그만큼 컴퓨터가 처리할 게 많아 인코딩을 조심스럽게(비스트리밍) 해야 해요.</div></div>
+      <div class="callout callout-warning"><span class="callout-icon">⚠️</span><span class="callout-content">2대라서 스트리밍 인코딩을 끄고 <code>h264</code>로 저장해요. 안 그러면 녹화 중 컴퓨터가 버벅여 프레임이 떨어질 수 있어요.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 타입 2 -->
+<section style="background:white;">
+  <div class="container">
+    <h2 class="section-title" style="color:var(--t2);">2️⃣ 타입 2 — 혼합 (웹캠 + RealSense)</h2>
+    <p class="section-lead">손목엔 저렴한 USB 웹캠, 전체 뷰엔 RealSense. 비용과 품질의 현실적 절충안이에요.</p>
+    <div class="code-card">
+      <div class="code-head"><span class="code-title">record_type2_mixed.sh</span><button class="code-copy" data-target="c2">📋 복사</button></div>
+<pre class="code" id="c2"><span class="cmd">lerobot-record</span> \
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> \
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> \
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> \
+  <span class="flag">--robot.cameras</span>=<span class="str">"{ arm: {type: opencv, index_or_path: 12,
+                width: 640, height: 480, fps: 30, fourcc: \"MJPG\"},
+       top: {type: intelrealsense, serial_number_or_name: \"138422072965\",
+                width: 640, height: 480, fps: 30, warmup_s: 15} }"</span> \
+  <span class="flag">--teleop.type</span>=<span class="val">so101_leader</span> \
+  <span class="flag">--teleop.port</span>=<span class="val">/dev/ttyACM0</span> \
+  <span class="flag">--teleop.id</span>=<span class="val">my_leader</span> \
+  <span class="flag">--display_data</span>=<span class="val">true</span> \
+  <span class="flag">--dataset.repo_id</span>=<span class="val">data/pink_task_mixed</span> \
+  <span class="flag">--dataset.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--dataset.num_episodes</span>=<span class="val">30</span> \
+  <span class="flag">--dataset.single_task</span>=<span class="str">"pink block into the box of yellow"</span> \
+  <span class="flag">--dataset.vcodec</span>=<span class="val">h264</span> \
+  <span class="flag">--dataset.streaming_encoding</span>=<span class="val">false</span> \
+  <span class="flag">--dataset.encoder_threads</span>=<span class="val">4</span></pre>
+    </div>
+    <div class="explain">
+      <h5>💡 이 타입의 특징</h5>
+      <p><strong>돈을 아끼는 조합</strong>이에요. 손목처럼 가까이서 보는 카메라는 저렴한 웹캠(OpenCV)으로 충분하고, 전체 상황을 보는 상단만 고급 RealSense를 써요. 실무에서 가장 흔한 현실적 선택입니다.</p>
+      <div class="analogy-box"><div class="analogy-icon">🎥</div><div class="analogy-text">중요한 전체 샷은 고급 카메라, 보조 샷은 저렴한 캠으로 찍는 것과 같아요. 예산은 아끼면서 핵심 화질은 지켜요.</div></div>
+      <div class="callout callout-tip"><span class="callout-icon">📌</span><span class="callout-content">웹캠엔 <code>fourcc: "MJPG"</code>(대역폭 절약), RealSense엔 <code>warmup_s: 15</code>(예열). 서로 다른 카메라라 각자 필요한 옵션을 챙겨줬어요.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 타입 3 -->
+<section>
+  <div class="container">
+    <h2 class="section-title" style="color:var(--t3);">3️⃣ 타입 3 — 웹캠 3대</h2>
+    <p class="section-lead">일반 USB 웹캠 3대만으로 다각도 촬영. 가장 저렴하고 수업·입문에 표준이에요.</p>
+    <div class="code-card">
+      <div class="code-head"><span class="code-title">record_type3_opencv3.sh</span><button class="code-copy" data-target="c3">📋 복사</button></div>
+<pre class="code" id="c3"><span class="cmd">lerobot-record</span> \
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> \
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> \
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> \
+  <span class="flag">--robot.cameras</span>=<span class="str">"{ top:   {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30, fourcc: \"MJPG\"},
+       side:  {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 30, fourcc: \"MJPG\"},
+       wrist: {type: opencv, index_or_path: 4, width: 640, height: 480, fps: 30, fourcc: \"MJPG\"} }"</span> \
+  <span class="flag">--teleop.type</span>=<span class="val">so101_leader</span> \
+  <span class="flag">--teleop.port</span>=<span class="val">/dev/ttyACM0</span> \
+  <span class="flag">--teleop.id</span>=<span class="val">my_leader</span> \
+  <span class="flag">--display_data</span>=<span class="val">true</span> \
+  <span class="flag">--dataset.repo_id</span>=<span class="val">data/pink_task_3cam</span> \
+  <span class="flag">--dataset.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--dataset.num_episodes</span>=<span class="val">30</span> \
+  <span class="flag">--dataset.single_task</span>=<span class="str">"pink block into the box of yellow"</span> \
+  <span class="flag">--dataset.streaming_encoding</span>=<span class="val">true</span> \
+  <span class="flag">--dataset.encoder_threads</span>=<span class="val">2</span></pre>
+    </div>
+    <div class="explain">
+      <h5>💡 이 타입의 특징</h5>
+      <p>가장 <strong>저렴하고 구하기 쉬운</strong> 구성이에요. 일반 웹캠 3대를 위·옆·손목에 놓아 다각도로 봐요. 공식 가이드가 "3대 640×480@30은 기본 스트리밍이 잘 작동한다"고 명시해서, 여기선 <strong>스트리밍을 켠 채</strong> 씁니다.</p>
+      <div class="analogy-box"><div class="analogy-icon">📱</div><div class="analogy-text">스마트폰 3대로 여러 각도에서 동시에 찍는 느낌이에요. 화질은 최고급은 아니지만, 여러 각도로 보니 로봇이 상황을 입체적으로 이해해요.</div></div>
+      <div class="callout callout-tip"><span class="callout-icon">✅</span><span class="callout-content">3대는 스트리밍이 안정적이라 <code>streaming_encoding=true</code>. 스레드는 <code>2</code>로 낮춰도 충분해요(가이드 권장).</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 공통 조작법 -->
+<section style="background:white;">
+  <div class="container">
+    <h2 class="section-title">⌨️ 녹화 중 키보드 조작 (3타입 공통)</h2>
+    <p class="section-lead">시범을 보이는 도중 키보드로 흐름을 제어해요.</p>
+    <table class="nice">
+      <tr><th>키</th><th>동작</th><th>언제 쓰나</th></tr>
+      <tr><td><kbd>→</kbd> 오른쪽</td><td>이번 에피소드 저장하고 다음으로</td><td>시범을 잘 마쳤을 때</td></tr>
+      <tr><td><kbd>←</kbd> 왼쪽</td><td>이번 에피소드 삭제하고 다시 녹화</td><td>실수했을 때 (실패는 저장 금지!)</td></tr>
+      <tr><td><kbd>ESC</kbd></td><td>중지 → 영상 인코딩 → 업로드</td><td>모든 에피소드를 다 마쳤을 때</td></tr>
+    </table>
+    <div class="callout callout-warning">
+      <span class="callout-icon">⚠️</span>
+      <span class="callout-content"><strong>실행 전 체크:</strong> 카메라 시리얼/인덱스는 <code style="background:#F1F5F9;padding:0.1rem 0.4rem;border-radius:4px;">lerobot-find-cameras opencv</code> (또는 <code style="background:#F1F5F9;padding:0.1rem 0.4rem;border-radius:4px;">realsense</code>)로, 로봇 포트는 <code style="background:#F1F5F9;padding:0.1rem 0.4rem;border-radius:4px;">lerobot-find-port</code>로 먼저 확인하세요. 재부팅하면 값이 바뀔 수 있어요.</span>
+    </div>
+  </div>
+</section>
+
+<!-- 비교표 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">📊 3타입 최종 비교</h2>
+    <p class="section-lead">로봇 포트·에피소드·태스크는 동일하고, 카메라와 인코딩만 달라요.</p>
+    <table class="nice">
+      <tr><th>항목</th><th class="c1">타입 1 RealSense2</th><th class="c2">타입 2 혼합</th><th class="c3">타입 3 웹캠3</th></tr>
+      <tr><td>카메라</td><td>RealSense ×2</td><td>웹캠 ×1 + RealSense ×1</td><td>웹캠 ×3</td></tr>
+      <tr><td>대략 비용</td><td>높음</td><td>중간</td><td>낮음</td></tr>
+      <tr><td>깊이 정보</td><td>가능 (2대)</td><td>가능 (상단만)</td><td>불가</td></tr>
+      <tr><td>streaming_encoding</td><td>false</td><td>false</td><td>true</td></tr>
+      <tr><td>vcodec</td><td>h264</td><td>h264</td><td>기본(auto)</td></tr>
+      <tr><td>encoder_threads</td><td>4</td><td>4</td><td>2</td></tr>
+      <tr><td>warmup_s</td><td>15 (양쪽)</td><td>15 (RS만)</td><td>—</td></tr>
+      <tr><td>fourcc MJPG</td><td>—</td><td>웹캠만</td><td>전체</td></tr>
+      <tr><td>적합</td><td>연구·정밀</td><td>실무 절충</td><td>수업·입문</td></tr>
+    </table>
+    <div class="callout callout-tip">
+      <span class="callout-icon">🎯</span>
+      <span class="callout-content"><strong>고르는 법:</strong> RealSense가 2대 있으면 <span class="c1">타입 1</span>, RealSense 1대 + 웹캠이면 <span class="c2">타입 2</span>, 일반 웹캠만 있으면 <span class="c3">타입 3</span>. 수업에선 대부분 <span class="c3">타입 3</span>이 현실적이에요. 어떤 타입이든 <strong>카메라 위치·조명은 수집 내내 고정</strong>하는 게 가장 중요합니다.</span>
+    </div>
+    <p class="src-note">📚 글로벌 검증: LeRobot 공식 cheat sheet·record API·카메라 문서에서 명령어 구조와 RealSense/OpenCV 설정을, 스트리밍 인코딩 가이드에서 "2대 640×480@30은 h264+비스트리밍 권장, 3대는 기본 스트리밍 양호, encoder_threads는 부하에 맞게 조정"을 확인했습니다. warmup_s·fourcc MJPG는 다수 실전 셋업 문서에서 교차 확인한 안정화 옵션입니다. 카메라 식별자는 재부팅 시 바뀔 수 있어 lerobot-find-cameras로 매번 확인이 권장됩니다.</p>
+  </div>
+</section>
+
+<footer style="background:#1E293B; color:#94A3B8; padding:2rem 0; text-align:center; font-size:0.85rem;">
+  <div class="container">Physical AI Master Course · Data Recording — 3 Camera Types</div>
+</footer>
+
+<script>
+  document.querySelectorAll('.code-copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var pre = document.getElementById(btn.getAttribute('data-target'));
+      var text = pre.innerText;
+      var done = function(){ var o=btn.innerHTML; btn.innerHTML='✅ 복사됨'; btn.classList.add('copied'); setTimeout(function(){btn.innerHTML=o; btn.classList.remove('copied');},1500); };
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done).catch(function(){fb(text,done);}); } else { fb(text,done); }
+    });
+  });
+  function fb(t,d){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); d(); }
+</script>
+</body>
+</html>
