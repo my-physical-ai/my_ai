@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAgger 파인튜닝 4타입 명령어 소스 v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --B: #64748B; --C: #10B981; --D: #8B5CF6; --E: #F59E0B;
+    --surface: #0F172A; --card: #1E293B; --text: #E2E8F0; --muted: #94A3B8; --border: #334155;
+  }
+  body { font-family: 'Noto Sans KR', sans-serif; color: var(--text); background: #0B1120; line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 2rem 0; }
+
+  .hero { background: linear-gradient(135deg, #0F172A, #3B1E5F); color: white; padding: 3rem 0 2.5rem; border-bottom: 1px solid var(--border); }
+  .hero-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .pill { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500; }
+  .hero h1 { font-size: 2.2rem; font-weight: 900; line-height: 1.25; }
+  .hero-subtitle { font-size: 1rem; margin-top: 0.75rem; color: var(--muted); }
+
+  /* 타입 네비 */
+  .type-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1.5rem; }
+  .type-nav a { text-decoration: none; border-radius: 12px; padding: 0.85rem; text-align: center; color: white; font-weight: 700; transition: transform 0.15s; display: block; }
+  .type-nav a:hover { transform: translateY(-3px); }
+  .type-nav .letter { font-size: 1.5rem; font-weight: 900; }
+  .type-nav .nm { font-size: 0.82rem; opacity: 0.95; }
+  .type-nav .sp { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; opacity: 0.8; margin-top: 0.2rem; }
+  .nB { background: linear-gradient(135deg,#475569,#64748B); }
+  .nC { background: linear-gradient(135deg,#047857,#10B981); }
+  .nD { background: linear-gradient(135deg,#6D28D9,#8B5CF6); }
+  .nE { background: linear-gradient(135deg,#B45309,#F59E0B); }
+
+  /* 코드 블록 */
+  .code-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .code-head { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1.25rem; }
+  .code-letter { flex-shrink: 0; width: 2.2rem; height: 2.2rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; color: white; }
+  .code-name { font-weight: 700; font-size: 1.05rem; color: white; }
+  .code-name small { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-top: 0.1rem; }
+  .code-copy { margin-left: auto; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: var(--text); border-radius: 8px; padding: 0.4rem 0.85rem; font-size: 0.82rem; font-family: 'Noto Sans KR', sans-serif; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.15s; }
+  .code-copy:hover { background: rgba(255,255,255,0.16); }
+  .code-copy.copied { background: #10B981; border-color: #10B981; color: white; }
+  .hcB { background: #334155; } .hcC { background: #064E3B; } .hcD { background: #4C1D95; } .hcE { background: #78350F; }
+  .lB { background: var(--B); } .lC { background: var(--C); } .lD { background: var(--D); } .lE { background: var(--E); }
+
+  pre.code { margin: 0; padding: 1.25rem 1.4rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.85; background: #0F172A; }
+  pre.code .cmt { color: #64748B; }
+  pre.code .cmd { color: #38BDF8; font-weight: 700; }
+  pre.code .flag { color: #A5B4FC; }
+  pre.code .val { color: #FCD34D; }
+  pre.code .str { color: #6EE7B7; }
+  pre.code .var { color: #F9A8D4; }
+  pre.code .env { color: #FB923C; font-weight: 700; }
+  pre.code .cont { color: #475569; }
+  pre.code .new { background: rgba(16,185,129,0.14); border-radius: 4px; }
+
+  .section-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.4rem; color: white; }
+  .section-lead { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+
+  /* 차이 요약 표 */
+  table.diff { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  table.diff th { padding: 0.65rem 0.8rem; text-align: center; color: white; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+  table.diff th:first-child { text-align: left; background: #334155; font-family: 'Noto Sans KR'; }
+  table.diff th.dB { background: var(--B); } table.diff th.dC { background: var(--C); }
+  table.diff th.dD { background: var(--D); } table.diff th.dE { background: var(--E); }
+  table.diff td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+  table.diff td:first-child { text-align: left; color: var(--muted); background: rgba(255,255,255,0.02); }
+  table.diff tr:last-child td { border-bottom: none; }
+
+  .gpu-note { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--E); border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem; font-size: 0.9rem; }
+  .gpu-note code { background: rgba(255,255,255,0.08); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #FCD34D; }
+  .run-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #6EE7B7; background: #0F172A; border-radius: 8px; padding: 0.6rem 0.9rem; margin-top: 0.75rem; }
+  .run-hint .p { color: #4ADE80; }
+
+  /* 라운드 로드맵 */
+  .roadmap { display: flex; align-items: stretch; gap: 0.5rem; overflow-x: auto; margin: 1.5rem 0; padding-bottom: 0.5rem; }
+  .rd-step { flex: 1; min-width: 200px; background: var(--card); border: 1px solid var(--border); border-top: 4px solid var(--rc,#8B5CF6); border-radius: 12px; padding: 1.1rem 1.2rem; }
+  .rd-round { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--rc,#8B5CF6); }
+  .rd-title { font-weight: 800; font-size: 0.95rem; margin: 0.3rem 0 0.5rem; color: white; }
+  .rd-flow { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+  .rd-flow b { color: #FCD34D; font-weight: 700; }
+  .rd-arrow { display: flex; align-items: center; color: #8B5CF6; font-size: 1.4rem; flex-shrink: 0; }
+  .concept-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.6rem; margin: 1.5rem 0; }
+  .concept-box h3 { color: white; font-size: 1.05rem; margin-bottom: 0.6rem; }
+  .layer-list { list-style: none; margin: 0.75rem 0 0; }
+  .layer-list li { padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: baseline; }
+  .layer-list li:last-child { border-bottom: none; }
+  .layer-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; padding: 0.12rem 0.55rem; border-radius: 6px; flex-shrink: 0; background: rgba(139,92,246,0.18); color: #C4B5FD; }
+  .ck-item { display: flex; gap: 0.75rem; padding: 0.6rem 0; align-items: flex-start; border-bottom: 1px solid var(--border); }
+  .ck-item:last-child { border-bottom: none; }
+  .ck-n { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px; background: #10B981; color: #062f22; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem; }
+  .ck-t { font-size: 0.9rem; }
+
+  /* 2라운드 데이터 전략 비교 */
+  .r2-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.5rem 0; }
+  .r2-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .r2-head { padding: 0.9rem 1.2rem; font-weight: 800; font-size: 0.95rem; color: white; display: flex; align-items: center; gap: 0.5rem; }
+  .r2-swap .r2-head { background: linear-gradient(135deg,#78350F,#B45309); }
+  .r2-accum .r2-head { background: linear-gradient(135deg,#064E3B,#047857); }
+  .r2-body { padding: 1.1rem 1.3rem; }
+  .r2-body p { font-size: 0.88rem; margin-bottom: 0.6rem; }
+  .r2-body .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.12rem 0.55rem; border-radius: 6px; margin-bottom: 0.5rem; }
+  .r2-swap .tag { background: rgba(245,158,11,0.16); color: #FCD34D; }
+  .r2-accum .tag { background: rgba(16,185,129,0.16); color: #6EE7B7; }
+  .r2-verdict { font-size: 0.82rem; padding: 0.55rem 0.75rem; border-radius: 8px; margin-top: 0.5rem; }
+  .r2-swap .r2-verdict { background: rgba(245,158,11,0.1); color: #FCD34D; }
+  .r2-accum .r2-verdict { background: rgba(16,185,129,0.1); color: #6EE7B7; }
+
+  @media (max-width: 768px) { .hero h1 { font-size: 1.7rem; } .type-nav { grid-template-columns: repeat(2,1fr); } pre.code { font-size: 0.72rem; } table.diff { font-size: 0.72rem; } .roadmap { flex-direction: column; } .rd-arrow { transform: rotate(90deg); justify-content: center; } .r2-grid { grid-template-columns: 1fr; } }
+  @media print { body { background: white; color: black; } pre.code { background: #F8FAFC; color: #1E293B; } .hero { -webkit-print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="pill">🟣 DAgger 교정 10 에피소드</span>
+      <span class="pill">🧠 ACT 파인튜닝</span>
+      <span class="pill">📋 복사해서 바로 실행</span>
+    </div>
+    <h1>DAgger 파인튜닝 4타입 명령어 소스</h1>
+    <p class="hero-subtitle">DAgger 교정 10 에피소드를 기존 체크포인트에서 이어 학습합니다(1라운드). 백본 준-동결·체크포인트 선택·2라운드 이후 파인튜닝 방법을 반영한 v3. 팀별 타입 명령어를 복사해 실행하세요.</p>
+    <div class="type-nav">
+      <a href="#B" class="nB"><div class="letter">B</div><div class="nm">원본 안정</div><div class="sp">batch auto/12k/백본준동결</div></a>
+      <a href="#C" class="nC"><div class="letter">C</div><div class="nm">균형</div><div class="sp">batch64/10k/백본준동결</div></a>
+      <a href="#D" class="nD"><div class="letter">D</div><div class="nm">정밀</div><div class="sp">batch64/15k/cosine</div></a>
+      <a href="#E" class="nE"><div class="letter">E</div><div class="nm">증강</div><div class="sp">batch48/12k/aug ON</div></a>
+    </div>
+  </div>
+</header>
+
+<!-- 공통 실행법 -->
+<section>
+  <div class="container">
+    <div class="gpu-note">
+      🎛️ <strong>실행 전 공통 (학습 때와 다른 점):</strong> 변수 3개를 자기 팀 경로로 수정하세요.
+      <code>PRETRAINED_MODEL</code>은 <strong>이전에 학습해 둔 자기 타입의 체크포인트</strong>,
+      <code>REPO_ID</code>·<code>DATASET_ROOT</code>는 <strong>DAgger로 수집한 교정 10 에피소드 데이터셋</strong>입니다.
+      <div class="run-hint"><span class="p">$</span> PRETRAINED_MODEL=outputs/train/act_typeX_.../checkpoints/last/pretrained_model</div>
+      <div class="run-hint"><span class="p">$</span> REPO_ID=data/rollout_dagger_pink_task_v3_r3   <span style="color:#64748B"># 교정 10 에피소드</span></div>
+      <div class="run-hint"><span class="p">$</span> OUTPUT_DIR=outputs/train/act_typeX_dagger_ft</div>
+    </div>
+    <div class="gpu-note" style="border-left-color:#10B981;">
+      💡 <strong>파인튜닝의 3가지 레버 (ACT는 이게 전부):</strong> ACT에는 파인튜닝 전용 플래그가 따로 없습니다.
+      실체는 ① <code>pretrained_path</code>(웜 스타트 = 파인튜닝의 본체) ② 낮은 학습률(기존 표현을 부수지 않는 부드러운 보정)
+      ③ 짧은 스텝(소량 데이터 과적합 방지)입니다. 여기에 이번 버전은 <strong>네 번째 레버</strong>를 추가했습니다.
+    </div>
+    <div class="gpu-note" style="border-left-color:#8B5CF6;">
+      🆕 <strong>이번 v2에서 바뀐 점 — 백본 준-동결:</strong> ACT가 제공하는 유일한 차등 학습률 노브인
+      <code>--policy.optimizer_lr_backbone</code>을 <code>1e-6</code>으로 크게 낮췄습니다.
+      비전 백본(ResNet18)의 시각 표현은 이미 충분히 학습됐고 교정 10개로 다시 배울 게 없으므로 <strong>거의 고정</strong>하고,
+      행동을 결정하는 트랜스포머만 교정 데이터로 보정합니다. 이것이 소량 데이터 파인튜닝에서 망각을 막는 핵심입니다.
+    </div>
+    <div class="gpu-note" style="border-left-color:#F59E0B;">
+      ⏱️ <strong>스텝을 더 줄인 이유:</strong> 교정 10 에피소드 ≈ 9,000 프레임입니다. batch 64면 1 에폭 ≈ 141 스텝이라,
+      12,000 스텝만 해도 이미 <strong>약 85 에폭</strong>입니다(모방학습은 보통 5~10 에폭이면 수렴).
+      그래서 이전 20k~25k를 10k~15k로 낮췄습니다. <strong>마지막 체크포인트가 최선이 아닐 수 있으니</strong>
+      아래 "체크포인트 선택"을 반드시 따르세요.
+    </div>
+  </div>
+</section>
+
+<!-- B -->
+<section id="B">
+  <div class="container">
+    <div class="code-card">
+      <div class="code-head hcB">
+        <div class="code-letter lB">B</div>
+        <div class="code-name">타입 B — 원본 안정 · DAgger 파인튜닝<small>batch 32(자동 16~32) · 12,000 steps · lr 5e-6 · 백본 1e-6(준-동결)</small></div>
+        <button class="code-copy" data-target="codeB">📋 복사</button>
+      </div>
+<pre class="code" id="codeB"><span class="cmt"># GPU VRAM 자동 감지 → batch 결정 (24GB:32 / 12GB:24 / 8GB:16)</span>
+<span class="var">TOTAL_MB</span>=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1)
+<span class="cmd">if</span>   [ <span class="str">"$TOTAL_MB"</span> -ge 20000 ]; <span class="cmd">then</span> <span class="var">BATCH_SIZE</span>=32
+<span class="cmd">elif</span> [ <span class="str">"$TOTAL_MB"</span> -ge 11000 ]; <span class="cmd">then</span> <span class="var">BATCH_SIZE</span>=24
+<span class="cmd">else</span> <span class="var">BATCH_SIZE</span>=16; <span class="cmd">fi</span>
+
+<span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+<span class="new">  <span class="flag">--policy.pretrained_path</span>=<span class="str">"${PRETRAINED_MODEL}"</span> \</span>
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeB_dagger_ft</span> \
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> \
+  <span class="flag">--batch_size</span>=<span class="str">"${BATCH_SIZE}"</span> \
+  <span class="flag">--num_workers</span>=<span class="val">4</span> \
+<span class="new">  <span class="flag">--steps</span>=<span class="val">12000</span> \</span>
+<span class="new">  <span class="flag">--save_freq</span>=<span class="val">3000</span> \</span>
+  <span class="flag">--log_freq</span>=<span class="val">100</span> \
+  <span class="flag">--policy.chunk_size</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_action_steps</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_obs_steps</span>=<span class="val">1</span> \
+  <span class="flag">--policy.vision_backbone</span>=<span class="val">resnet18</span> \
+  <span class="flag">--policy.pretrained_backbone_weights</span>=<span class="val">ResNet18_Weights.IMAGENET1K_V1</span> \
+  <span class="flag">--policy.dim_model</span>=<span class="val">512</span> \
+  <span class="flag">--policy.dim_feedforward</span>=<span class="val">3200</span> \
+  <span class="flag">--policy.n_encoder_layers</span>=<span class="val">4</span> \
+  <span class="flag">--policy.n_decoder_layers</span>=<span class="val">1</span> \
+  <span class="flag">--policy.n_heads</span>=<span class="val">8</span> \
+  <span class="flag">--policy.use_vae</span>=<span class="val">true</span> \
+  <span class="flag">--policy.kl_weight</span>=<span class="val">10.0</span> \
+<span class="new">  <span class="flag">--policy.optimizer_lr</span>=<span class="val">5e-6</span> \</span>
+<span class="new">  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1e-6</span>   <span class="cmt"># 백본 준-동결</span> \</span>
+  <span class="flag">--policy.optimizer_weight_decay</span>=<span class="val">1e-4</span> \
+  <span class="flag">--dataset.image_transforms.enable</span>=<span class="val">false</span> \
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- C -->
+<section id="C">
+  <div class="container">
+    <div class="code-card">
+      <div class="code-head hcC">
+        <div class="code-letter lC">C</div>
+        <div class="code-name">타입 C — 균형 · DAgger 파인튜닝<small>batch 64 · 10,000 steps · lr 7e-6 · 백본 1e-6(준-동결)</small></div>
+        <button class="code-copy" data-target="codeC">📋 복사</button>
+      </div>
+<pre class="code" id="codeC"><span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+<span class="new">  <span class="flag">--policy.pretrained_path</span>=<span class="str">"${PRETRAINED_MODEL}"</span> \</span>
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeC_dagger_ft</span> \
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> \
+  <span class="flag">--batch_size</span>=<span class="val">64</span> \
+  <span class="flag">--num_workers</span>=<span class="val">4</span> \
+<span class="new">  <span class="flag">--steps</span>=<span class="val">10000</span> \</span>
+<span class="new">  <span class="flag">--save_freq</span>=<span class="val">2500</span> \</span>
+  <span class="flag">--log_freq</span>=<span class="val">100</span> \
+  <span class="flag">--policy.chunk_size</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_action_steps</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_obs_steps</span>=<span class="val">1</span> \
+  <span class="flag">--policy.vision_backbone</span>=<span class="val">resnet18</span> \
+  <span class="flag">--policy.pretrained_backbone_weights</span>=<span class="val">ResNet18_Weights.IMAGENET1K_V1</span> \
+  <span class="flag">--policy.dim_model</span>=<span class="val">512</span> \
+  <span class="flag">--policy.dim_feedforward</span>=<span class="val">3200</span> \
+  <span class="flag">--policy.n_encoder_layers</span>=<span class="val">4</span> \
+  <span class="flag">--policy.n_decoder_layers</span>=<span class="val">1</span> \
+  <span class="flag">--policy.n_heads</span>=<span class="val">8</span> \
+  <span class="flag">--policy.use_vae</span>=<span class="val">true</span> \
+  <span class="flag">--policy.kl_weight</span>=<span class="val">10.0</span> \
+<span class="new">  <span class="flag">--policy.optimizer_lr</span>=<span class="val">7e-6</span> \</span>
+<span class="new">  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1e-6</span>   <span class="cmt"># 백본 준-동결</span> \</span>
+  <span class="flag">--policy.optimizer_weight_decay</span>=<span class="val">1e-4</span> \
+  <span class="flag">--dataset.image_transforms.enable</span>=<span class="val">false</span> \
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- D -->
+<section id="D">
+  <div class="container">
+    <div class="code-card">
+      <div class="code-head hcD">
+        <div class="code-letter lD">D</div>
+        <div class="code-name">타입 D — 정밀 · DAgger 파인튜닝<small>batch 64 · 15,000 steps · cosine(peak 2e-5→1e-6) · 백본 1e-6</small></div>
+        <button class="code-copy" data-target="codeD">📋 복사</button>
+      </div>
+<pre class="code" id="codeD"><span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+<span class="new">  <span class="flag">--policy.pretrained_path</span>=<span class="str">"${PRETRAINED_MODEL}"</span> \</span>
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeD_dagger_ft</span> \
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> \
+  <span class="flag">--policy.use_amp</span>=<span class="val">false</span> \
+  <span class="flag">--batch_size</span>=<span class="val">64</span> \
+  <span class="flag">--num_workers</span>=<span class="val">4</span> \
+<span class="new">  <span class="flag">--steps</span>=<span class="val">15000</span> \</span>
+<span class="new">  <span class="flag">--save_freq</span>=<span class="val">3000</span> \</span>
+  <span class="flag">--log_freq</span>=<span class="val">100</span> \
+  <span class="flag">--policy.chunk_size</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_action_steps</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_obs_steps</span>=<span class="val">1</span> \
+  <span class="flag">--policy.vision_backbone</span>=<span class="val">resnet18</span> \
+  <span class="flag">--policy.pretrained_backbone_weights</span>=<span class="val">ResNet18_Weights.IMAGENET1K_V1</span> \
+  <span class="flag">--policy.dim_model</span>=<span class="val">512</span> \
+  <span class="flag">--policy.dim_feedforward</span>=<span class="val">3200</span> \
+  <span class="flag">--policy.n_encoder_layers</span>=<span class="val">4</span> \
+  <span class="flag">--policy.n_decoder_layers</span>=<span class="val">1</span> \
+  <span class="flag">--policy.n_heads</span>=<span class="val">8</span> \
+  <span class="flag">--policy.use_vae</span>=<span class="val">true</span> \
+  <span class="flag">--policy.kl_weight</span>=<span class="val">10.0</span> \
+<span class="new">  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1e-6</span>   <span class="cmt"># 백본 준-동결</span> \</span>
+  <span class="flag">--optimizer.type</span>=<span class="val">adamw</span> \
+<span class="new">  <span class="flag">--optimizer.lr</span>=<span class="val">2e-5</span> \</span>
+  <span class="flag">--optimizer.weight_decay</span>=<span class="val">1e-4</span> \
+  <span class="flag">--optimizer.grad_clip_norm</span>=<span class="val">0.5</span> \
+  <span class="flag">--scheduler.type</span>=<span class="val">cosine_decay_with_warmup</span> \
+<span class="new">  <span class="flag">--scheduler.num_warmup_steps</span>=<span class="val">500</span> \</span>
+<span class="new">  <span class="flag">--scheduler.num_decay_steps</span>=<span class="val">14500</span> \</span>
+<span class="new">  <span class="flag">--scheduler.peak_lr</span>=<span class="val">2e-5</span> \</span>
+  <span class="flag">--scheduler.decay_lr</span>=<span class="val">1e-6</span> \
+  <span class="flag">--dataset.image_transforms.enable</span>=<span class="val">false</span> \
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- E -->
+<section id="E">
+  <div class="container">
+    <div class="code-card">
+      <div class="code-head hcE">
+        <div class="code-letter lE">E</div>
+        <div class="code-name">타입 E — 증강 · DAgger 파인튜닝<small>batch 48 · 12,000 steps · 백본 1e-6 · image_transforms ON</small></div>
+        <button class="code-copy" data-target="codeE">📋 복사</button>
+      </div>
+<pre class="code" id="codeE"><span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+<span class="new">  <span class="flag">--policy.pretrained_path</span>=<span class="str">"${PRETRAINED_MODEL}"</span> \</span>
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeE_dagger_ft</span> \
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> \
+  <span class="flag">--batch_size</span>=<span class="val">48</span> \
+  <span class="flag">--num_workers</span>=<span class="val">4</span> \
+<span class="new">  <span class="flag">--steps</span>=<span class="val">12000</span> \</span>
+<span class="new">  <span class="flag">--save_freq</span>=<span class="val">3000</span> \</span>
+  <span class="flag">--log_freq</span>=<span class="val">100</span> \
+  <span class="flag">--policy.chunk_size</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_action_steps</span>=<span class="val">50</span> \
+  <span class="flag">--policy.n_obs_steps</span>=<span class="val">1</span> \
+  <span class="flag">--policy.vision_backbone</span>=<span class="val">resnet18</span> \
+  <span class="flag">--policy.pretrained_backbone_weights</span>=<span class="val">ResNet18_Weights.IMAGENET1K_V1</span> \
+  <span class="flag">--policy.dim_model</span>=<span class="val">512</span> \
+  <span class="flag">--policy.dim_feedforward</span>=<span class="val">3200</span> \
+  <span class="flag">--policy.n_encoder_layers</span>=<span class="val">4</span> \
+  <span class="flag">--policy.n_decoder_layers</span>=<span class="val">1</span> \
+  <span class="flag">--policy.n_heads</span>=<span class="val">8</span> \
+  <span class="flag">--policy.use_vae</span>=<span class="val">true</span> \
+  <span class="flag">--policy.kl_weight</span>=<span class="val">10.0</span> \
+<span class="new">  <span class="flag">--policy.optimizer_lr</span>=<span class="val">6e-6</span> \</span>
+<span class="new">  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1e-6</span>   <span class="cmt"># 백본 준-동결</span> \</span>
+  <span class="flag">--policy.optimizer_weight_decay</span>=<span class="val">1e-4</span> \
+  <span class="flag">--dataset.image_transforms.enable</span>=<span class="val">true</span> \
+  <span class="flag">--dataset.image_transforms.max_num_transforms</span>=<span class="val">3</span> \
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 차이 요약 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">📊 학습(원본) vs 파인튜닝 — 무엇이 달라졌나</h2>
+    <p class="section-lead">초록 하이라이트가 파인튜닝에서 바뀐 줄입니다. 구조 파라미터(chunk·VAE·backbone 등)는 체크포인트와 반드시 동일해야 합니다.</p>
+    <table class="diff">
+      <thead><tr><th>flag</th><th class="dB">B</th><th class="dC">C</th><th class="dD">D</th><th class="dE">E</th></tr></thead>
+      <tbody>
+        <tr><td>pretrained_path</td><td colspan="4">✔ 공통 추가 — 이전 학습 체크포인트에서 이어서</td></tr>
+        <tr><td>dataset (REPO_ID)</td><td colspan="4">✔ 공통 변경 — DAgger 교정 10 에피소드 (rollout_dagger_..._r3)</td></tr>
+        <tr><td>batch_size</td><td>32*</td><td>64</td><td>64</td><td>48</td></tr>
+        <tr><td>steps (기존→FT)</td><td>80k→12k</td><td>70k→10k</td><td>100k→15k</td><td>80k→12k</td></tr>
+        <tr><td>lr (기존→FT)</td><td>1e-5→5e-6</td><td>1.4e-5→7e-6</td><td>5e-5→2e-5 (cosine)</td><td>1.2e-5→6e-6</td></tr>
+        <tr><td>🆕 lr_backbone</td><td colspan="4" style="color:#C4B5FD">1e-6 공통 — 백본 준-동결 (본체 lr의 1/5~1/20)</td></tr>
+        <tr><td>warmup (D)</td><td>—</td><td>—</td><td>2000→500</td><td>—</td></tr>
+        <tr><td>save_freq</td><td>3000</td><td>2500</td><td>3000</td><td>3000</td></tr>
+        <tr><td>image_transforms</td><td>false</td><td>false</td><td>false</td><td>true(3)</td></tr>
+      </tbody>
+    </table>
+    <div class="gpu-note" style="border-left-color:var(--B);">
+      * 타입 B는 GPU VRAM 자동 감지: <code>24GB→32</code> / <code>12GB→24</code> / <code>8GB(RTX 3070)→16</code>
+    </div>
+    <div class="gpu-note" style="border-left-color:#EF4444;">
+      ⚠️ <strong>파국적 망각 점검:</strong> 파인튜닝 후 반드시 <code>--strategy.type=base</code> 롤아웃으로
+      <strong>원래 잘하던 구간이 여전히 되는지</strong> 확인하세요. 성능이 무너졌다면 ① lr을 더 낮추거나(절반)
+      ② steps를 줄이거나 ③ 기존 시연 데이터와 교정 데이터를 합친 데이터셋으로 다시 파인튜닝합니다.
+      개선이 확인되면 이 체크포인트로 다음 DAgger 라운드(r4)를 진행합니다.
+    </div>
+  </div>
+</section>
+
+<!-- 10개 × 3라운드 로드맵 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🔁 "10개 × 3라운드" 로드맵 — 정확히 무슨 뜻인가</h2>
+    <p class="section-lead">오해 주의: 1개 교정을 3번 하는 게 아니라, "10개 수집 → 파인튜닝 → 평가"라는 <strong>사이클을 3번</strong> 도는 것입니다.</p>
+
+    <div class="concept-box">
+      <h3>📐 용어 계층 (헷갈리지 않게)</h3>
+      <ul class="layer-list">
+        <li><span class="layer-badge">교정 1회</span> 롤아웃 중 로봇이 틀릴 때 리더 암으로 한 번 손대는 것 = <b style="color:#FCD34D">에피소드 1개</b></li>
+        <li><span class="layer-badge">10 에피소드</span> 그렇게 10번 교정해 모은 데이터셋 1개 (예: <code>rollout_dagger_..._r3</code>)</li>
+        <li><span class="layer-badge">1 라운드</span> "10개 수집 → 파인튜닝(train 1회) → 평가" 전체 사이클 1번</li>
+        <li><span class="layer-badge">3 라운드</span> 위 사이클 3번 반복 → 사람 교정 총 <b style="color:#FCD34D">약 30번</b>, 파인튜닝 실행 총 <b style="color:#FCD34D">3번</b></li>
+      </ul>
+    </div>
+
+    <div class="roadmap">
+      <div class="rd-step" style="--rc:#8B5CF6">
+        <div class="rd-round">ROUND 1 · r3</div>
+        <div class="rd-title">정책 v2 → v3</div>
+        <div class="rd-flow">정책 v2 롤아웃 → <b>교정 10개</b> 수집 → 파인튜닝 → 정책 v3<br><span style="color:#64748B">이 문서의 명령어가 여기에 해당</span></div>
+      </div>
+      <div class="rd-arrow">→</div>
+      <div class="rd-step" style="--rc:#3B82F6">
+        <div class="rd-round">ROUND 2 · r4</div>
+        <div class="rd-title">정책 v3 → v4</div>
+        <div class="rd-flow">정책 v3 롤아웃 → <b>새 실패 지점</b> 교정 10개 → 파인튜닝 → 정책 v4</div>
+      </div>
+      <div class="rd-arrow">→</div>
+      <div class="rd-step" style="--rc:#10B981">
+        <div class="rd-round">ROUND 3 · r5</div>
+        <div class="rd-title">정책 v4 → v5</div>
+        <div class="rd-flow">정책 v4 롤아웃 → <b>또 다른 실패 지점</b> 교정 10개 → 파인튜닝 → 정책 v5</div>
+      </div>
+    </div>
+
+    <div class="gpu-note" style="border-left-color:#8B5CF6;">
+      🔑 <strong>매 라운드 새 데이터 10개를 모으는 이유:</strong> 파인튜닝된 정책은 이전과 <strong>다른 새로운 지점</strong>에서 실패합니다.
+      같은 데이터를 3번 재사용하는 게 아니라, 매번 "지금 이 정책이 틀리는 곳"을 새로 10개 수집합니다.
+      그래서 라운드가 갈수록 <strong>개입 횟수가 줄어드는 것</strong>이 정책 개선의 핵심 지표입니다.
+      문헌상 누적 30개(3라운드) 시점이 "전반적 안정화" 구간입니다.
+    </div>
+  </div>
+</section>
+
+<!-- 2라운드 파인튜닝: 무엇이 바뀌나 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🔂 2라운드 파인튜닝 — 명령어는 어떻게 바뀌나</h2>
+    <p class="section-lead">
+      결론: <strong>파라미터(lr·steps·백본 준-동결 등)는 1라운드와 동일</strong>합니다.
+      바뀌는 건 <strong>경로 3개</strong>이고, 여기에 <strong>데이터 전략 선택</strong>이 하나 추가됩니다.
+    </p>
+
+    <div class="concept-box">
+      <h3>🔧 바뀌는 경로 3개 (변수만 교체)</h3>
+      <ul class="layer-list">
+        <li><span class="layer-badge">PRETRAINED_MODEL</span> r3 파인튜닝 결과(정책 v3)를 이어받음 → <code>outputs/train/act_typeX_dagger_ft_r3/checkpoints/{최적}/pretrained_model</code></li>
+        <li><span class="layer-badge">REPO_ID</span> r4에서 새로 수집한 교정 데이터 → <code>data/rollout_dagger_..._r4</code></li>
+        <li><span class="layer-badge">OUTPUT_DIR</span> 라운드 구분 → <code>outputs/train/act_typeX_dagger_ft_r4</code></li>
+      </ul>
+    </div>
+
+    <div class="gpu-note" style="border-left-color:#EF4444;">
+      ⚠️ <strong>가장 흔한 실수:</strong> <code>PRETRAINED_MODEL</code>을 <strong>원본 정책(r2)</strong>으로 그대로 두는 것.
+      2라운드는 <strong>1라운드 결과(v3)</strong>에서 이어받아야 개선이 누적됩니다. 매 라운드 이 경로를 직전 결과로 갱신하세요.
+    </div>
+
+    <h3 style="color:white; font-size:1.15rem; margin:2rem 0 0.75rem;">📦 핵심 선택 — 데이터를 교체할까, 누적할까?</h3>
+    <p class="section-lead">2라운드부터 실질적으로 중요한 결정입니다. 두 방식 모두 실무에서 쓰이며, 트레이드오프가 다릅니다.</p>
+
+    <div class="r2-grid">
+      <div class="r2-card r2-swap">
+        <div class="r2-head">🔄 교체 (r4 10개만)</div>
+        <div class="r2-body">
+          <span class="tag">REPO_ID = r4 데이터셋</span>
+          <p>이번 라운드에서 새로 수집한 교정 10개만 사용. 지금 정책이 틀리는 <strong>최신 실패 지점</strong>에 집중.</p>
+          <p style="color:#94A3B8; font-size:0.82rem;">장점: 빠르고 최신 실패에 반응. 단점: 이전 교정(r3)을 잊을 위험(망각).</p>
+          <div class="r2-verdict">권장: 매 라운드 <strong>같은 종류의 실패</strong>가 반복될 때, 또는 빠른 반복이 목표일 때.</div>
+        </div>
+      </div>
+      <div class="r2-card r2-accum">
+        <div class="r2-head">➕ 누적 (r3+r4 = 20개)</div>
+        <div class="r2-body">
+          <span class="tag">REPO_ID = 합친 데이터셋</span>
+          <p>이전 교정(r3)과 이번 교정(r4)을 <strong>합쳐서</strong> 학습. 라운드가 갈수록 데이터가 쌓임(DAgger의 "Aggregation").</p>
+          <p style="color:#94A3B8; font-size:0.82rem;">장점: 망각에 강하고 안정적. 단점: 데이터가 커져 학습 시간 소폭 증가.</p>
+          <div class="r2-verdict">권장(기본값): DAgger 원래 철학. <strong>망각이 걱정되면 무조건 이쪽.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gpu-note" style="border-left-color:#10B981;">
+      💡 <strong>DAgger의 이름이 곧 답:</strong> DAgger = <strong>Da</strong>taset <strong>Agg</strong>regation(데이터 누적).
+      원래 정의상 <strong>누적</strong>이 정석입니다. 다만 백본 준-동결 + 낮은 lr로 이미 망각을 억제하고 있으므로,
+      빠른 실습에서는 교체 방식도 무방합니다. <strong>수업 기본값은 누적</strong>으로 두고, 교체는 시간이 급할 때의 옵션으로 안내하세요.
+    </div>
+
+    <h3 style="color:white; font-size:1.15rem; margin:2rem 0 0.75rem;">📝 2라운드 명령어 예시 (타입 B · 누적 방식)</h3>
+    <p class="section-lead">1라운드 타입 B와 <strong>딱 3줄만</strong> 다릅니다(초록 하이라이트). 나머지는 완전히 동일합니다.</p>
+    <div class="code-card">
+      <div class="code-head hcB">
+        <div class="code-letter lB">B</div>
+        <div class="code-name">타입 B — 2라운드(r4) 파인튜닝<small>정책 v3에서 이어받기 · r3+r4 누적 데이터</small></div>
+        <button class="code-copy" data-target="codeR2">📋 복사</button>
+      </div>
+<pre class="code" id="codeR2"><span class="cmt"># 변수 3개만 r4 기준으로 갱신 (나머지 명령은 1라운드 타입 B와 동일)</span>
+<span class="new"><span class="var">PRETRAINED_MODEL</span>=outputs/train/act_typeB_dagger_ft_r3/checkpoints/<span class="val">best</span>/pretrained_model  <span class="cmt"># ← 1라운드 결과(v3)</span></span>
+<span class="new"><span class="var">REPO_ID</span>=data/rollout_dagger_pink_task_v3_r3r4_merged  <span class="cmt"># ← r3+r4 누적(20개)</span></span>
+<span class="new"><span class="var">OUTPUT_DIR</span>=outputs/train/act_typeB_dagger_ft_r4</span>
+
+<span class="cmt"># GPU VRAM 자동 감지 (1라운드와 동일)</span>
+<span class="var">TOTAL_MB</span>=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1)
+<span class="cmd">if</span>   [ <span class="str">"$TOTAL_MB"</span> -ge 20000 ]; <span class="cmd">then</span> <span class="var">BATCH_SIZE</span>=32
+<span class="cmd">elif</span> [ <span class="str">"$TOTAL_MB"</span> -ge 11000 ]; <span class="cmd">then</span> <span class="var">BATCH_SIZE</span>=24
+<span class="cmd">else</span> <span class="var">BATCH_SIZE</span>=16; <span class="cmd">fi</span>
+
+<span class="env">PYTORCH_ALLOC_CONF</span>=expandable_segments:True \
+<span class="cmd">lerobot-train</span> \
+  <span class="flag">--policy.type</span>=<span class="val">act</span> \
+  <span class="flag">--policy.pretrained_path</span>=<span class="str">"${PRETRAINED_MODEL}"</span> \
+  <span class="flag">--dataset.repo_id</span>=<span class="str">"${REPO_ID}"</span> \
+  <span class="flag">--dataset.root</span>=<span class="str">"${DATASET_ROOT}"</span> \
+  <span class="flag">--output_dir</span>=<span class="str">"${OUTPUT_DIR}"</span> \
+  <span class="flag">--job_name</span>=<span class="val">act_typeB_dagger_ft_r4</span> \
+  <span class="cmt"># ↓↓↓ 아래 파라미터는 1라운드 타입 B와 100% 동일 ↓↓↓</span>
+  <span class="flag">--batch_size</span>=<span class="str">"${BATCH_SIZE}"</span> \
+  <span class="flag">--steps</span>=<span class="val">12000</span> \
+  <span class="flag">--save_freq</span>=<span class="val">3000</span> \
+  <span class="flag">--policy.optimizer_lr</span>=<span class="val">5e-6</span> \
+  <span class="flag">--policy.optimizer_lr_backbone</span>=<span class="val">1e-6</span>   <span class="cmt"># 백본 준-동결</span> \
+  <span class="cmt"># ... (chunk_size·dim_model·use_vae 등 나머지 전부 동일) ...</span>
+  <span class="flag">--policy.push_to_hub</span>=<span class="val">false</span> \
+  <span class="flag">--wandb.enable</span>=<span class="val">false</span></pre>
+    </div>
+
+    <div class="gpu-note" style="border-left-color:#F59E0B;">
+      🧩 <strong>누적 데이터셋 만드는 법:</strong> r3와 r4 데이터를 하나로 합치려면 두 롤아웃을 같은 <code>REPO_ID</code>로
+      이어 수집하거나(권장), 이미 나뉘어 있다면 LeRobot 데이터셋 병합 유틸로 합칩니다.
+      교체 방식이면 이 단계 없이 <code>REPO_ID=...._r4</code>만 지정하면 됩니다.
+    </div>
+  </div>
+</section>
+
+<!-- 체크포인트 선택 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">✅ 체크포인트 선택 — "마지막 = 최선"이 아니다</h2>
+    <p class="section-lead">스텝을 줄여도 소량 데이터 기준 수십 에폭이라, 과적합 구간을 지날 수 있습니다. save_freq마다 저장된 체크포인트 중 최적을 골라야 합니다.</p>
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.3rem 1.6rem;">
+      <div class="ck-item"><span class="ck-n">1</span><span class="ck-t"><strong>후보 나열:</strong> <code>outputs/.../checkpoints/</code>의 각 스텝(3000·6000·9000·12000…) 체크포인트를 후보로 둡니다.</span></div>
+      <div class="ck-item"><span class="ck-n">2</span><span class="ck-t"><strong>각 5회 평가:</strong> 후보마다 <code>--strategy.type=base</code> 롤아웃을 5회씩 돌려 성공률을 기록합니다.</span></div>
+      <div class="ck-item"><span class="ck-n">3</span><span class="ck-t"><strong>망각 동시 확인:</strong> 성공률뿐 아니라 <strong>원래 잘하던 구간이 여전히 되는지</strong>도 함께 봅니다(교정 안 한 부분).</span></div>
+      <div class="ck-item"><span class="ck-n">4</span><span class="ck-t"><strong>최적 채택:</strong> 성공률이 가장 높고 망각이 없는 체크포인트를 다음 라운드(r4)의 <code>PRETRAINED_MODEL</code>로 사용합니다.</span></div>
+      <div class="ck-item"><span class="ck-n">5</span><span class="ck-t"><strong>loss 조기 수렴 시:</strong> loss가 일찍 바닥을 치고 평평해지면 뒤쪽 체크포인트는 과적합일 가능성 → 중간 체크포인트가 최선일 때가 많습니다.</span></div>
+    </div>
+
+    <div class="gpu-note" style="border-left-color:#EF4444; margin-top:1.25rem;">
+      ⚠️ <strong>망각이 확인되면:</strong> ① <code>optimizer_lr_backbone</code>은 이미 1e-6이니 본체 <code>optimizer_lr</code>을 절반으로 →
+      ② steps를 더 축소 → ③ 그래도 무너지면 <strong>기존 시연 데이터 + 교정 데이터를 합친 데이터셋</strong>으로 재파인튜닝(가장 확실).
+    </div>
+  </div>
+</section>
+
+<footer style="background:#0F172A; color:#64748B; padding:2rem 0; text-align:center; font-size:0.85rem; border-top:1px solid var(--border);">
+  <div class="container">Physical AI Master Course · DAgger Fine-tuning 4 Types v3 — 백본 준-동결 · 라운드 반복 · 데이터 누적/교체</div>
+</footer>
+
+<script>
+  document.querySelectorAll('.code-copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var pre = document.getElementById(btn.getAttribute('data-target'));
+      var text = pre.innerText;
+      var done = function(){
+        var o = btn.innerHTML; btn.innerHTML = '✅ 복사됨'; btn.classList.add('copied');
+        setTimeout(function(){ btn.innerHTML = o; btn.classList.remove('copied'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function(){ fb(text,done); });
+      } else { fb(text,done); }
+    });
+  });
+  function fb(t,d){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); d(); }
+</script>
+</body>
+</html>
