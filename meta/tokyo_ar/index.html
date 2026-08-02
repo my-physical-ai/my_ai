@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>리틀 도쿄 AR — 손으로 만지는 미니 도시</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;overflow:hidden;font-family:'Segoe UI','Noto Sans KR',system-ui,sans-serif;}
+  #app{position:fixed;inset:0;} canvas{display:block;}
+  #title{position:fixed;top:0;left:0;right:0;z-index:10;padding:14px 18px;color:#1e293b;
+    background:linear-gradient(to bottom,rgba(255,255,255,.92),transparent);pointer-events:none;}
+  #title h1{font-size:17px;font-weight:800;} #title p{font-size:12.5px;color:#64748b;margin-top:2px;}
+  #loading{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:14px;background:#dfeaf2;color:#334155;font-size:15px;}
+  .spin{width:38px;height:38px;border:4px solid #cbd5e1;border-top-color:#2563eb;border-radius:50%;animation:sp 1s linear infinite;}
+  @keyframes sp{to{transform:rotate(360deg);}}
+  #panel{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:16px 14px;
+    display:flex;flex-direction:column;gap:8px;align-items:center;
+    background:linear-gradient(to top,rgba(255,255,255,.96),transparent);}
+  #panel .hint{font-size:12px;color:#64748b;text-align:center;}
+  #panel .row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;}
+  #panel button{border:0;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:700;
+    color:#fff;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.14);}
+  #ARButton{background:#1e293b !important;border-radius:12px !important;top:56px !important;bottom:auto !important;}
+</style>
+</head>
+<body>
+<script src="./model/model_data.js"></script>
+<div id="app"></div>
+<div id="title">
+  <h1>🏙️ 리틀 도쿄 AR <span style="font-size:12px;color:#94a3b8;font-weight:600">· 패스스루</span></h1>
+  <p>손을 대면 밝아지고, 양손으로 크기·회전 · 아래 버튼으로 크기 조절</p>
+</div>
+<div id="loading"><div class="spin"></div><div>도시 불러오는 중… (조금 큽니다)</div></div>
+<div id="panel"></div>
+
+<script type="importmap">
+{ "imports": { "three":"./lib/three.module.js", "three/addons/":"./lib/" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './lib/GLTFLoader.js';
+import { DRACOLoader } from './lib/DRACOLoader.js';
+import { ARButton } from './lib/ARButton.js';
+
+let camera, scene, renderer, clock, mixer, model, group;
+let hand1, hand2, controller1, controller2, raycaster;
+let touchLight, baseIntensity=0, targetIntensity=0;
+let grabbing=false, startDist=0, startScale=1, startAngle=0, startRotY=0;
+
+const BASE_SCALE = 0.5;                 // 기본(현재) 크기
+// 크기 버튼: 기본 대비 배율
+const SIZE_BTNS = [
+  { label:'1/4 크기',  factor:1/4,  color:0x2563eb },
+  { label:'1/10 크기', factor:1/10, color:0x7c3aed },
+  { label:'1/100 크기',factor:1/100,color:0xdc2626 },
+  { label:'원래대로',  factor:1,    color:0x059669 },
+];
+const button3D = [];                    // AR 공간 3D 버튼
+const tempMatrix = new THREE.Matrix4();
+
+init();
+
+function init(){
+  const app=document.getElementById('app');
+  camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.1,100);
+  camera.position.set(0,1.6,3);
+  scene=new THREE.Scene(); scene.background=new THREE.Color(0xdfeaf2);
+  clock=new THREE.Clock();
+
+  scene.add(new THREE.HemisphereLight(0xffffff,0x8d8d8d,2));
+  const dir=new THREE.DirectionalLight(0xffffff,1.5); dir.position.set(2,5,3); scene.add(dir);
+  touchLight=new THREE.PointLight(0xfff2cc,0,3,2); touchLight.position.set(0,0.6,0); scene.add(touchLight);
+
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(50,50),
+    new THREE.MeshPhongMaterial({color:0xcbd5e1,depthWrite:false}));
+  ground.rotation.x=-Math.PI/2; ground.position.y=-0.01; ground.name='previewGround'; scene.add(ground);
+
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight);
+  renderer.xr.enabled=true; renderer.setAnimationLoop(animate);
+  app.appendChild(renderer.domElement);
+
+  const arBtn=ARButton.createButton(renderer,{ optionalFeatures:['hand-tracking'] });
+  document.body.appendChild(arBtn);
+  renderer.xr.addEventListener('sessionstart',onEnterAR);
+  renderer.xr.addEventListener('sessionend',onExitAR);
+
+  // 손 트래킹
+  hand1=renderer.xr.getHand(0); scene.add(hand1);
+  hand2=renderer.xr.getHand(1); scene.add(hand2);
+
+  // 컨트롤러(3D 버튼 누르기용 - 손트래킹 안될 때 대비)
+  raycaster=new THREE.Raycaster();
+  controller1=renderer.xr.getController(0);
+  controller2=renderer.xr.getController(1);
+  [controller1,controller2].forEach(c=>{
+    c.addEventListener('selectstart',onSelect);
+    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-5)]);
+    const line=new THREE.Line(g,new THREE.LineBasicMaterial({color:0x22d3ee})); line.scale.z=5;
+    c.add(line); scene.add(c);
+  });
+
+  group=new THREE.Group();
+  group.position.set(0,0,-1.2);
+  group.scale.setScalar(BASE_SCALE);
+  scene.add(group);
+
+  const draco=new DRACOLoader(); draco.setDecoderPath('./lib/draco/');
+  const loader=new GLTFLoader(); loader.setDRACOLoader(draco);
+  loader.load(window.MODEL_DATA_URI,(gltf)=>{
+    model=gltf.scene; group.add(model);
+    mixer=new THREE.AnimationMixer(model);
+    mixer.clipAction(gltf.animations[0]).play();
+    buildPCButtons();
+    document.getElementById('loading').style.display='none';
+  }, undefined,(err)=>{
+    document.getElementById('loading').innerHTML=
+      '<div style="max-width:340px;text-align:center;line-height:1.6">😢 도시 로드 실패<br>HTTPS 서버로 실행했는지 확인해 주세요.</div>';
+    console.error(err);
+  });
+  addEventListener('resize',onResize);
+}
+
+// 크기 적용 (기본 크기 × 배율)
+function setSize(factor){
+  const s = BASE_SCALE * factor;
+  group.scale.setScalar(s);
+  // 손 조작 기준도 갱신(다음 양손 조작이 이 크기에서 시작되도록)
+  grabbing = false;
+}
+
+// PC 화면 버튼 (크기 버튼 + 안내)
+function buildPCButtons(){
+  const p=document.getElementById('panel');
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent='🖐 손을 대면 밝아짐 · ✋✋ 양손으로 크기/회전 · 아래 버튼으로 즉시 크기조절';
+  const row=document.createElement('div'); row.className='row';
+  SIZE_BTNS.forEach(b=>{
+    const btn=document.createElement('button');
+    btn.textContent=b.label;
+    btn.style.background='#'+b.color.toString(16).padStart(6,'0');
+    btn.onclick=()=>setSize(b.factor);
+    row.appendChild(btn);
+  });
+  p.append(hint,row);
+}
+
+// AR 공간 3D 크기 버튼
+function makeLabelTexture(text,hex){
+  const c=document.createElement('canvas'); c.width=300; c.height=110;
+  const x=c.getContext('2d'); const col='#'+hex.toString(16).padStart(6,'0');
+  x.fillStyle=col; roundRect(x,4,4,292,102,18); x.fill();
+  x.fillStyle='#fff'; x.font='bold 44px "Noto Sans KR",sans-serif';
+  x.textAlign='center'; x.textBaseline='middle'; x.fillText(text,150,57);
+  const t=new THREE.CanvasTexture(c); t.anisotropy=4; return t;
+}
+function roundRect(x,l,t,w,h,r){x.beginPath();x.moveTo(l+r,t);x.arcTo(l+w,t,l+w,t+h,r);
+  x.arcTo(l+w,t+h,l,t+h,r);x.arcTo(l,t+h,l,t,r);x.arcTo(l,t,l+w,t,r);x.closePath();}
+
+function build3DButtons(){
+  if(button3D.length){ button3D.forEach(m=>m.visible=true); return; }
+  SIZE_BTNS.forEach((b,i)=>{
+    const geo=new THREE.PlaneGeometry(0.24,0.088);
+    const mat=new THREE.MeshBasicMaterial({map:makeLabelTexture(b.label,b.color),transparent:true,side:THREE.DoubleSide});
+    const mesh=new THREE.Mesh(geo,mat);
+    // 왼쪽에 세로로 4개 나열 (도시 조작과 안 겹치게)
+    mesh.position.set(-0.5, 1.35 - i*0.13, -0.7);
+    mesh.userData={factor:b.factor};
+    scene.add(mesh); button3D.push(mesh);
+  });
+}
+
+// 컨트롤러 트리거로 3D 버튼 누르기
+function onSelect(event){
+  const c=event.target;
+  tempMatrix.identity().extractRotation(c.matrixWorld);
+  raycaster.ray.origin.setFromMatrixPosition(c.matrixWorld);
+  raycaster.ray.direction.set(0,0,-1).applyMatrix4(tempMatrix);
+  const hits=raycaster.intersectObjects(button3D,false);
+  if(hits.length){
+    const m=hits[0].object;
+    m.scale.setScalar(1.2); setTimeout(()=>m.scale.setScalar(1),130);
+    setSize(m.userData.factor);
+  }
+}
+
+function onEnterAR(){
+  scene.background=null;
+  const g=scene.getObjectByName('previewGround'); if(g)g.visible=false;
+  document.getElementById('panel').style.display='none';
+  build3DButtons();
+}
+function onExitAR(){
+  scene.background=new THREE.Color(0xdfeaf2);
+  const g=scene.getObjectByName('previewGround'); if(g)g.visible=true;
+  document.getElementById('panel').style.display='flex';
+  button3D.forEach(m=>m.visible=false);
+}
+
+function fingerTip(hand){
+  const j=hand.joints&&hand.joints['index-finger-tip'];
+  return (j&&j.position)?j.position:null;
+}
+function palmPos(hand){
+  const j=hand.joints&&(hand.joints['middle-finger-metacarpal']||hand.joints['wrist']);
+  return (j&&j.position)?j.position:null;
+}
+function onResize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
+
+const _v=new THREE.Vector3();
+function animate(){
+  const dt=clock.getDelta(); if(mixer)mixer.update(dt);
+  if(renderer.xr.isPresenting&&model){ handleTouch(); handleTwoHands(); 
+    // 3D 버튼이 항상 나를 향하게
+    if(button3D.length){ const cam=renderer.xr.getCamera(); button3D.forEach(m=>m.lookAt(cam.position)); }
+  }
+  baseIntensity+=(targetIntensity-baseIntensity)*0.15; touchLight.intensity=baseIntensity;
+  group.getWorldPosition(_v); touchLight.position.copy(_v); touchLight.position.y+=0.5;
+  renderer.render(scene,camera);
+}
+
+function handleTouch(){
+  const cityPos=new THREE.Vector3(); group.getWorldPosition(cityPos);
+  let near=false;
+  for(const h of [hand1,hand2]){
+    const tip=fingerTip(h);
+    if(tip && tip.distanceTo(cityPos)<0.35) near=true;
+  }
+  targetIntensity=near?3.0:0.0;
+}
+function handleTwoHands(){
+  const p1=palmPos(hand1),p2=palmPos(hand2);
+  if(p1&&p2){
+    const dist=p1.distanceTo(p2);
+    const angle=Math.atan2(p2.x-p1.x,p2.z-p1.z);
+    if(!grabbing){ grabbing=true; startDist=dist; startScale=group.scale.x; startAngle=angle; startRotY=group.rotation.y; }
+    else{
+      let s=startScale*(dist/Math.max(startDist,0.05));
+      s=Math.min(Math.max(s,0.005),2.0);   // 최소 매우 작게까지 허용
+      group.scale.setScalar(s);
+      group.rotation.y=startRotY+(angle-startAngle);
+    }
+  } else grabbing=false;
+}
+</script>
+</body>
+</html>

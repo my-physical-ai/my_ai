@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>떠다니는 구슬 우주 VR — 손으로 만지기</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;overflow:hidden;font-family:'Segoe UI','Noto Sans KR',system-ui,sans-serif;}
+  #app{position:fixed;inset:0;} canvas{display:block;}
+  #title{position:fixed;top:0;left:0;right:0;z-index:10;padding:14px 18px;color:#f1f5f9;
+    background:linear-gradient(to bottom,rgba(15,23,42,.8),transparent);pointer-events:none;}
+  #title h1{font-size:17px;font-weight:800;} #title p{font-size:12.5px;color:#a5b4fc;margin-top:2px;}
+  #panel{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:16px 14px;
+    display:flex;flex-direction:column;gap:8px;align-items:center;
+    background:linear-gradient(to top,rgba(15,23,42,.85),transparent);}
+  #panel .hint{font-size:12px;color:#a5b4fc;text-align:center;}
+  #panel .row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;}
+  #panel button{border:0;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:700;
+    color:#fff;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.3);}
+  #VRButton{background:#312e81 !important;border-radius:12px !important;top:56px !important;bottom:auto !important;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="title">
+  <h1>✨ 떠다니는 구슬 우주 <span style="font-size:12px;color:#818cf8;font-weight:600">· 손으로 만지기</span></h1>
+  <p>'VR 시작' → 손으로 구슬을 만지면 하얗게! 3D 버튼도 손으로 누르기</p>
+</div>
+<div id="panel"></div>
+<div id="status" style="position:fixed;top:96px;left:0;right:0;z-index:11;text-align:center;
+  color:#fde68a;font-size:13px;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.8);"></div>
+<div id="bigmsg" style="position:fixed;top:50%;left:0;right:0;transform:translateY(-50%);z-index:12;
+  text-align:center;color:#fca5a5;font-size:16px;font-weight:700;padding:0 20px;
+  text-shadow:0 1px 4px rgba(0,0,0,.9);line-height:1.6;"></div>
+
+<script type="importmap">
+{ "imports": { "three":"./lib/three.module.js", "three/addons/":"./lib/" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { VRButton } from './lib/VRButton.js';
+
+let camera, scene, renderer, clock;
+let hand1, hand2, controller1, controller2, raycaster;
+let rig;                                  // 구슬/버튼을 담는 그룹 (사용자 중심)
+const spheres = [];
+const buttons3D = [];
+let spinning = true, speed = 1.0;
+const tempMatrix = new THREE.Matrix4();
+
+// 3D/PC 버튼 정의 (init 호출 전에 선언해야 함 - TDZ 방지)
+// kind:'radio' = 하나만 선택(하얗게 유지) / kind:'toggle' = 회전 켜고끄기
+const BTN_DEFS = [
+  { id:'slow',  label:'느리게',   color:0x2563eb, kind:'radio',  act:()=>{ speed=0.4; } },
+  { id:'normal',label:'보통',     color:0x0891b2, kind:'radio',  act:()=>{ speed=1.0; } },
+  { id:'fast',  label:'빠르게',   color:0x7c3aed, kind:'radio',  act:()=>{ speed=2.2; } },
+  { id:'reset', label:'색 초기화', color:0xdb2777, kind:'action', act:()=>{ resetColors(); } },
+  { id:'spin',  label:'회전 On/Off', color:0x059669, kind:'toggle', act:()=>{ spinning=!spinning; } },
+];
+
+// ── 효과음 (WebAudio로 코드 생성, 외부 파일 없음) ──
+let audioCtx = null;
+function initAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+function beep(freq=880, dur=0.12, type='sine', vol=0.25){
+  if(!audioCtx) return;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type=type; o.frequency.value=freq; o.connect(g); g.connect(audioCtx.destination);
+  const t=audioCtx.currentTime; g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.start(t); o.stop(t+dur);
+}
+function chime(){ beep(660,0.09,'triangle'); setTimeout(()=>beep(990,0.12,'triangle'),70); }
+function pop(){ beep(1200,0.07,'sine',0.3); }
+
+// 화면 상태 표시 (진단용)
+function setStatus(msg){ const el=document.getElementById('status'); if(el) el.textContent=msg; }
+
+
+function init(){
+  camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.01, 100);
+  camera.position.set(0, 1.6, 0);
+  scene = new THREE.Scene();
+  clock = new THREE.Clock();
+
+  // 코드로 만든 그라데이션 하늘
+  const skyGeo = new THREE.SphereGeometry(50, 32, 16);
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    uniforms:{ top:{value:new THREE.Color(0x1e1b4b)}, bottom:{value:new THREE.Color(0x0f172a)} },
+    vertexShader:`varying vec3 vP; void main(){ vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`varying vec3 vP; uniform vec3 top; uniform vec3 bottom;
+      void main(){ float h=normalize(vP).y*0.5+0.5; gl_FragColor=vec4(mix(bottom,top,h),1.0);}`
+  });
+  scene.add(new THREE.Mesh(skyGeo, skyMat));
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x334155, 2));
+  const dir = new THREE.DirectionalLight(0xffffff, 2); dir.position.set(5,10,5); scene.add(dir);
+
+  // 구슬을 담는 리그: 사용자 눈높이(1.6)에 중심을 둠
+  // VR에서 헤드셋이 카메라를 제어하므로, 구슬은 원점(0) 주위에 두고 리그를 통째로 눈높이로 올림
+  rig = new THREE.Group();
+  rig.position.set(0, 1.6, 0);
+  scene.add(rig);
+
+  // 구슬 200개 (사용자 주위 구 껍질, 리그 기준 상대좌표)
+  const geo = new THREE.SphereGeometry(0.1, 20, 14);
+  for (let i=0;i<200;i++){
+    const hue = Math.random();
+    const baseColor = new THREE.Color().setHSL(hue,0.7,0.6);
+    const mat = new THREE.MeshStandardMaterial({ color:baseColor, metalness:0.5, roughness:0.2 });
+    const m = new THREE.Mesh(geo, mat);
+    const r = 0.8 + Math.random()*6;
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos(Math.random()*2-1);
+    // 원점 주위 (눈높이는 리그가 담당) — 전방향 배치
+    m.position.set(r*Math.sin(phi)*Math.cos(theta), (r*Math.cos(phi))*0.5, r*Math.sin(phi)*Math.sin(theta));
+    const s = Math.random()*2+0.7; m.scale.setScalar(s);
+    m.userData = { baseR:r, theta, phi, sp:Math.random()*0.5+0.3, radius:0.1*s, white:false, baseColor };
+    rig.add(m); spheres.push(m);
+  }
+
+  renderer = new THREE.WebGLRenderer({ antialias:true });
+  renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight);
+  renderer.xr.enabled = true;
+  renderer.setAnimationLoop(animate);
+  document.body.appendChild(renderer.domElement);
+
+  // ── 직접 만든 ENTER VR 버튼 (실패 이유를 화면에 표시) ──
+  const bigmsg = document.getElementById('bigmsg');
+  function showBig(msg){ if(bigmsg) bigmsg.innerHTML = msg; }
+
+  if (!('xr' in navigator)){
+    showBig('이 브라우저는 WebXR을 지원하지 않습니다.<br>Quest 브라우저에서 접속했는지,<br>https:// 인지 확인하세요.');
+  } else {
+    navigator.xr.isSessionSupported('immersive-vr').then((supported)=>{
+      if (!supported){
+        showBig('immersive-vr 미지원.<br>Quest 브라우저를 최신으로 업데이트하세요.');
+        return;
+      }
+      // 버튼 만들기
+      const b = document.createElement('button');
+      b.id = 'VRButton'; b.textContent = 'ENTER VR';
+      b.style.cssText = 'position:absolute;bottom:20px;left:calc(50% - 60px);width:120px;'
+        + 'padding:14px 6px;border:1px solid #fff;border-radius:8px;background:#312e81;'
+        + 'color:#fff;font:bold 15px sans-serif;z-index:999;cursor:pointer;';
+      let session = null;
+      b.onclick = async ()=>{
+        if (session){ session.end(); return; }
+        showBig('VR 진입 시도 중…');
+        try{
+          session = await navigator.xr.requestSession('immersive-vr', {
+            optionalFeatures: ['hand-tracking','local-floor','bounded-floor']
+          });
+          await renderer.xr.setSession(session);
+          b.textContent = 'EXIT VR';
+          showBig('');
+          session.addEventListener('end', ()=>{ session=null; b.textContent='ENTER VR'; });
+        }catch(err){
+          // 손트래킹 등 옵션 때문에 실패했을 수 있음 → 옵션 없이 재시도
+          try{
+            showBig('기본 모드로 재시도 중…');
+            session = await navigator.xr.requestSession('immersive-vr', {
+              optionalFeatures: ['local-floor']
+            });
+            await renderer.xr.setSession(session);
+            b.textContent = 'EXIT VR';
+            showBig('(손 트래킹 없이 진입됨 — 컨트롤러를 쓰세요)');
+            setTimeout(()=>showBig(''), 4000);
+            session.addEventListener('end', ()=>{ session=null; b.textContent='ENTER VR'; });
+          }catch(err2){
+            showBig('VR 진입 실패:<br>' + (err2 && err2.message ? err2.message : err2)
+              + '<br><br>Quest 브라우저 주소창 옆<br>자물쇠/권한에서 VR을 허용하세요.');
+            session = null;
+          }
+        }
+      };
+      document.body.appendChild(b);
+    }).catch((e)=>{
+      showBig('VR 지원 확인 실패:<br>' + (e && e.message ? e.message : e));
+    });
+  }
+  renderer.xr.addEventListener('sessionstart', ()=>{
+    initAudio(); build3DButtons();
+    document.getElementById('panel').style.display='none';
+    setStatus('VR 세션 시작됨 — 손을 눈앞에 들어보세요');
+  });
+  renderer.xr.addEventListener('sessionend', ()=>{
+    buttons3D.forEach(b=>b.visible=false);
+    document.getElementById('panel').style.display='flex';
+    setStatus('');
+  });
+
+  // 손 트래킹
+  hand1 = renderer.xr.getHand(0); scene.add(hand1);
+  hand2 = renderer.xr.getHand(1); scene.add(hand2);
+  // 컨트롤러(백업)
+  raycaster = new THREE.Raycaster();
+  controller1 = renderer.xr.getController(0);
+  controller2 = renderer.xr.getController(1);
+  [controller1,controller2].forEach(c=>{
+    c.addEventListener('selectstart', onControllerSelect);
+    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-5)]);
+    c.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0x818cf8})));
+    scene.add(c);
+  });
+
+  buildPCButtons();
+  addEventListener('resize', onResize);
+}
+
+// ── 3D 버튼 (VR 안, 손으로 만지기) ──
+function makeBtnTexture(text,hex,textColor){
+  const c=document.createElement('canvas'); c.width=280; c.height=110; const x=c.getContext('2d');
+  x.fillStyle='#'+hex.toString(16).padStart(6,'0'); rr(x,4,4,272,102,20); x.fill();
+  x.fillStyle=textColor||'#fff'; x.font='bold 40px "Noto Sans KR",sans-serif'; x.textAlign='center'; x.textBaseline='middle';
+  x.fillText(text,140,57); const t=new THREE.CanvasTexture(c); t.anisotropy=4; return t;
+}
+function rr(x,l,t,w,h,r){x.beginPath();x.moveTo(l+r,t);x.arcTo(l+w,t,l+w,t+h,r);x.arcTo(l+w,t+h,l,t+h,r);x.arcTo(l,t+h,l,t,r);x.arcTo(l,t,l+w,t,r);x.closePath();}
+
+function build3DButtons(){
+  if(buttons3D.length){ buttons3D.forEach(b=>b.visible=true); refreshButtonVisuals(); return; }
+  BTN_DEFS.forEach((d,i)=>{
+    const geo=new THREE.PlaneGeometry(0.22,0.086);
+    // 원색 텍스처 + 하얀(선택) 텍스처를 미리 만들어 교체용으로 보관
+    const texNormal = makeBtnTexture(d.label, d.color);
+    const texWhite  = makeBtnTexture(d.label, 0xffffff, '#1e293b'); // 하얀 배경 + 진한 글씨
+    const mat=new THREE.MeshBasicMaterial({map:texNormal,transparent:true,side:THREE.DoubleSide});
+    const mesh=new THREE.Mesh(geo,mat);
+    mesh.position.set(-0.35+ (i%2)*0.7, 0.0 - Math.floor(i/2)*0.13, -0.6);
+    mesh.userData={ def:d, cool:0, texNormal, texWhite };
+    rig.add(mesh); buttons3D.push(mesh);
+  });
+  refreshButtonVisuals();
+}
+
+// 현재 상태(speed, spinning)에 맞게 버튼 색을 하얗게/원색으로 갱신
+let selectedRadioId = 'normal';   // 기본 선택: 보통
+function refreshButtonVisuals(){
+  for (const mesh of buttons3D){
+    const d = mesh.userData.def;
+    let on = false;
+    if (d.kind === 'radio')  on = (d.id === selectedRadioId);
+    if (d.kind === 'toggle') on = spinning;        // 회전 켜져 있으면 하얗게
+    mesh.material.map = on ? mesh.userData.texWhite : mesh.userData.texNormal;
+    mesh.material.needsUpdate = true;
+  }
+}
+
+function pressButton(mesh){
+  if(mesh.userData.cool>0) return;
+  mesh.userData.cool = 0.4;
+  const d = mesh.userData.def;
+  chime();
+  mesh.scale.setScalar(1.18); setTimeout(()=>mesh.scale.setScalar(1),140);
+
+  if (d.kind === 'radio'){
+    selectedRadioId = d.id;      // 이 버튼만 선택 → 나머지는 원색으로
+  } else if (d.kind === 'action'){
+    // 잠깐 하얗게 반짝였다가 원색 복귀
+    mesh.material.map = mesh.userData.texWhite; mesh.material.needsUpdate = true;
+    setTimeout(()=>{ mesh.material.map = mesh.userData.texNormal; mesh.material.needsUpdate = true; }, 250);
+  }
+  d.act();                       // 실제 동작 실행
+  if (d.kind !== 'action') refreshButtonVisuals();  // radio/toggle 상태 반영
+}
+
+// 컨트롤러 트리거로도 버튼 누르기(백업)
+function onControllerSelect(event){
+  const c=event.target;
+  tempMatrix.identity().extractRotation(c.matrixWorld);
+  raycaster.ray.origin.setFromMatrixPosition(c.matrixWorld);
+  raycaster.ray.direction.set(0,0,-1).applyMatrix4(tempMatrix);
+  const hit=raycaster.intersectObjects(buttons3D.filter(b=>b.visible),false);
+  if(hit.length) pressButton(hit[0].object);
+}
+
+function resetColors(){
+  spheres.forEach(m=>{ m.userData.white=false; m.material.color.copy(m.userData.baseColor); });
+  pop();
+}
+
+function buildPCButtons(){
+  const p=document.getElementById('panel');
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent='VR 안: 손으로 구슬을 만지면 하얗게! · 아래는 PC 미리보기 버튼';
+  const row=document.createElement('div'); row.className='row';
+  BTN_DEFS.forEach(d=>{
+    const b=document.createElement('button'); b.textContent=d.label; b.dataset.id=d.id;
+    b.style.background='#'+d.color.toString(16).padStart(6,'0');
+    b.onclick=()=>{
+      initAudio(); chime();
+      if (d.kind==='radio') selectedRadioId=d.id;
+      d.act();
+      refreshPCButtons(row);
+      refreshButtonVisuals();
+    };
+    row.appendChild(b);
+  });
+  p.append(hint,row);
+  refreshPCButtons(row);
+}
+// PC 버튼: 선택된 radio / 켜진 toggle 을 하얗게
+function refreshPCButtons(row){
+  row.querySelectorAll('button').forEach(b=>{
+    const d = BTN_DEFS.find(x=>x.id===b.dataset.id);
+    let on=false;
+    if(d.kind==='radio') on=(d.id===selectedRadioId);
+    if(d.kind==='toggle') on=spinning;
+    if(on){ b.style.background='#fff'; b.style.color='#1e293b'; }
+    else { b.style.background='#'+d.color.toString(16).padStart(6,'0'); b.style.color='#fff'; }
+  });
+}
+
+function fingerTips(){
+  const tips=[];
+  for(const h of [hand1,hand2]){
+    const j=h.joints && h.joints['index-finger-tip'];
+    if(j && j.position) tips.push(j.position);
+  }
+  return tips;
+}
+
+function onResize(){ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); }
+
+const _p = new THREE.Vector3();
+let phase = 0;                  // 누적 회전 위상 (멈춤/재생/속도변경에도 연속)
+function animate(){
+  const dt = clock.getDelta();
+  const t = clock.getElapsedTime();
+
+  if (spinning){
+    phase += dt * speed * 0.2;   // 켜져 있을 때만 위상 누적 → 멈췄다 켜도 이어짐
+    for (const m of spheres){
+      const u=m.userData;
+      const th = u.theta + phase * u.sp;
+      m.position.x=u.baseR*Math.sin(u.phi)*Math.cos(th);
+      m.position.z=u.baseR*Math.sin(u.phi)*Math.sin(th);
+      m.position.y=(u.baseR*Math.cos(u.phi))*0.5+Math.sin(t*u.sp+u.theta)*0.3;
+    }
+  }
+
+  if (renderer.xr.isPresenting){
+    const tips = fingerTips();
+    // 진단: 손이 잡히는지 표시
+    if (tips.length === 0) setStatus('손을 눈앞에 들어보세요 (손 트래킹 대기 중)');
+    else setStatus('손 인식됨 ✋ — 구슬이나 버튼을 만져보세요');
+    // ① 공 만지면 하얗게
+    for (const m of spheres){
+      if (m.userData.white) continue;
+      m.getWorldPosition(_p);
+      for (const tip of tips){
+        if (tip.distanceTo(_p) < m.userData.radius + 0.04){
+          m.userData.white = true;
+          m.material.color = new THREE.Color(0xffffff);
+          pop();
+          break;
+        }
+      }
+    }
+    // ② 3D 버튼 만지면 눌림
+    for (const b of buttons3D){
+      if (!b.visible) continue;
+      if (b.userData.cool>0) b.userData.cool -= dt;
+      b.getWorldPosition(_p);
+      for (const tip of tips){
+        if (tip.distanceTo(_p) < 0.09){ pressButton(b); break; }
+      }
+      // 버튼이 나를 향하게
+      const cam=renderer.xr.getCamera(); b.lookAt(cam.position);
+    }
+  }
+
+  renderer.render(scene, camera);
+}
+
+// 모든 선언이 끝난 뒤 시작 (TDZ 완전 방지)
+init();
+</script>
+</body>
+</html>

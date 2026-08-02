@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>로봇 동작 체험 (패스스루 AR) — 공간 버튼</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; overflow:hidden; font-family:'Segoe UI','Noto Sans KR',system-ui,sans-serif; }
+  #app { position:fixed; inset:0; }
+  canvas { display:block; }
+  #title { position:fixed; top:0; left:0; right:0; z-index:10; padding:14px 18px; color:#1e293b;
+    background:linear-gradient(to bottom, rgba(255,255,255,.92), rgba(255,255,255,0)); pointer-events:none; }
+  #title h1 { font-size:17px; font-weight:800; }
+  #title p  { font-size:12.5px; color:#64748b; margin-top:2px; }
+  #loading { position:fixed; inset:0; z-index:20; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; background:#e0e0e0; color:#334155; font-size:15px; }
+  .spin { width:38px; height:38px; border:4px solid #cbd5e1; border-top-color:#2563eb;
+    border-radius:50%; animation:sp 1s linear infinite; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+  /* PC 미리보기용 하단 버튼 (AR에선 3D 버튼 사용) */
+  #pcpanel { position:fixed; left:0; right:0; bottom:0; z-index:10; padding:16px 14px;
+    background:linear-gradient(to top, rgba(255,255,255,.96), transparent);
+    display:flex; gap:10px; justify-content:center; }
+  #pcpanel button { border:0; border-radius:12px; padding:12px 20px; font-size:15px; font-weight:700;
+    color:#fff; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,.14); }
+  #ARButton { background:#1e293b !important; border-radius:12px !important; top:56px !important; bottom:auto !important; }
+</style>
+</head>
+<body>
+<script src="./model/model_data.js"></script>
+<div id="app"></div>
+<div id="title">
+  <h1>🤖 로봇 동작 체험 <span style="font-size:12px;color:#94a3b8;font-weight:600">· 패스스루 AR</span></h1>
+  <p>'AR 시작' → 내 앞에 로봇 + 버튼 3개 등장 · 컨트롤러로 겨눠 트리거로 누르기</p>
+</div>
+<div id="loading"><div class="spin"></div><div>로봇 불러오는 중…</div></div>
+<div id="pcpanel"></div>
+
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './lib/GLTFLoader.js';
+import { OrbitControls } from './lib/OrbitControls.js';
+import { ARButton } from './lib/ARButton.js';
+
+let camera, scene, renderer, clock, mixer, model, face;
+let actions = {}, activeAction, previousAction, currentState = 'Walking';
+let controller1, controller2, raycaster;
+const buttonMeshes = [];              // 3D 버튼들
+const tempMatrix = new THREE.Matrix4();
+
+// 요청한 3개 동작
+const BUTTONS = [
+  { name:'Dance', label:'춤추기', color:0x7c3aed, once:false },
+  { name:'Death', label:'쓰러지기', color:0xdc2626, once:true },
+  { name:'Jump',  label:'점프',   color:0x2563eb, once:true },
+];
+
+init();
+
+function init() {
+  const app = document.getElementById('app');
+  camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
+  camera.position.set(0, 1.6, 3);
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xe0e0e0);
+  scene.fog = new THREE.Fog(0xe0e0e0, 20, 100);
+  clock = new THREE.Clock();
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 3));
+  const dir = new THREE.DirectionalLight(0xffffff, 3); dir.position.set(0,20,10); scene.add(dir);
+
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000,2000),
+    new THREE.MeshPhongMaterial({ color:0xcbcbcb, depthWrite:false }));
+  ground.rotation.x = -Math.PI/2; ground.name='previewGround'; scene.add(ground);
+  const grid = new THREE.GridHelper(200,40,0,0); grid.material.opacity=0.2;
+  grid.material.transparent=true; grid.name='previewGrid'; scene.add(grid);
+
+  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+  renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth, innerHeight);
+  renderer.xr.enabled = true;
+  renderer.setAnimationLoop(animate);
+  app.appendChild(renderer.domElement);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0,1,0); controls.enablePan=false;
+  controls.minDistance=2; controls.maxDistance=20; controls.update();
+
+  const arBtn = ARButton.createButton(renderer, { optionalFeatures:['dom-overlay'], domOverlay:{ root:document.body } });
+  document.body.appendChild(arBtn);
+  renderer.xr.addEventListener('sessionstart', onEnterAR);
+  renderer.xr.addEventListener('sessionend', onExitAR);
+
+  // ── 컨트롤러 2개 + 레이저 ──
+  raycaster = new THREE.Raycaster();
+  controller1 = renderer.xr.getController(0);
+  controller2 = renderer.xr.getController(1);
+  [controller1, controller2].forEach(c => {
+    c.addEventListener('selectstart', onSelect);   // 트리거 누름
+    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-5)]);
+    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color:0x22d3ee }));
+    line.name = 'ray'; line.scale.z = 5;
+    c.add(line);
+    scene.add(c);
+  });
+
+  const loader = new GLTFLoader();
+  loader.load(window.MODEL_DATA_URI, (gltf) => {
+    model = gltf.scene; scene.add(model);
+    setupAnimations(gltf.animations);
+    buildPCButtons();
+    document.getElementById('loading').style.display='none';
+  }, undefined, (err) => {
+    document.getElementById('loading').innerHTML =
+      '<div style="max-width:340px;text-align:center;line-height:1.6">😢 로봇 로드 실패<br>HTTPS 서버로 실행했는지 확인해 주세요.</div>';
+    console.error(err);
+  });
+  addEventListener('resize', onResize);
+}
+
+// ── 3D 버튼 생성 (텍스처에 한글 라벨) ──
+function makeLabelTexture(text, hex) {
+  const c = document.createElement('canvas'); c.width=256; c.height=128;
+  const x = c.getContext('2d');
+  const col = '#'+hex.toString(16).padStart(6,'0');
+  x.fillStyle = col; roundRect(x,4,4,248,120,20); x.fill();
+  x.fillStyle = '#fff'; x.font = 'bold 52px "Noto Sans KR",sans-serif';
+  x.textAlign='center'; x.textBaseline='middle'; x.fillText(text,128,66);
+  const t = new THREE.CanvasTexture(c); t.anisotropy=4; return t;
+}
+function roundRect(x,l,t,w,h,r){ x.beginPath(); x.moveTo(l+r,t); x.arcTo(l+w,t,l+w,t+h,r);
+  x.arcTo(l+w,t+h,l,t+h,r); x.arcTo(l,t+h,l,t,r); x.arcTo(l,t,l+w,t,r); x.closePath(); }
+
+function build3DButtons() {
+  // 이미 있으면 재사용
+  if (buttonMeshes.length) { buttonMeshes.forEach(m=>m.visible=true); return; }
+  BUTTONS.forEach((b, i) => {
+    const geo = new THREE.PlaneGeometry(0.28, 0.14);
+    const mat = new THREE.MeshBasicMaterial({ map: makeLabelTexture(b.label, b.color),
+      transparent:true, side:THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+    // 로봇 앞쪽, 가로로 3개 나란히, 눈높이보다 약간 아래
+    mesh.position.set(-0.35 + i*0.35, 1.1, -0.8);
+    mesh.userData = { action:b.name, once:b.once, base:b.color };
+    scene.add(mesh); buttonMeshes.push(mesh);
+  });
+}
+
+function onEnterAR() {
+  scene.background = null; scene.fog = null;
+  const g=scene.getObjectByName('previewGround'); if(g)g.visible=false;
+  const gr=scene.getObjectByName('previewGrid'); if(gr)gr.visible=false;
+  document.getElementById('pcpanel').style.display='none';
+  if (model){ model.position.set(0,0,-1.4); model.scale.setScalar(0.5); }
+  build3DButtons();
+}
+function onExitAR() {
+  scene.background = new THREE.Color(0xe0e0e0); scene.fog = new THREE.Fog(0xe0e0e0,20,100);
+  const g=scene.getObjectByName('previewGround'); if(g)g.visible=true;
+  const gr=scene.getObjectByName('previewGrid'); if(gr)gr.visible=true;
+  document.getElementById('pcpanel').style.display='flex';
+  if (model){ model.position.set(0,0,0); model.scale.setScalar(1); }
+  buttonMeshes.forEach(m=>m.visible=false);
+}
+
+// ── 컨트롤러 트리거로 버튼 누르기 ──
+function onSelect(event) {
+  const controller = event.target;
+  tempMatrix.identity().extractRotation(controller.matrixWorld);
+  raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+  raycaster.ray.direction.set(0,0,-1).applyMatrix4(tempMatrix);
+  const hits = raycaster.intersectObjects(buttonMeshes, false);
+  if (hits.length) {
+    const btn = hits[0].object;
+    flash(btn);
+    triggerAction(btn.userData.action, btn.userData.once);
+  }
+}
+function flash(mesh) {   // 눌린 피드백: 잠깐 커졌다 복귀
+  mesh.scale.setScalar(1.18);
+  setTimeout(()=>mesh.scale.setScalar(1), 130);
+}
+
+function triggerAction(name, once) {
+  if (!actions[name]) return;
+  if (once) {  // 점프·쓰러지기: 한 번 하고 걷기로 복귀
+    fadeToAction(name, 0.2);
+    const fin = () => { mixer.removeEventListener('finished', fin); fadeToAction('Walking', 0.3); currentState='Walking'; };
+    mixer.addEventListener('finished', fin);
+  } else {     // 춤추기: 계속
+    currentState = name; fadeToAction(name, 0.4);
+  }
+}
+
+function setupAnimations(animations) {
+  mixer = new THREE.AnimationMixer(model);
+  const onceNames = ['Death','Jump','Yes','No','Wave','Punch','ThumbsUp'];
+  for (const clip of animations) {
+    const a = mixer.clipAction(clip); actions[clip.name]=a;
+    if (onceNames.includes(clip.name)) { a.clampWhenFinished=true; a.loop=THREE.LoopOnce; }
+  }
+  face = model.getObjectByName('Head_4');
+  activeAction = actions['Walking']; activeAction.play();
+}
+function fadeToAction(name, dur) {
+  previousAction = activeAction; activeAction = actions[name];
+  if (previousAction && previousAction!==activeAction) previousAction.fadeOut(dur);
+  activeAction.reset().setEffectiveTimeScale(1).setEffectiveWeight(1).fadeIn(dur).play();
+}
+
+// PC 미리보기 버튼 (같은 3동작)
+function buildPCButtons() {
+  const p = document.getElementById('pcpanel');
+  BUTTONS.forEach(b => {
+    const btn = document.createElement('button');
+    btn.textContent = b.label;
+    btn.style.background = '#'+b.color.toString(16).padStart(6,'0');
+    btn.onclick = () => triggerAction(b.name, b.once);
+    p.appendChild(btn);
+  });
+}
+
+function onResize(){ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); }
+
+function animate() {
+  const dt = clock.getDelta();
+  if (mixer) mixer.update(dt);
+  // 버튼이 항상 카메라를 향하게 (읽기 쉽게)
+  if (renderer.xr.isPresenting && buttonMeshes.length) {
+    const cam = renderer.xr.getCamera();
+    buttonMeshes.forEach(m => m.lookAt(cam.position));
+  }
+  renderer.render(scene, camera);
+}
+</script>
+</body>
+</html>
