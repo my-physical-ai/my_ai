@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>phase 주석 실전 - 개수·카메라·그리퍼값 - Physical AI Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --color-primary: #7C3AED; --color-primary-light: #EDE9FE;
+    --color-secondary: #2563EB; --color-secondary-light: #DBEAFE;
+    --color-success: #059669; --color-success-light: #D1FAE5;
+    --color-warning: #D97706; --color-warning-light: #FEF3C7;
+    --color-danger: #DC2626; --color-danger-light: #FEE2E2;
+    --color-teal: #0891B2; --color-teal-light: #CFFAFE;
+    --color-amber: #D97706; --color-amber-light: #FEF3C7;
+    --color-surface: #F8FAFC; --color-card: #FFFFFF;
+    --color-text: #1E293B; --color-muted: #64748B; --color-border: #E2E8F0;
+  }
+  body { font-family: 'Noto Sans KR', sans-serif; color: var(--color-text); background: var(--color-surface); line-height: 1.75; }
+  code { font-family: 'JetBrains Mono', monospace; background: #F1F5F9; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.88em; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 3rem 0; }
+  section.alt { background: white; }
+
+  .hero { color: white; padding: 3.5rem 0 3rem; }
+  .hero-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .pill { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); padding: 0.35rem 0.9rem; border-radius: 999px; font-size: 0.82rem; font-weight: 500; }
+  .hero h1 { font-size: 2.4rem; font-weight: 900; line-height: 1.22; }
+  .hero-subtitle { font-size: 1.06rem; margin-top: 1rem; opacity: 0.95; }
+
+  .section-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 0.5rem; }
+  .section-lead { color: var(--color-muted); margin-bottom: 2rem; font-size: 1.02rem; }
+  .subhead { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 0.75rem; }
+
+  .analogy-box { display: flex; gap: 1.15rem; padding: 1.4rem 1.5rem; background: var(--color-primary-light); border-radius: 12px; border-left: 4px solid var(--color-primary); margin: 1.25rem 0; }
+  .analogy-icon { font-size: 2.3rem; flex-shrink: 0; line-height: 1.2; }
+  .analogy-title { font-weight: 700; font-size: 0.8rem; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+  .analogy-text { line-height: 1.7; }
+  .analogy-real { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px dashed var(--color-primary); font-size: 0.92rem; color: var(--color-muted); }
+
+  .fig { background: white; border: 1px solid var(--color-border); border-radius: 14px; padding: 1.5rem; margin: 1.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig-cap { text-align: center; font-size: 0.85rem; color: var(--color-muted); margin-top: 0.9rem; }
+
+  .term-card { background: white; border: 1px solid var(--color-border); border-radius: 14px; padding: 1.4rem 1.6rem; margin-top: 1.1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid var(--tc, var(--color-primary)); }
+  .term-head { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.4rem; }
+  .term-badge { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: white; flex-shrink: 0; background: var(--tc, var(--color-primary)); }
+  .term-name { font-size: 1.15rem; font-weight: 900; }
+  .term-name .en { display: block; font-size: 0.76rem; font-weight: 500; color: var(--color-muted); }
+  .term-one { background: var(--color-surface); border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 0.9rem; margin: 0.5rem 0 0.6rem; border-left: 3px solid var(--tc, var(--color-primary)); }
+
+  table.nice { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-top: 1rem; font-size: 0.9rem; }
+  table.nice th { background: var(--color-primary); color: white; padding: 0.7rem 0.9rem; text-align: left; }
+  table.nice td { padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--color-border); }
+  table.nice tr:last-child td { border-bottom: none; }
+  table.nice tr:nth-child(even) td { background: var(--color-surface); }
+  table.nice .k { font-weight: 700; }
+
+  .callout { display: flex; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: 10px; align-items: flex-start; margin-top: 1rem; }
+  .callout-icon { font-size: 1.25rem; flex-shrink: 0; }
+  .callout-content { font-size: 0.95rem; line-height: 1.6; }
+  .callout-tip { background: var(--color-success-light); border-left: 3px solid var(--color-success); }
+  .callout-warning { background: var(--color-warning-light); border-left: 3px solid var(--color-warning); }
+  .callout-danger { background: var(--color-danger-light); border-left: 3px solid var(--color-danger); }
+
+  .code-card { background: #1E293B; border-radius: 12px; padding: 1.2rem 1.4rem; margin-top: 1rem; overflow-x: auto; }
+  .code-card pre { font-family: 'JetBrains Mono', monospace; color: #E2E8F0; font-size: 0.84rem; line-height: 1.6; white-space: pre; }
+  .code-card .cm { color: #94A3B8; }
+  .code-card .ky { color: #C4B5FD; }
+  .code-card .st { color: #6EE7B7; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 1rem; margin-top: 1rem; }
+  .stat-card { background: white; border-radius: 12px; padding: 1.4rem 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid var(--color-border); }
+  .stat-number { font-size: 1.9rem; font-weight: 900; color: var(--color-primary); line-height: 1.1; }
+  .stat-label { font-weight: 700; font-size: 0.85rem; margin-top: 0.5rem; }
+  .stat-desc { font-size: 0.76rem; color: var(--color-muted); margin-top: 0.25rem; }
+
+  .src-note { font-size: 0.8rem; color: var(--color-muted); margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--color-border); }
+  footer { background: #1E293B; color: #94A3B8; padding: 2rem 0; text-align: center; font-size: 0.85rem; }
+
+  @media (max-width: 768px) { .hero h1 { font-size: 1.9rem; } }
+  @media print {
+    .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .term-badge, table.nice th, .fig, .code-card, .stat-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<header class="hero" style="background: linear-gradient(135deg, #164E63, #06B6D4);">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="pill">🔢 phase 개수</span>
+      <span class="pill">📷 멀티 카메라</span>
+      <span class="pill">🤖 그리퍼 값 보정</span>
+      <span class="pill">🧠 Qwen3-VL 주석</span>
+    </div>
+    <h1>phase 주석 실전<br>— 개수·카메라·그리퍼값</h1>
+    <p class="hero-subtitle">phase를 몇 개까지 늘려도 되는지, 카메라가 3개일 땐 어떻게 하는지, 그리퍼 숫자로 어떻게 경계를 정확히 잡는지. Qwen3-VL 주석을 실제로 적용할 때 부딪히는 문제들을 초등학생 눈높이로 풀었습니다.</p>
+  </div>
+</header>
+
+<!-- 파트1: phase 개수 -->
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">🔢 phase는 몇 개까지 늘려도 될까?</h2>
+    <p class="section-lead">"행동을 두 배 이상 많이 나눠도 되나요?" — 됩니다. 하지만 <b>조건</b>이 있어요.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="p4a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <rect x="30" y="50" width="190" height="150" rx="12" fill="#FEE2E2" stroke="#DC2626" stroke-width="1"/>
+        <text x="125" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B" font-family="sans-serif">너무 적음 (1~2개)</text>
+        <text x="125" y="106" text-anchor="middle" font-size="11.5" fill="#B91C1C" font-family="sans-serif">다가가기·잡기가</text>
+        <text x="125" y="126" text-anchor="middle" font-size="11.5" fill="#B91C1C" font-family="sans-serif">뭉뚱그려짐</text>
+        <text x="125" y="154" text-anchor="middle" font-size="11.5" fill="#B91C1C" font-family="sans-serif">→ 어정쩡한 동작</text>
+        <text x="125" y="180" text-anchor="middle" font-size="18" font-family="sans-serif">😖</text>
+
+        <rect x="245" y="50" width="190" height="150" rx="12" fill="#D1FAE5" stroke="#059669" stroke-width="1"/>
+        <text x="340" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="#047857" font-family="sans-serif">적당함 (5~9개)</text>
+        <text x="340" y="106" text-anchor="middle" font-size="11.5" fill="#065F46" font-family="sans-serif">단계마다 명확히</text>
+        <text x="340" y="126" text-anchor="middle" font-size="11.5" fill="#065F46" font-family="sans-serif">구분되고 데이터도</text>
+        <text x="340" y="146" text-anchor="middle" font-size="11.5" fill="#065F46" font-family="sans-serif">충분함</text>
+        <text x="340" y="180" text-anchor="middle" font-size="14" font-weight="700" fill="#047857" font-family="sans-serif">😊 최적</text>
+
+        <rect x="460" y="50" width="190" height="150" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="555" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="#B45309" font-family="sans-serif">너무 많음 (15+)</text>
+        <text x="555" y="106" text-anchor="middle" font-size="11.5" fill="#92400E" font-family="sans-serif">경계가 애매해지고</text>
+        <text x="555" y="126" text-anchor="middle" font-size="11.5" fill="#92400E" font-family="sans-serif">단계당 데이터 부족</text>
+        <text x="555" y="154" text-anchor="middle" font-size="11.5" fill="#92400E" font-family="sans-serif">Qwen도 헷갈림</text>
+        <text x="555" y="180" text-anchor="middle" font-size="18" font-family="sans-serif">😵</text>
+
+        <line x1="220" y1="125" x2="243" y2="125" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#p4a)"/>
+        <line x1="435" y1="125" x2="458" y2="125" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#p4a)"/>
+
+        <text x="340" y="235" text-anchor="middle" font-size="12" fill="#64748B" font-family="sans-serif">핵심: 개수보다 "Qwen이 눈으로 명확히 구분되는가"가 기준</text>
+        <text x="340" y="262" text-anchor="middle" font-size="12" fill="#64748B" font-family="sans-serif">두 배(14개)도 가능하지만, 각 단계가 시각적으로 뚜렷해야 함</text>
+      </svg>
+      <div class="fig-cap">▲ phase 개수와 성능의 관계 — 너무 적어도, 너무 많아도 나쁨</div>
+    </div>
+
+    <h3 class="subhead">✅ 좋은 늘리기 vs ❌ 나쁜 늘리기</h3>
+    <div class="term-card" style="--tc:#059669">
+      <div class="term-head">
+        <div class="term-badge" style="background:#059669">✅</div>
+        <div class="term-name">좋은 늘리기<span class="en">시각적으로 뚜렷한 세분화</span></div>
+      </div>
+      <p><code>grasp</code>(잡기) 하나를 → <code>grasp_open</code>(벌린 채 접근) → <code>grasp_close</code>(닫는 중) → <code>grasp_confirm</code>(잡힘 확인)으로 나누는 건 OK. 각 단계가 <strong>영상에서 눈으로 구분되니까</strong> Qwen3가 나눌 수 있어요.</p>
+    </div>
+    <div class="term-card" style="--tc:#DC2626">
+      <div class="term-head">
+        <div class="term-badge" style="background:#DC2626">❌</div>
+        <div class="term-name">나쁜 늘리기<span class="en">눈에 안 보이는 구분</span></div>
+      </div>
+      <p><code>grasp_light</code>(약하게) vs <code>grasp_firm</code>(강하게)처럼 나누면 안 돼요. <strong>힘의 세기는 영상만 봐선 구분이 안 돼요.</strong> Qwen3가 판단할 근거가 없으니 이름표가 엉망이 됩니다.</p>
+    </div>
+
+    <h3 class="subhead">📊 늘릴 때 생기는 현실적 문제 3가지</h3>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number" style="color:var(--color-danger)">😵</div>
+        <div class="stat-label">경계 애매</div>
+        <div class="stat-desc">"lift_start냐 lift_mid냐" 확신도↓</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color:var(--color-warning)">📉</div>
+        <div class="stat-label">데이터 부족</div>
+        <div class="stat-desc">단계당 데이터가 절반으로 쪼개짐</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color:var(--color-secondary)">🚦</div>
+        <div class="stat-label">FSM 복잡</div>
+        <div class="stat-desc">14개 상태 전환 규칙이 복잡·오류</div>
+      </div>
+    </div>
+
+    <h3 class="subhead">🎯 권장 개수</h3>
+    <table class="nice">
+      <tr><th>phase 개수</th><th>판단</th></tr>
+      <tr><td class="k">5~7개</td><td>✅ 대부분의 집어넣기에 최적 (지금 표가 여기)</td></tr>
+      <tr><td class="k">8~9개</td><td>✅ 정밀 작업이면 OK (삽입·조립 등)</td></tr>
+      <tr><td class="k">10~14개</td><td>⚠️ 시각적으로 뚜렷할 때만, 데이터도 충분해야</td></tr>
+      <tr><td class="k">15개 이상</td><td>❌ 대부분 과함. 경계 애매 + 데이터 부족</td></tr>
+    </table>
+    <div class="callout callout-tip">
+      <div class="callout-icon">🔑</div>
+      <div class="callout-content"><strong>판단 기준 한 문장:</strong> "이 단계를 Qwen3가 <b>영상만 보고 명확히 구분할 수 있는가?</b> 그리고 이 단계에 <b>충분한 데이터가 있는가?</b>" 둘 다 Yes면 늘려도 됩니다. 전체를 균일하게 두 배로 늘리기보다 <b>정밀함이 필요한 단계(잡기·정렬)만</b> 세분화하세요.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 파트2: 멀티 카메라 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">📷 한 에피소드에 영상이 3개면?</h2>
+    <p class="section-lead">탑·사이드·손목 3개 카메라. 이건 <b>서로 다른 장면이 아니라, 같은 순간을 3방향에서 찍은 것</b>이에요.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">🎥</div>
+      <div class="analogy-content">
+        <div class="analogy-title">핵심 전제</div>
+        <p class="analogy-text">3개 카메라는 <strong>똑같은 시간축</strong>을 공유해요. 0초의 탑캠·사이드캠·손목캠은 <strong>모두 같은 순간</strong>이에요. 그러니 phase도 그 순간엔 <strong>하나</strong>예요 (0초 = 다가가기). <strong>카메라가 3개라고 phase가 3개가 되는 게 아니에요.</strong></p>
+      </div>
+    </div>
+
+    <div class="fig">
+      <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="p4b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <text x="40" y="26" font-size="13" font-weight="700" fill="#1E293B" font-family="sans-serif">3개 카메라 = 같은 순간을 세 방향에서</text>
+        <rect x="30" y="42" width="150" height="38" rx="7" fill="#DBEAFE" stroke="#2563EB" stroke-width="1"/>
+        <text x="105" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8" font-family="sans-serif">📷 탑캠</text>
+        <rect x="30" y="88" width="150" height="38" rx="7" fill="#CFFAFE" stroke="#0891B2" stroke-width="1"/>
+        <text x="105" y="111" text-anchor="middle" font-size="12" font-weight="700" fill="#0E7490" font-family="sans-serif">📷 사이드캠</text>
+        <rect x="30" y="134" width="150" height="38" rx="7" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="105" y="157" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309" font-family="sans-serif">📷 손목캠</text>
+
+        <text x="290" y="36" font-size="11" fill="#64748B" font-family="sans-serif" text-anchor="middle">0초</text>
+        <text x="380" y="36" font-size="11" fill="#64748B" font-family="sans-serif" text-anchor="middle">1초</text>
+        <text x="470" y="36" font-size="11" fill="#64748B" font-family="sans-serif" text-anchor="middle">2초</text>
+        <text x="560" y="36" font-size="11" fill="#64748B" font-family="sans-serif" text-anchor="middle">3초</text>
+        <line x1="250" y1="61" x2="620" y2="61" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="250" y1="107" x2="620" y2="107" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="250" y1="153" x2="620" y2="153" stroke="#CBD5E1" stroke-width="1"/>
+        <circle cx="290" cy="61" r="4" fill="#2563EB"/><circle cx="380" cy="61" r="4" fill="#2563EB"/><circle cx="470" cy="61" r="4" fill="#2563EB"/><circle cx="560" cy="61" r="4" fill="#2563EB"/>
+        <circle cx="290" cy="107" r="4" fill="#0891B2"/><circle cx="380" cy="107" r="4" fill="#0891B2"/><circle cx="470" cy="107" r="4" fill="#0891B2"/><circle cx="560" cy="107" r="4" fill="#0891B2"/>
+        <circle cx="290" cy="153" r="4" fill="#D97706"/><circle cx="380" cy="153" r="4" fill="#D97706"/><circle cx="470" cy="153" r="4" fill="#D97706"/><circle cx="560" cy="153" r="4" fill="#D97706"/>
+
+        <rect x="250" y="195" width="370" height="72" rx="10" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1"/>
+        <text x="435" y="218" text-anchor="middle" font-size="12" font-weight="700" fill="#6D28D9" font-family="sans-serif">phase는 시간마다 하나 (카메라 수와 무관)</text>
+        <text x="300" y="245" text-anchor="middle" font-size="11" fill="#7C3AED" font-family="sans-serif">0초=다가가기</text>
+        <text x="390" y="245" text-anchor="middle" font-size="11" fill="#7C3AED" font-family="sans-serif">1초=잡기</text>
+        <text x="475" y="245" text-anchor="middle" font-size="11" fill="#7C3AED" font-family="sans-serif">2초=들기</text>
+        <text x="562" y="245" text-anchor="middle" font-size="11" fill="#7C3AED" font-family="sans-serif">3초=옮기기</text>
+        <line x1="435" y1="173" x2="435" y2="193" stroke="#94A3B8" stroke-width="2" marker-end="url(#p4b)"/>
+      </svg>
+      <div class="fig-cap">▲ 3개 카메라가 같은 시간축 공유 → phase는 프레임당 하나</div>
+    </div>
+
+    <h3 class="subhead">🛠️ 처리하는 세 가지 방법</h3>
+    <table class="nice">
+      <tr><th>방법</th><th>방식</th><th>장점</th><th>단점</th></tr>
+      <tr><td class="k">1. 대표 1개</td><td>가장 잘 보이는 카메라만 Qwen3에</td><td>간단·빠름</td><td>가림 있을 때 놓칠 수</td></tr>
+      <tr><td class="k">2. 여러 뷰</td><td>여러 카메라 동시에 Qwen3에</td><td>정확</td><td>느림·복잡</td></tr>
+      <tr><td class="k">3. 상태값 보조</td><td>그리퍼·관절 숫자 활용</td><td>가장 정확</td><td>신호 정의 필요</td></tr>
+    </table>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🗂️</div>
+      <div class="callout-content"><strong>데이터 구조 핵심:</strong> 카메라는 <code>images.top</code>·<code>images.side</code>·<code>images.wrist</code>로 나뉘어 저장되지만, <b>phase_id(또는 task_index)는 카메라별이 아니라 프레임당 하나</b>만 붙어요. 카메라는 phase를 <b>판단하는 재료</b>일 뿐, phase 자체는 시간축에 하나입니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 파트3: 그리퍼 값 보정 -->
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">🤖 그리퍼 값으로 경계 "보정"하기</h2>
+    <p class="section-lead">"탑 카메라로도 알 수 있지 않나요?" — 맞아요. 그런데 <b>그리퍼 숫자가 더 정확</b>할 때가 있어요.</p>
+
+    <h3 class="subhead">🔢 "그리퍼 개폐 값"이 뭐예요?</h3>
+    <p>SO-ARM101은 매 순간 자기 관절 상태를 <strong>숫자로</strong> 기록해요. 그중 하나가 <strong>그리퍼(집게)가 얼마나 벌어졌는지</strong>를 나타내는 숫자예요. 데이터의 <code>observation.state</code> 안에 이미 들어있어요.</p>
+
+    <p>그리퍼 값을 프레임마다 쭉 보면, grasp(잡기)가 언제 시작됐는지 <strong>숫자로 정확히</strong> 보여요:</p>
+    <table class="nice">
+      <tr><th>frame</th><th>시간</th><th>그리퍼 값</th><th>무슨 일</th></tr>
+      <tr><td>28</td><td>0.93초</td><td>5</td><td>아직 벌어짐 (다가가는 중)</td></tr>
+      <tr><td>29</td><td>0.97초</td><td>8</td><td>벌어짐</td></tr>
+      <tr><td class="k">30</td><td>1.00초</td><td>15</td><td><b>닫히기 시작! ← grasp 시작</b></td></tr>
+      <tr><td>31</td><td>1.03초</td><td>40</td><td>닫히는 중</td></tr>
+      <tr><td>33</td><td>1.10초</td><td>98</td><td>완전히 닫힘</td></tr>
+    </table>
+    <p style="margin-top:0.8rem;">숫자만 봐도 <strong>"frame 30에서 닫히기 시작 = 여기가 grasp 시작"</strong>이라고 딱 알 수 있죠. 이렇게 <strong>숫자로 phase 경계를 정확히 찍는 것</strong>이 "보정"이에요.</p>
+
+    <h3 class="subhead">📷 카메라 vs 🔢 그리퍼 숫자</h3>
+    <div class="fig">
+      <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="p4c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <rect x="30" y="40" width="300" height="130" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="180" y="64" text-anchor="middle" font-size="13" font-weight="700" fill="#B45309" font-family="sans-serif">📷 탑 카메라로 판단</text>
+        <text x="180" y="92" text-anchor="middle" font-size="11.5" fill="#92400E" font-family="sans-serif">"손이 물체를 잡은 것 같다"</text>
+        <text x="180" y="114" text-anchor="middle" font-size="11.5" fill="#92400E" font-family="sans-serif">그런데 손이 물체를 가리면?</text>
+        <text x="180" y="136" text-anchor="middle" font-size="11.5" fill="#92400E" font-family="sans-serif">잡은 순간이 1~2프레임 애매</text>
+        <text x="180" y="158" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309" font-family="sans-serif">😐 대략 맞음 (±몇 프레임)</text>
+
+        <rect x="350" y="40" width="300" height="130" rx="12" fill="#D1FAE5" stroke="#059669" stroke-width="1"/>
+        <text x="500" y="64" text-anchor="middle" font-size="13" font-weight="700" fill="#047857" font-family="sans-serif">🔢 그리퍼 숫자로 판단</text>
+        <text x="500" y="92" text-anchor="middle" font-size="11.5" fill="#065F46" font-family="sans-serif">값 5 → 15로 바뀐 순간</text>
+        <text x="500" y="114" text-anchor="middle" font-size="11.5" fill="#065F46" font-family="sans-serif">= frame 30, 딱 짚임</text>
+        <text x="500" y="136" text-anchor="middle" font-size="11.5" fill="#065F46" font-family="sans-serif">가림 여부와 무관</text>
+        <text x="500" y="158" text-anchor="middle" font-size="12" font-weight="700" fill="#047857" font-family="sans-serif">😊 정확 (프레임 단위)</text>
+
+        <rect x="120" y="205" width="440" height="95" rx="10" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1"/>
+        <text x="340" y="230" text-anchor="middle" font-size="13" font-weight="700" fill="#6D28D9" font-family="sans-serif">가장 좋은 방법 = 둘을 합치기</text>
+        <text x="340" y="256" text-anchor="middle" font-size="11.5" fill="#7C3AED" font-family="sans-serif">카메라로 "무슨 동작인지" 큰 흐름 파악</text>
+        <text x="340" y="278" text-anchor="middle" font-size="11.5" fill="#7C3AED" font-family="sans-serif">+ 그리퍼 숫자로 "정확히 몇 프레임인지" 경계 확정</text>
+        <line x1="180" y1="170" x2="300" y2="203" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#p4c)"/>
+        <line x1="500" y1="170" x2="380" y2="203" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#p4c)"/>
+      </svg>
+      <div class="fig-cap">▲ 카메라는 큰 흐름, 그리퍼 숫자는 정확한 경계 — 둘을 합치면 최선</div>
+    </div>
+
+    <h3 class="subhead">🎯 phase별 가장 정확한 판단 방법</h3>
+    <table class="nice">
+      <tr><th>phase</th><th>가장 정확한 판단 방법</th></tr>
+      <tr><td>approach (다가가기)</td><td>📷 카메라 (그리퍼 값 안 변함)</td></tr>
+      <tr><td class="k">grasp (잡기)</td><td>🔢 <b>그리퍼 값</b> (닫히기 시작 = 정의)</td></tr>
+      <tr><td>lift (들기)</td><td>🔢 팔 높이 값 (올라감)</td></tr>
+      <tr><td>move (옮기기)</td><td>📷 카메라 / 팔 위치 값</td></tr>
+      <tr><td class="k">place (놓기)</td><td>🔢 <b>그리퍼 값</b> (열리기 시작 = 정의)</td></tr>
+    </table>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content"><strong>왜 그리퍼 숫자가 더 정확한가:</strong> ① 탑캠은 잡는 순간 <b>손이 물체를 가려서</b> 애매해요. 그리퍼 값은 가림과 무관. ② grasp·place는 <b>그리퍼 개폐가 정의 그 자체</b>라 숫자로 보는 게 가장 정확해요.</div>
+    </div>
+
+    <h3 class="subhead">⚙️ 실제 적용 — 간단한 규칙</h3>
+    <div class="code-card"><pre><span class="cm"># 복잡하게 생각 안 해도 됩니다. 이런 규칙만 넣으면 끝</span>
+
+그리퍼 값이 (벌림→닫힘) 바뀌는 프레임
+   → 그 지점을 <span class="st">grasp 시작</span>으로 확정
+
+그리퍼 값이 (닫힘→벌림) 바뀌는 프레임
+   → 그 지점을 <span class="st">place 시작</span>으로 확정
+
+나머지 단계(approach, move…)
+   → Qwen3 <span class="st">카메라 판단</span>에 맡김</pre></div>
+    <div class="callout callout-tip">
+      <div class="callout-icon">🎓</div>
+      <div class="callout-content"><strong>정리:</strong> Qwen3가 카메라로 <b>대략 나눈 다음</b>, grasp/place의 정확한 경계만 <b>그리퍼 숫자로 다시 확인해 살짝 조정</b>하는 게 "보정"이에요. 다만 이건 정밀도를 높이는 <b>선택 사항</b> — 처음엔 카메라(Qwen3)만으로도 충분히 돌아가요. 정확도가 아쉬울 때 추가하세요.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 종합 정리 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">📋 세 가지 실전 질문 한눈에</h2>
+    <table class="nice">
+      <tr><th>질문</th><th>답</th></tr>
+      <tr><td>phase를 두 배로 늘려도 되나?</td><td>✅ 시각적으로 뚜렷하고 데이터 충분하면. 5~9개 권장</td></tr>
+      <tr><td>Qwen3가 영상서 나눌 수 있어야?</td><td>✅ 눈에 보이는 신호로 정의된 단계만 가능</td></tr>
+      <tr><td>카메라 3개면?</td><td>✅ phase는 시간당 하나. 대표 1개로 판단해도 OK</td></tr>
+      <tr><td>그리퍼 값 보정이란?</td><td>✅ grasp/place 경계를 숫자로 정확히 확정</td></tr>
+      <tr><td>탑캠으로도 되나?</td><td>✅ 되지만 가림 때문에 ±몇 프레임 애매. 숫자가 더 정확</td></tr>
+    </table>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-content"><strong>실전 권장 조합:</strong> ① phase는 <b>5~7개</b>로 시작 → ② <b>사이드캠 또는 탑캠 하나</b>로 Qwen3가 phase 판단 → ③ <b>그리퍼 값</b>으로 grasp/place 경계만 정확히 보정. 처음엔 ①②만으로 시작하고, 정밀도가 필요할 때 ③을 추가하세요.</div>
+    </div>
+
+    <p class="src-note">📚 근거: phase 분해 시 시각적으로 구분 가능한 경계여야 VLM(Qwen3-VL) 자동 주석이 신뢰성 있게 동작. 멀티뷰 데이터는 동일 타임스탬프를 공유하므로 phase 라벨은 프레임 단위 단일 값(LeRobot 데이터 구조상 카메라별이 아닌 프레임당 task_index/feature). 그리퍼 개폐·관절 상태 등 proprioception 신호는 접촉·파지 이벤트 경계 검출에 영상보다 정밀하며, VLM 판단과 상태 기반 규칙을 결합하는 하이브리드 주석이 실무에서 권장됨. (출처: LeRobot 데이터 구조 문서, VLA 서브태스크 주석 및 이벤트 검출 연구)</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">Physical AI Master Course · phase 주석 실전 — 개수 · 멀티 카메라 · 그리퍼 값 보정</div>
+</footer>
+
+</body>
+</html>
