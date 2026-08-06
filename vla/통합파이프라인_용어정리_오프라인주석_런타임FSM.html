@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>통합 파이프라인 용어 정리 - Physical AI Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --color-primary: #7C3AED; --color-primary-light: #EDE9FE;
+    --color-secondary: #2563EB; --color-secondary-light: #DBEAFE;
+    --color-success: #059669; --color-success-light: #D1FAE5;
+    --color-warning: #D97706; --color-warning-light: #FEF3C7;
+    --color-danger: #DC2626; --color-danger-light: #FEE2E2;
+    --color-teal: #0891B2; --color-teal-light: #CFFAFE;
+    --color-amber: #D97706; --color-amber-light: #FEF3C7;
+    --color-surface: #F8FAFC; --color-card: #FFFFFF;
+    --color-text: #1E293B; --color-muted: #64748B; --color-border: #E2E8F0;
+  }
+  body { font-family: 'Noto Sans KR', sans-serif; color: var(--color-text); background: var(--color-surface); line-height: 1.75; }
+  code { font-family: 'JetBrains Mono', monospace; background: #F1F5F9; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.88em; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 3rem 0; }
+  section.alt { background: white; }
+
+  .hero { color: white; padding: 3.5rem 0 3rem; }
+  .hero-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .pill { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); padding: 0.35rem 0.9rem; border-radius: 999px; font-size: 0.82rem; font-weight: 500; }
+  .hero h1 { font-size: 2.4rem; font-weight: 900; line-height: 1.22; }
+  .hero-subtitle { font-size: 1.06rem; margin-top: 1rem; opacity: 0.95; }
+
+  .section-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 0.5rem; }
+  .section-lead { color: var(--color-muted); margin-bottom: 2rem; font-size: 1.02rem; }
+  .subhead { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 0.75rem; }
+
+  .analogy-box { display: flex; gap: 1.15rem; padding: 1.4rem 1.5rem; background: var(--color-primary-light); border-radius: 12px; border-left: 4px solid var(--color-primary); margin: 1.25rem 0; }
+  .analogy-icon { font-size: 2.3rem; flex-shrink: 0; line-height: 1.2; }
+  .analogy-title { font-weight: 700; font-size: 0.8rem; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+  .analogy-text { line-height: 1.7; }
+  .analogy-real { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px dashed var(--color-primary); font-size: 0.92rem; color: var(--color-muted); }
+
+  .fig { background: white; border: 1px solid var(--color-border); border-radius: 14px; padding: 1.5rem; margin: 1.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig-cap { text-align: center; font-size: 0.85rem; color: var(--color-muted); margin-top: 0.9rem; }
+
+  .term-card { background: white; border: 1px solid var(--color-border); border-radius: 14px; padding: 1.4rem 1.6rem; margin-top: 1.1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid var(--tc, var(--color-primary)); }
+  .term-head { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.4rem; }
+  .term-badge { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: white; flex-shrink: 0; background: var(--tc, var(--color-primary)); }
+  .term-name { font-size: 1.15rem; font-weight: 900; }
+  .term-name .en { display: block; font-size: 0.76rem; font-weight: 500; color: var(--color-muted); }
+  .term-one { background: var(--color-surface); border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 0.9rem; margin: 0.5rem 0 0.6rem; border-left: 3px solid var(--tc, var(--color-primary)); }
+
+  table.nice { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-top: 1rem; font-size: 0.9rem; }
+  table.nice th { background: var(--color-primary); color: white; padding: 0.7rem 0.9rem; text-align: left; }
+  table.nice td { padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--color-border); }
+  table.nice tr:last-child td { border-bottom: none; }
+  table.nice tr:nth-child(even) td { background: var(--color-surface); }
+  table.nice .k { font-weight: 700; }
+
+  .callout { display: flex; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: 10px; align-items: flex-start; margin-top: 1rem; }
+  .callout-icon { font-size: 1.25rem; flex-shrink: 0; }
+  .callout-content { font-size: 0.95rem; line-height: 1.6; }
+  .callout-tip { background: var(--color-success-light); border-left: 3px solid var(--color-success); }
+  .callout-warning { background: var(--color-warning-light); border-left: 3px solid var(--color-warning); }
+  .callout-danger { background: var(--color-danger-light); border-left: 3px solid var(--color-danger); }
+
+  .code-card { background: #1E293B; border-radius: 12px; padding: 1.2rem 1.4rem; margin-top: 1rem; overflow-x: auto; }
+  .code-card pre { font-family: 'JetBrains Mono', monospace; color: #E2E8F0; font-size: 0.84rem; line-height: 1.6; white-space: pre; }
+  .code-card .cm { color: #94A3B8; }
+  .code-card .ky { color: #C4B5FD; }
+  .code-card .st { color: #6EE7B7; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 1rem; margin-top: 1rem; }
+  .stat-card { background: white; border-radius: 12px; padding: 1.4rem 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid var(--color-border); }
+  .stat-number { font-size: 1.9rem; font-weight: 900; color: var(--color-primary); line-height: 1.1; }
+  .stat-label { font-weight: 700; font-size: 0.85rem; margin-top: 0.5rem; }
+  .stat-desc { font-size: 0.76rem; color: var(--color-muted); margin-top: 0.25rem; }
+
+  .src-note { font-size: 0.8rem; color: var(--color-muted); margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--color-border); }
+  footer { background: #1E293B; color: #94A3B8; padding: 2rem 0; text-align: center; font-size: 0.85rem; }
+
+  @media (max-width: 768px) { .hero h1 { font-size: 1.9rem; } }
+  @media print {
+    .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .term-badge, table.nice th, .fig, .code-card, .stat-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<header class="hero" style="background: linear-gradient(135deg, #4C1D95, #8B5CF6);">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="pill">🤖 SmolVLA · π0 · π0.5 · ACT</span>
+      <span class="pill">📝 Qwen3-VL 오프라인 주석</span>
+      <span class="pill">🚦 런타임 FSM</span>
+      <span class="pill">🎛️ phase-조건 정책</span>
+    </div>
+    <h1>통합 파이프라인,<br>용어부터 확실히 잡기</h1>
+    <p class="hero-subtitle">"SmolVLA·π0·π0.5·ACT용 통합 파이프라인 — Qwen3-VL 오프라인 phase 주석 + 런타임 FSM + phase-조건 정책 변형". 제목만 봐도 어렵죠? 이 긴 이름을 <b>초등학생도 알 수 있게</b> 용어 하나씩 풀어드립니다.</p>
+  </div>
+</header>
+
+<!-- 핵심 아이디어 -->
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">🎯 이 프로젝트가 하려는 것 한마디로</h2>
+    <p class="section-lead">여러 로봇 모델에서 공통으로, 하나의 작업을 <b>행동 단계(phase)로 나눠</b> 각 단계에 맞게 로봇을 더 잘 움직이게 하는 파이프라인이에요.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">🍜</div>
+      <div class="analogy-content">
+        <div class="analogy-title">라면 레시피에 비유하면</div>
+        <p class="analogy-text">"라면 끓이기"는 하나의 작업이지만, 그 안엔 <strong>물 붓기 → 끓이기 → 면 넣기 → 스프 넣기</strong>라는 세부 단계가 있어요. 단계마다 조심할 게 다르죠. 로봇의 "집어넣기"도 <strong>다가가기 → 잡기 → 들기 → 놓기</strong>로 나눌 수 있어요.</p>
+        <p class="analogy-real">💡 이렇게 <strong>단계(phase)</strong>를 나눠서 각 단계에 맞게 움직이면, 통짜로 배우는 것보다 훨씬 잘합니다. (연구에서 성공률 최대 24%↑)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 큰 작업 vs phase -->
+<section>
+  <div class="container">
+    <h2 class="section-title">📐 먼저 헷갈리기 쉬운 것 — "작업 나누기" vs "phase 나누기"</h2>
+    <p class="section-lead">"집어넣기 vs 정렬하기"를 나누는 것과, phase 주석은 <b>층위가 달라요.</b></p>
+
+    <div class="fig">
+      <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="d1a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <text x="40" y="30" font-size="14" font-weight="700" fill="#0E7490" font-family="sans-serif">① 큰 작업 나누기 (수집 때 명령어로) — 이미 하고 계신 것</text>
+        <rect x="40" y="45" width="180" height="46" rx="8" fill="#CFFAFE" stroke="#0891B2" stroke-width="1"/>
+        <text x="130" y="72" text-anchor="middle" font-size="14" font-weight="700" fill="#0E7490" font-family="sans-serif">집어넣기</text>
+        <rect x="240" y="45" width="180" height="46" rx="8" fill="#CFFAFE" stroke="#0891B2" stroke-width="1"/>
+        <text x="330" y="72" text-anchor="middle" font-size="14" font-weight="700" fill="#0E7490" font-family="sans-serif">정렬하기</text>
+
+        <line x1="130" y1="102" x2="130" y2="132" stroke="#94A3B8" stroke-width="2" marker-end="url(#d1a)"/>
+        <text x="330" y="122" text-anchor="middle" font-size="12" fill="#64748B" font-family="sans-serif">phase 주석은 이 안을 더 잘게 쪼갬 ↓</text>
+
+        <text x="40" y="165" font-size="14" font-weight="700" fill="#B45309" font-family="sans-serif">② phase 주석 (Qwen3-VL이 오프라인에서) — "집어넣기" 하나를 세부로</text>
+        <rect x="40" y="180" width="110" height="46" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="95" y="207" text-anchor="middle" font-size="12" fill="#B45309" font-family="sans-serif">다가가기</text>
+        <rect x="158" y="180" width="90" height="46" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="203" y="207" text-anchor="middle" font-size="12" fill="#B45309" font-family="sans-serif">잡기</text>
+        <rect x="256" y="180" width="90" height="46" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="301" y="207" text-anchor="middle" font-size="12" fill="#B45309" font-family="sans-serif">들기</text>
+        <rect x="354" y="180" width="100" height="46" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="404" y="207" text-anchor="middle" font-size="12" fill="#B45309" font-family="sans-serif">옮기기</text>
+        <rect x="462" y="180" width="90" height="46" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="507" y="207" text-anchor="middle" font-size="12" fill="#B45309" font-family="sans-serif">놓기</text>
+        <line x1="150" y1="203" x2="156" y2="203" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#d1a)"/>
+        <line x1="248" y1="203" x2="254" y2="203" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#d1a)"/>
+        <line x1="346" y1="203" x2="352" y2="203" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#d1a)"/>
+        <line x1="454" y1="203" x2="460" y2="203" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#d1a)"/>
+
+        <text x="300" y="270" text-anchor="middle" font-size="12" fill="#64748B" font-family="sans-serif">같은 "집어넣기"라도 단계마다 로봇이 조심할 게 달라요 → 그래서 나눔</text>
+      </svg>
+      <div class="fig-cap">▲ 큰 작업 나누기(대상)와 phase 나누기(행동 단계)는 서로 다른 층위</div>
+    </div>
+  </div>
+</section>
+
+<!-- 용어 정리 -->
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">📚 용어 하나씩 풀기</h2>
+    <p class="section-lead">제목에 나온 어려운 말들을 순서대로 정리했어요.</p>
+
+    <div class="term-card" style="--tc:#7C3AED">
+      <div class="term-head">
+        <div class="term-badge">🔗</div>
+        <div class="term-name">통합 파이프라인<span class="en">Unified Pipeline</span></div>
+      </div>
+      <div class="term-one">💡 <b>한 줄:</b> SmolVLA·π0·π0.5·ACT를 <b>하나의 방식으로 다 쓸 수 있게</b> 묶은 것.</div>
+      <p>파이프라인은 "재료가 여러 관을 거쳐 결과가 나오는 공정"이에요. 여기선 어떤 로봇 모델을 쓰든 <strong>같은 phase 나누기 방법</strong>을 적용할 수 있게 통합했다는 뜻입니다.</p>
+    </div>
+
+    <div class="term-card" style="--tc:#2563EB">
+      <div class="term-head">
+        <div class="term-badge">📝</div>
+        <div class="term-name">오프라인 phase 주석<span class="en">Offline Phase Annotation</span></div>
+      </div>
+      <div class="term-one">💡 <b>한 줄:</b> 로봇이 안 움직일 때, 미리 녹화된 영상에 <b>단계 이름표</b>를 붙이는 것.</div>
+      <p><strong>주석(annotation)</strong>은 "꼬리표 붙이기"예요. <strong>오프라인(offline)</strong>은 "실시간이 아니라 나중에 컴퓨터로". 즉 이미 수집한 영상을 보며 "0~1초는 다가가기, 1~2초는 잡기"라고 <strong>각 순간에 단계 이름표를 붙이는</strong> 거예요.</p>
+      <div class="callout callout-tip">
+        <div class="callout-icon">⏱️</div>
+        <div class="callout-content"><strong>왜 미리(오프라인)?</strong> 로봇이 움직이는 중에 "이게 무슨 단계지?" 고민하면 느려져요. 그래서 <b>이름표 붙이는 힘든 일은 미리</b> 다 해두는 거예요.</div>
+      </div>
+    </div>
+
+    <div class="term-card" style="--tc:#0891B2">
+      <div class="term-head">
+        <div class="term-badge">🧠</div>
+        <div class="term-name">Qwen3-VL<span class="en">비전-언어 모델 (영상 읽는 AI)</span></div>
+      </div>
+      <div class="term-one">💡 <b>한 줄:</b> 영상을 보고 "이 장면은 잡기 단계네"라고 <b>자동으로 이름표를 달아주는</b> AI.</div>
+      <p><strong>VL</strong>은 Vision(영상)-Language(언어)의 줄임말이에요. 사진·영상을 이해하고 말로 설명할 수 있는 AI라서, 로봇 영상을 보고 각 순간이 어느 phase인지 판단해 줍니다. 사람이 일일이 안 붙여도 돼요.</p>
+    </div>
+
+    <div class="term-card" style="--tc:#D97706">
+      <div class="term-head">
+        <div class="term-badge">🚦</div>
+        <div class="term-name">런타임 FSM<span class="en">Runtime Finite State Machine</span></div>
+      </div>
+      <div class="term-one">💡 <b>한 줄:</b> 로봇이 움직이는 중에 "지금 몇 단계인지" 판단해 넘겨주는 <b>신호등</b>.</div>
+      <p><strong>FSM(유한 상태 기계)</strong>은 상태·전환·신호로 이뤄진 구조로, 로봇 작업에 자주 쓰여요. <strong>런타임(runtime)</strong>은 "로봇이 실제로 일하는 동안". 즉 "지금은 잡기 → 다 됐으면 들기로!"처럼 <strong>단계를 관리하는 장치</strong>입니다.</p>
+    </div>
+
+    <div class="term-card" style="--tc:#DC2626">
+      <div class="term-head">
+        <div class="term-badge">🎛️</div>
+        <div class="term-name">phase-조건 정책 변형<span class="en">Phase-conditioned Policy</span></div>
+      </div>
+      <div class="term-one">💡 <b>한 줄:</b> <b>현재 단계에 따라</b> 로봇의 행동 방식이 바뀌도록 정책을 고친 것.</div>
+      <p><strong>조건(conditioned)</strong>은 "~에 따라 달라진다". <strong>정책(policy)</strong>은 "로봇의 행동 규칙(뇌)". 즉 <strong>현재 phase에 따라 행동이 달라지게</strong> 만든 거예요 — 잡기 땐 조심 모드, 다가가기 땐 빠르게 모드. "변형"은 원래 정책을 그렇게 고쳤다는 뜻이에요.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 전체 흐름 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🔄 전체 흐름 — 미리 vs 실제</h2>
+    <p class="section-lead">위 용어들이 어떻게 이어지는지 한눈에 봅시다.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="d1b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <rect x="30" y="40" width="300" height="120" rx="14" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1"/>
+        <text x="180" y="66" text-anchor="middle" font-size="14" font-weight="700" fill="#6D28D9" font-family="sans-serif">미리 (오프라인)</text>
+        <rect x="50" y="80" width="120" height="60" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="1"/>
+        <text x="110" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#1D4ED8" font-family="sans-serif">수집한 영상</text>
+        <text x="110" y="124" text-anchor="middle" font-size="11" fill="#3B82F6" font-family="sans-serif">집어넣기 시범들</text>
+        <rect x="190" y="80" width="120" height="60" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+        <text x="250" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#B45309" font-family="sans-serif">Qwen3-VL</text>
+        <text x="250" y="124" text-anchor="middle" font-size="11" fill="#D97706" font-family="sans-serif">phase 이름표</text>
+        <line x1="170" y1="110" x2="188" y2="110" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#d1b)"/>
+
+        <rect x="360" y="40" width="290" height="120" rx="14" fill="#CFFAFE" stroke="#0891B2" stroke-width="1"/>
+        <text x="505" y="66" text-anchor="middle" font-size="14" font-weight="700" fill="#0E7490" font-family="sans-serif">실제 움직일 때 (런타임)</text>
+        <rect x="380" y="80" width="120" height="60" rx="8" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1"/>
+        <text x="440" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#475569" font-family="sans-serif">FSM</text>
+        <text x="440" y="124" text-anchor="middle" font-size="11" fill="#64748B" font-family="sans-serif">지금 무슨 단계?</text>
+        <rect x="520" y="80" width="110" height="60" rx="8" fill="#FAECE7" stroke="#D85A30" stroke-width="1"/>
+        <text x="575" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#993C1D" font-family="sans-serif">맞는 정책</text>
+        <text x="575" y="124" text-anchor="middle" font-size="11" fill="#D85A30" font-family="sans-serif">그 단계용 행동</text>
+        <line x1="500" y1="110" x2="518" y2="110" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#d1b)"/>
+
+        <line x1="330" y1="100" x2="358" y2="100" stroke="#94A3B8" stroke-width="2" marker-end="url(#d1b)"/>
+        <text x="344" y="90" text-anchor="middle" font-size="11" fill="#64748B" font-family="sans-serif">학습</text>
+
+        <text x="180" y="195" text-anchor="middle" font-size="12" fill="#64748B" font-family="sans-serif">힘든 이름표 작업은 미리</text>
+        <text x="505" y="195" text-anchor="middle" font-size="12" fill="#64748B" font-family="sans-serif">움직일 땐 빠르게 써먹기</text>
+
+        <rect x="200" y="240" width="280" height="56" rx="10" fill="#D1FAE5" stroke="#059669" stroke-width="1"/>
+        <text x="340" y="264" text-anchor="middle" font-size="13" font-weight="700" fill="#047857" font-family="sans-serif">각 단계에 딱 맞게 행동 → 성공률 ↑</text>
+        <text x="340" y="284" text-anchor="middle" font-size="11" fill="#059669" font-family="sans-serif">잡기는 조심, 다가가기는 빠르게</text>
+        <line x1="340" y1="160" x2="340" y2="238" stroke="#94A3B8" stroke-width="2" marker-end="url(#d1b)"/>
+      </svg>
+      <div class="fig-cap">▲ 미리(오프라인)에서 이름표를 붙이고, 실제(런타임)엔 FSM이 단계를 판단해 맞는 정책으로 행동</div>
+    </div>
+
+    <table class="nice">
+      <tr><th>용어</th><th>영어</th><th>초등학생 설명</th></tr>
+      <tr><td class="k">통합 파이프라인</td><td>Unified Pipeline</td><td>여러 모델을 한 방식으로 묶음</td></tr>
+      <tr><td class="k">phase</td><td>Phase</td><td>행동의 단계 (다가가기·잡기·들기…)</td></tr>
+      <tr><td class="k">오프라인 주석</td><td>Offline Annotation</td><td>미리 영상에 단계 이름표 붙이기</td></tr>
+      <tr><td class="k">Qwen3-VL</td><td>Vision-Language Model</td><td>영상 보고 자동으로 이름표 다는 AI</td></tr>
+      <tr><td class="k">런타임 FSM</td><td>Runtime FSM</td><td>움직이는 중 단계 관리하는 신호등</td></tr>
+      <tr><td class="k">phase-조건 정책</td><td>Phase-conditioned Policy</td><td>단계에 따라 행동이 바뀌는 로봇 뇌</td></tr>
+    </table>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">🎓</div>
+      <div class="callout-content"><strong>한 문장 정리:</strong> 미리 Qwen3-VL로 <b>영상에 단계 이름표</b>를 붙이고(오프라인 주석), 실제로 움직일 땐 <b>FSM이 단계를 판단</b>해서 <b>그 단계에 맞는 정책</b>으로 행동하게 하는 게 이 통합 파이프라인이에요.</div>
+    </div>
+
+    <p class="src-note">📚 근거: phase(행동 단계)로 작업을 명확히 분해하면 통짜 학습 대비 성공률이 크게 향상됨(Move-Then-Operate 등 최신 VLA 연구에서 24.1%p 개선 보고). FSM은 상태·전환·이벤트 구조로 로봇 조작에 널리 사용. Qwen3-VL 계열 비전-언어 모델은 서브태스크 완료 지점 자동 검증에 활용됨. phase 조건화는 현재 단계를 예측해 행동 예측의 조건으로 삼는 방식(Mag-VLA 등). (출처: arXiv VLA phase/FSM 연구 및 LeRobot 문서)</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">Physical AI Master Course · 통합 파이프라인 용어 정리 — 오프라인 주석 · 런타임 FSM · phase-조건 정책</div>
+</footer>
+
+</body>
+</html>
