@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>멀티태스크 학습 vs 자동 연속 실행</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#7C3AED; --p-l:#EDE9FE; --blue:#2563EB; --blue-l:#DBEAFE;
+  --suc:#059669; --suc-l:#D1FAE5; --warn:#D97706; --warn-l:#FEF3C7;
+  --dng:#DC2626; --dng-l:#FEE2E2; --surf:#F5F3FF; --card:#fff;
+  --tx:#1E293B; --mut:#64748B; --bd:#E2E8F0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--tx);background:var(--surf);line-height:1.75;}
+code,pre{font-family:'JetBrains Mono',monospace;}
+.container{max-width:940px;margin:0 auto;padding:0 1.5rem;}
+
+.hero{background:linear-gradient(135deg,#4C1D95,#8B5CF6);color:#fff;padding:3.5rem 0 3rem;position:relative;overflow:hidden;}
+.hero::before{content:"";position:absolute;top:-40%;right:-8%;width:460px;height:460px;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);border-radius:50%;}
+.hero-in{position:relative;z-index:1;}
+.hero h1{font-size:2.2rem;font-weight:900;line-height:1.24;margin-bottom:.9rem;}
+.hero .sub{font-size:1.06rem;opacity:.96;max-width:720px;margin-bottom:1.3rem;}
+.tag-row{display:flex;gap:.55rem;flex-wrap:wrap;}
+.tag{background:rgba(255,255,255,.2);padding:.4rem 1rem;border-radius:999px;font-size:.83rem;font-weight:500;}
+
+section{padding:2.8rem 0;}
+.sec-title{font-size:1.6rem;font-weight:900;margin-bottom:.4rem;display:flex;align-items:center;gap:.55rem;}
+.sec-lead{color:var(--mut);margin-bottom:1.8rem;}
+
+.card{background:var(--card);border-radius:18px;box-shadow:0 6px 26px rgba(76,29,149,.07);border:1px solid var(--bd);padding:1.8rem;margin-bottom:1.6rem;}
+
+.analogy{display:flex;gap:1.1rem;padding:1.3rem;background:var(--p-l);border-radius:14px;border-left:5px solid var(--p);margin:1.3rem 0;}
+.analogy-icon{font-size:2.2rem;flex-shrink:0;}
+.analogy-title{font-weight:700;font-size:.78rem;color:var(--p);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;}
+.analogy-real{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--p);font-size:.9rem;color:#5b21b6;}
+
+.scene{background:linear-gradient(160deg,#FAFAFF,#F0EDFF);border-radius:16px;padding:1.2rem;margin:1.4rem 0;border:1px solid var(--bd);}
+.scene svg{display:block;width:100%;height:auto;max-width:780px;margin:0 auto;}
+.scene-cap{text-align:center;font-size:.83rem;color:var(--mut);margin-top:.6rem;font-weight:500;}
+
+.callout{display:flex;gap:.85rem;padding:1.05rem 1.25rem;border-radius:12px;margin:1.1rem 0;align-items:flex-start;}
+.callout-icon{font-size:1.35rem;flex-shrink:0;}
+.c-tip{background:var(--suc-l);}
+.c-warn{background:var(--warn-l);}
+.c-truth{background:#FEF2F2;border:1px solid #FECACA;}
+.c-info{background:var(--blue-l);}
+
+.big2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin:1.4rem 0;}
+.big-card{border-radius:16px;padding:1.5rem;border:2px solid;}
+.big-learn{border-color:var(--suc);background:linear-gradient(160deg,#F0FDF4,#DCFCE7);}
+.big-run{border-color:var(--warn);background:linear-gradient(160deg,#FFFBEB,#FEF3C7);}
+.big-card h4{font-size:1.15rem;font-weight:900;margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem;}
+.big-card .lbl{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.8rem;display:inline-block;padding:.2rem .7rem;border-radius:999px;color:#fff;}
+
+table.dtl{width:100%;border-collapse:collapse;margin:1.3rem 0;font-size:.88rem;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+table.dtl th{background:var(--p);color:#fff;padding:.8rem .7rem;text-align:left;font-size:.83rem;}
+table.dtl td{padding:.72rem .7rem;border-bottom:1px solid var(--bd);vertical-align:top;}
+table.dtl tr:last-child td{border-bottom:none;}
+table.dtl tr:nth-child(even){background:#faf9ff;}
+
+.pf{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:14px;padding:1.2rem 1.4rem;margin-top:1.3rem;border-left:5px solid var(--suc);}
+.pf-title{font-weight:900;color:var(--suc);font-size:.92rem;margin-bottom:.4rem;}
+
+h4.blk{font-size:1.1rem;font-weight:700;margin:1.6rem 0 .7rem;display:flex;align-items:center;gap:.45rem;}
+
+@media(max-width:768px){
+  .hero h1{font-size:1.55rem;}
+  .card{padding:1.2rem;}
+  .analogy{flex-direction:column;gap:.5rem;}
+  .big2{grid-template-columns:1fr;}
+  table.dtl{font-size:.76rem;}
+  table.dtl th,table.dtl td{padding:.5rem .4rem;}
+}
+@media print{body{background:#fff;} .card{box-shadow:none;break-inside:avoid;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container hero-in">
+    <h1>🎯 "학습"과 "실행"은 다른 이야기예요</h1>
+    <p class="sub">여러분 말씀이 맞아요 — 같이 학습하면 <b>두 작업을 다 처리할 수 있어요.</b>
+    하지만 그건 <b>"할 수 있는 능력"</b>이지, <b>"자동으로 연달아 하는 것"</b>은 아니에요.
+    이 둘의 차이를 명확히 알려드릴게요!</p>
+    <div class="tag-row">
+      <span class="tag">능력 vs 자동실행</span>
+      <span class="tag">멀티태스크 학습</span>
+      <span class="tag">순차 실행</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 핵심 비유 ===== -->
+<section>
+<div class="container">
+  <h2 class="sec-title">🍳 요리사 비유로 단번에 이해하기</h2>
+  <p class="sec-lead">이 비유 하나면 완전히 이해됩니다.</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">👨‍🍳</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p><b>멀티태스크 학습</b> = 요리사가 <b>김치찌개도, 된장찌개도 만들 줄 아는 것</b>.
+        "김치찌개 해주세요" 하면 김치찌개를, "된장찌개 해주세요" 하면 된장찌개를 만들죠.
+        <b>둘 다 만들 능력</b>이 있어요.</p>
+        <p style="margin-top:.7rem;">하지만 <b>"김치찌개 만들고 나서 자동으로 된장찌개도 만들어"</b>는
+        <b>누군가 "다음은 된장찌개!"라고 주문을 넣어줘야</b> 해요. 요리사가 알아서 두 개를 연달아 만들진 않아요.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 로봇 모델은 명령을 <b>받아야</b> 움직여요. "능력이 있다"와 "알아서 연달아 한다"는 달라요.</p>
+      </div>
+    </div>
+
+    <!-- 핵심 구분 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- LEFT: learning = ability -->
+        <rect x="20" y="30" width="350" height="245" rx="16" fill="#F0FDF4" stroke="#059669" stroke-width="2"/>
+        <text x="195" y="60" font-size="15" fill="#059669" text-anchor="middle" font-weight="900">✅ 멀티태스크 학습 = 능력</text>
+        <text x="195" y="82" font-size="11" fill="#166534" text-anchor="middle">"두 작업을 다 할 줄 안다"</text>
+        <!-- brain with two skills -->
+        <circle cx="195" cy="140" r="42" fill="#DCFCE7" stroke="#059669" stroke-width="2"/>
+        <text x="195" y="135" font-size="28" text-anchor="middle">🧠</text>
+        <text x="195" y="162" font-size="9" fill="#059669" text-anchor="middle" font-weight="700">하나의 모델</text>
+        <!-- two abilities -->
+        <rect x="55" y="205" width="130" height="50" rx="10" fill="#fff" stroke="#059669" stroke-width="1.5"/>
+        <text x="120" y="228" font-size="10" fill="#334155" text-anchor="middle">🥣 원형 통 넣기</text>
+        <text x="120" y="245" font-size="9" fill="#059669" text-anchor="middle">할 수 있음</text>
+        <rect x="205" y="205" width="130" height="50" rx="10" fill="#fff" stroke="#7C3AED" stroke-width="1.5"/>
+        <text x="270" y="228" font-size="10" fill="#334155" text-anchor="middle">📦 사각 통 넣기</text>
+        <text x="270" y="245" font-size="9" fill="#7C3AED" text-anchor="middle">할 수 있음</text>
+        <!-- RIGHT: running = trigger needed -->
+        <rect x="410" y="30" width="350" height="245" rx="16" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
+        <text x="585" y="60" font-size="15" fill="#D97706" text-anchor="middle" font-weight="900">⚙️ 실행 = 명령이 필요</text>
+        <text x="585" y="82" font-size="11" fill="#92400e" text-anchor="middle">"한 번에 하나씩, 명령받은 것만"</text>
+        <!-- command 1 -->
+        <rect x="435" y="100" width="130" height="40" rx="8" fill="#1e1e2e"/>
+        <text x="500" y="118" font-size="9" fill="#a6e3a1" text-anchor="middle" font-family="JetBrains Mono">task="round bin"</text>
+        <text x="500" y="132" font-size="8" fill="#6c7086" text-anchor="middle">명령 1</text>
+        <path d="M570 120 l40 0" stroke="#D97706" stroke-width="2.5" marker-end="url(#ar)"/>
+        <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0 0 l6 3 l-6 3z" fill="#D97706"/></marker></defs>
+        <text x="660" y="115" font-size="20" text-anchor="middle">🥣</text>
+        <text x="660" y="135" font-size="9" fill="#059669" text-anchor="middle">원형 통에!</text>
+        <!-- gap -->
+        <text x="585" y="165" font-size="10" fill="#DC2626" text-anchor="middle" font-weight="700">← 여기서 자동으로 안 넘어감! 다시 명령 필요 →</text>
+        <!-- command 2 -->
+        <rect x="435" y="185" width="130" height="40" rx="8" fill="#1e1e2e"/>
+        <text x="500" y="203" font-size="9" fill="#a6e3a1" text-anchor="middle" font-family="JetBrains Mono">task="square bin"</text>
+        <text x="500" y="217" font-size="8" fill="#6c7086" text-anchor="middle">명령 2 (또 줘야 함)</text>
+        <path d="M570 205 l40 0" stroke="#7C3AED" stroke-width="2.5" marker-end="url(#ar2)"/>
+        <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0 0 l6 3 l-6 3z" fill="#7C3AED"/></marker></defs>
+        <text x="660" y="200" font-size="20" text-anchor="middle">📦</text>
+        <text x="660" y="220" font-size="9" fill="#7C3AED" text-anchor="middle">사각 통에!</text>
+      </svg>
+      <div class="scene-cap">🎯 학습(왼쪽)=둘 다 할 능력 / 실행(오른쪽)=명령받은 것만, 한 번에 하나씩</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== 두 개념 나란히 ===== -->
+<section style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">🔀 두 가지를 나란히 놓고 보면</h2>
+  <p class="sec-lead">여러분 질문의 핵심 — 이 둘을 구분하면 모든 게 명확해져요.</p>
+
+  <div class="card">
+    <div class="big2">
+      <div class="big-card big-learn">
+        <span class="lbl" style="background:#059669;">학습 단계</span>
+        <h4>🧠 멀티태스크 학습</h4>
+        <p style="font-size:.92rem;"><b>"두 작업을 다 처리할 능력을 갖춤"</b></p>
+        <p style="font-size:.88rem;margin-top:.7rem;">두 데이터를 합쳐 학습하면, 한 모델이 원형 통도·사각 통도 <b>할 줄 알게</b> 돼요.</p>
+        <p style="font-size:.88rem;margin-top:.7rem;color:#166534;"><b>✅ 여러분 말씀 맞아요!</b> 같이 학습 = 둘 다 처리 가능</p>
+      </div>
+      <div class="big-card big-run">
+        <span class="lbl" style="background:#D97706;">실행 단계</span>
+        <h4>⚙️ 실제 로봇 실행</h4>
+        <p style="font-size:.92rem;"><b>"한 번에 하나씩, 명령받은 것만 수행"</b></p>
+        <p style="font-size:.88rem;margin-top:.7rem;">실행할 땐 명령(task 텍스트)을 <b>하나</b> 줘요. 그럼 그 작업만 해요.</p>
+        <p style="font-size:.88rem;margin-top:.7rem;color:#92400e;"><b>⚠️ 자동 연속은 별개!</b> 다음 작업은 명령을 또 줘야 함</p>
+      </div>
+    </div>
+
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>핵심 오해 정리:</b> "같이 학습했으니 두 개를 <b>연달아</b> 하겠지?" → <b>아니에요.</b>
+      같이 학습 = 두 개를 <b>할 줄 아는 것</b>. 실행할 땐 <b>명령 하나당 작업 하나</b>.
+      연달아 하려면 "명령을 두 번 주거나(방법 A), 코드로 자동 전환(방법 B)"이 필요해요.</div>
+    </div>
+
+    <h4 class="blk">📊 정확한 대응 관계</h4>
+    <table class="dtl">
+      <thead><tr><th>질문</th><th>답</th></tr></thead>
+      <tbody>
+        <tr><td>같이 학습하면 두 작업을 처리할 수 있나?</td><td>✅ <b>네!</b> 한 모델이 둘 다 할 능력을 가짐 (멀티태스크)</td></tr>
+        <tr><td>실행할 때 한 명령으로 두 작업 다 하나?</td><td>❌ 아니요. 명령 하나 = 작업 하나</td></tr>
+        <tr><td>작업1 끝나면 자동으로 작업2 하나?</td><td>❌ 아니요. 다음 명령을 <b>또 줘야</b> 함</td></tr>
+        <tr><td>그럼 연달아 하려면?</td><td>🅰️ 명령 두 번 실행 / 🅱️ 코드로 자동 전환</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- ===== 왜 이렇게 나뉘나 ===== -->
+<section style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">💡 왜 "능력"과 "실행"이 나뉘어 있을까?</h2>
+  <p class="sec-lead">이렇게 나뉜 데는 좋은 이유가 있어요. 오히려 이게 장점이에요!</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">🎛️</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>스마트폰에 <b>여러 앱</b>이 깔려 있어도, 한 번에 <b>여는 건 하나</b>죠?
+        어떤 앱을 열지는 <b>여러분이 선택</b>해요. 로봇도 마찬가지 — 여러 작업을 할 능력이 있지만,
+        <b>지금 뭘 할지는 명령으로 선택</b>해요. 이게 오히려 <b>유연</b>해요!</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 상황에 따라 원형 통에 넣을지 사각 통에 넣을지 <b>그때그때 명령으로 정할 수 있어요.</b>
+        만약 자동으로 정해진 순서만 한다면 이런 유연함이 없겠죠.</p>
+      </div>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">🎯</div>
+      <div><b>이게 왜 좋은가:</b> 멀티태스크로 학습하면 <b>한 모델</b>로 <b>여러 작업</b>을 <b>원하는 순서·조합</b>으로 시킬 수 있어요.
+      "오늘은 원형만", "지금은 사각→원형 순서로" 등 <b>자유롭게</b>. 이게 VLA의 진짜 강점이에요!</div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🔗</div>
+      <div><b>자동 연속을 원하면:</b> 그 "순서를 정해주는 코드"가 바로 <b>체이닝(방법 B)</b>이에요.
+      작업 목록을 만들어 "작업1 완료 → 작업2 명령"으로 넘겨주면 자동 연속이 됩니다.
+      능력(학습)은 이미 있으니, <b>순서만 코드로 정해주면</b> 돼요.</div>
+    </div>
+
+    <div class="pf">
+      <div class="pf-title">💎 핵심 한 줄 (완전 정리)</div>
+      <b>"같이 학습 = 두 작업을 할 능력" ✅ / "자동 연속 실행 = 별도로 순서를 정해줘야 함" ⚙️</b><br>
+      능력은 학습으로 갖추고, 순서는 실행 때 정해요.
+      명령을 두 번 주거나(A), 코드로 목록을 만들어 자동 전환(B)하면 연달아 됩니다!
+    </div>
+  </div>
+</div>
+</section>
+
+<div style="text-align:center;padding:1rem 0 3.5rem;color:var(--mut);font-size:.88rem;">
+  🦾 ZETABANK · Physical AI Master Course &nbsp;|&nbsp; 멀티태스크 학습(능력) vs 자동 연속 실행
+</div>
+
+</body>
+</html>
