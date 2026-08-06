@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10번 무작위 링 정렬·재스택 완전 교육자료</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#7C3AED; --p-l:#EDE9FE; --blue:#2563EB; --blue-l:#DBEAFE;
+  --suc:#059669; --suc-l:#D1FAE5; --warn:#D97706; --warn-l:#FEF3C7;
+  --dng:#DC2626; --dng-l:#FEE2E2; --surf:#F5F3FF; --card:#fff;
+  --tx:#1E293B; --mut:#64748B; --bd:#E2E8F0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--tx);background:var(--surf);line-height:1.75;}
+code,pre{font-family:'JetBrains Mono',monospace;}
+.container{max-width:940px;margin:0 auto;padding:0 1.5rem;}
+
+.hero{background:linear-gradient(135deg,#4C1D95,#8B5CF6);color:#fff;padding:3.8rem 0 3.2rem;position:relative;overflow:hidden;}
+.hero::before{content:"";position:absolute;top:-40%;right:-8%;width:480px;height:480px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%);border-radius:50%;}
+.hero-in{position:relative;z-index:1;}
+.hero .eyebrow{font-size:.9rem;font-weight:700;opacity:.9;letter-spacing:.08em;margin-bottom:.6rem;}
+.hero h1{font-size:2.5rem;font-weight:900;line-height:1.2;margin-bottom:.9rem;}
+.hero .sub{font-size:1.1rem;opacity:.96;max-width:700px;margin-bottom:1.4rem;}
+.tag-row{display:flex;gap:.55rem;flex-wrap:wrap;}
+.tag{background:rgba(255,255,255,.2);padding:.4rem 1rem;border-radius:999px;font-size:.83rem;font-weight:500;}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin-top:1.6rem;}
+.toc a{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:.7rem .9rem;color:#fff;text-decoration:none;font-size:.86rem;font-weight:700;transition:background .2s;}
+.toc a:hover{background:rgba(255,255,255,.3);}
+
+section{padding:3rem 0;}
+.sec-title{font-size:1.75rem;font-weight:900;margin-bottom:.4rem;display:flex;align-items:center;gap:.55rem;scroll-margin-top:1rem;}
+.sec-lead{color:var(--mut);margin-bottom:1.8rem;}
+
+.card{background:var(--card);border-radius:18px;box-shadow:0 6px 26px rgba(76,29,149,.08);border:1px solid var(--bd);padding:1.9rem;margin-bottom:1.6rem;}
+
+.analogy{display:flex;gap:1.1rem;padding:1.4rem;background:var(--p-l);border-radius:14px;border-left:5px solid var(--p);margin:1.4rem 0;}
+.analogy-icon{font-size:2.4rem;flex-shrink:0;}
+.analogy-title{font-weight:700;font-size:.78rem;color:var(--p);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;}
+.analogy-real{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--p);font-size:.9rem;color:#5b21b6;}
+
+.scene{background:linear-gradient(160deg,#FAFAFF,#F0EDFF);border-radius:16px;padding:1.3rem;margin:1.5rem 0;border:1px solid var(--bd);}
+.scene svg{display:block;width:100%;height:auto;max-width:780px;margin:0 auto;}
+.scene-cap{text-align:center;font-size:.84rem;color:var(--mut);margin-top:.6rem;font-weight:500;}
+
+.callout{display:flex;gap:.85rem;padding:1.1rem 1.3rem;border-radius:12px;margin:1.2rem 0;align-items:flex-start;}
+.callout-icon{font-size:1.4rem;flex-shrink:0;}
+.c-tip{background:var(--suc-l);}
+.c-warn{background:var(--warn-l);}
+.c-truth{background:#FEF2F2;border:1px solid #FECACA;}
+.c-info{background:var(--blue-l);}
+
+.badge{padding:.34rem .9rem;border-radius:999px;font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;}
+.b-easy{background:var(--suc-l);color:var(--suc);}
+.b-mid{background:var(--warn-l);color:var(--warn);}
+.b-hard{background:var(--dng-l);color:var(--dng);}
+.b-data{background:var(--blue-l);color:var(--blue);}
+.b-rate{background:var(--p-l);color:var(--p);}
+.diff-row{display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1.4rem;}
+
+table.dtl{width:100%;border-collapse:collapse;margin:1.4rem 0;font-size:.88rem;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+table.dtl th{background:var(--p);color:#fff;padding:.85rem .75rem;text-align:left;font-size:.84rem;}
+table.dtl td{padding:.75rem .75rem;border-bottom:1px solid var(--bd);vertical-align:top;}
+table.dtl tr:last-child td{border-bottom:none;}
+table.dtl tr:nth-child(even){background:#faf9ff;}
+.num-hi{font-weight:900;color:var(--p);}
+
+.code{background:#1e1e2e;color:#cdd6f4;border-radius:12px;padding:1.1rem 1.3rem;font-size:.82rem;overflow-x:auto;margin:1.2rem 0;line-height:1.7;}
+.code .cmt{color:#6c7086;} .code .key{color:#f38ba8;} .code .str{color:#a6e3a1;} .code .num{color:#fab387;} .code .hl{background:#45475a;border-radius:3px;padding:0 3px;color:#f9e2af;} .code .kw{color:#cba6f7;} .code .fn{color:#89b4fa;}
+
+.steps{margin:1.4rem 0;}
+.step{display:flex;gap:1rem;padding:1rem 0;border-bottom:1px dashed var(--bd);}
+.step:last-child{border-bottom:none;}
+.step-n{width:34px;height:34px;border-radius:50%;background:var(--p);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem;}
+
+.pf{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:14px;padding:1.3rem 1.5rem;margin-top:1.4rem;border-left:5px solid var(--suc);}
+.pf-title{font-weight:900;color:var(--suc);font-size:.95rem;margin-bottom:.5rem;}
+
+h4.blk{font-size:1.15rem;font-weight:700;margin:1.7rem 0 .8rem;display:flex;align-items:center;gap:.45rem;}
+
+.phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.4rem 0;}
+.phase-card{border-radius:16px;padding:1.3rem;border:2px solid;text-align:center;}
+.phase-1{border-color:var(--blue);background:var(--blue-l);}
+.phase-2{border-color:var(--suc);background:var(--suc-l);}
+.phase-badge{display:inline-block;padding:.2rem .75rem;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff;margin-bottom:.5rem;}
+.phase-card h5{font-size:1.05rem;font-weight:900;margin-bottom:.3rem;}
+.phase-num{font-size:1.7rem;font-weight:900;margin:.4rem 0;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin:1.4rem 0;}
+.stat-card{background:var(--surf);border-radius:12px;padding:1.2rem;text-align:center;border:1px solid var(--bd);}
+.stat-number{font-size:1.9rem;font-weight:900;color:var(--p);line-height:1;}
+.stat-label{font-weight:700;font-size:.82rem;margin-top:.4rem;}
+.stat-desc{font-size:.75rem;color:var(--mut);margin-top:.2rem;}
+
+.vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.4rem 0;}
+.vs-card{border-radius:14px;padding:1.2rem;border:2px solid;}
+.vs-good{border-color:var(--suc);background:var(--suc-l);}
+.vs-bad{border-color:var(--dng);background:var(--dng-l);}
+.vs-card h5{font-size:1rem;margin-bottom:.5rem;font-weight:900;}
+
+@media(max-width:768px){
+  .hero h1{font-size:1.8rem;}
+  .card{padding:1.3rem;}
+  .analogy{flex-direction:column;gap:.6rem;}
+  .vs-grid{grid-template-columns:1fr;}
+  table.dtl{font-size:.76rem;}
+  table.dtl th,table.dtl td{padding:.5rem .4rem;}
+}
+@media print{body{background:#fff;} .card{box-shadow:none;break-inside:avoid;} .hero{background:#4C1D95 !important;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container hero-in">
+    <div class="eyebrow">SO-101 × SmolVLA · 실습 시나리오 10번</div>
+    <h1>🍩 무작위 링 정렬·재스택<br>정렬 → 페그에 끼우기</h1>
+    <p class="sub">아무렇게나 놓인 링 3개를 <b>크기순으로 정렬</b>하고 <b>막대(페그)에 큰 것부터 끼워</b> 탑을 완성!
+    두 스킬을 이어 붙이는 <b>롱호라이즌·스킬 체이닝</b>의 대표 실습이에요.</p>
+    <div class="tag-row">
+      <span class="tag">스킬 체이닝</span>
+      <span class="tag">롱호라이즌</span>
+      <span class="tag">self-aligning</span>
+      <span class="tag">재시도 복구</span>
+    </div>
+    <div class="toc">
+      <a href="#s1">① 무엇을 하나</a>
+      <a href="#s2">② 왜 링이 유리</a>
+      <a href="#s3">③ 2스킬 구조</a>
+      <a href="#s4">④ 체이닝·재시도</a>
+      <a href="#s5">⑤ 학습 방식</a>
+      <a href="#s6">⑥ 실습 명령어</a>
+      <a href="#s7">⑦ 취업 포인트</a>
+    </div>
+  </div>
+</div>
+
+<!-- ① 개요 -->
+<section id="s1">
+<div class="container">
+  <h2 class="sec-title">① 무엇을 하는 실습인가?</h2>
+  <p class="sec-lead">한 문장으로: <b>무작위로 놓인 링 3개를 크기순 정렬하고, 페그에 큰 것부터 끼워 탑 만들기.</b></p>
+
+  <div class="card">
+    <div class="diff-row">
+      <span class="badge b-hard">🔴 난이도 : 상 (링이라 유리!)</span>
+      <span class="badge b-rate">🎯 2스킬 체이닝 (정렬+재스택)</span>
+      <span class="badge b-data">📸 스킬 개별 → 연결</span>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🍩</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>도넛 3개가 책상에 <b>아무렇게나</b> 놓여 있어요. 로봇이 <b>큰 것 → 중간 → 작은 것</b>을 알아보고
+        정렬한 다음, 막대(페그)에 <b>큰 것부터</b> 끼워서 예쁜 탑을 만드는 거예요!</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 두 개의 다른 일이 이어져요: <b>①크기 판단하고 정렬 ②페그에 순서대로 끼우기.</b>
+        이렇게 여러 작업을 연달아 하는 걸 "롱호라이즌(긴 작업)"이라고 해요.</p>
+      </div>
+    </div>
+
+    <!-- 전체 개요 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 280" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="230" width="780" height="50" fill="#EDE9FE"/>
+        <line x1="0" y1="230" x2="780" y2="230" stroke="#c4b5fd" stroke-width="2"/>
+        <!-- STEP 1: random rings -->
+        <text x="135" y="28" font-size="13" fill="#7C3AED" text-anchor="middle" font-weight="700">① 무작위 링 3개</text>
+        <ellipse cx="90" cy="200" rx="36" ry="12" fill="#F472B6" transform="rotate(-8 90 200)"/><ellipse cx="90" cy="200" rx="15" ry="5" fill="#EDE9FE" transform="rotate(-8 90 200)"/>
+        <ellipse cx="200" cy="215" rx="26" ry="9" fill="#60A5FA" transform="rotate(12 200 215)"/><ellipse cx="200" cy="215" rx="11" ry="4" fill="#EDE9FE" transform="rotate(12 200 215)"/>
+        <ellipse cx="150" cy="160" rx="18" ry="7" fill="#4ADE80" transform="rotate(20 150 160)"/><ellipse cx="150" cy="160" rx="8" ry="3" fill="#EDE9FE" transform="rotate(20 150 160)"/>
+        <text x="135" y="255" font-size="10.5" fill="#64748b" text-anchor="middle">위치·방향 랜덤 🎲</text>
+        <text x="270" y="185" font-size="22" fill="#cbd5e1">→</text>
+        <!-- STEP 2: sort -->
+        <text x="410" y="28" font-size="13" fill="#2563EB" text-anchor="middle" font-weight="700">② 크기순 정렬 (스킬A)</text>
+        <ellipse cx="335" cy="200" rx="38" ry="12" fill="#F472B6"/><ellipse cx="335" cy="200" rx="15" ry="5" fill="#EDE9FE"/>
+        <ellipse cx="410" cy="205" rx="27" ry="9" fill="#60A5FA"/><ellipse cx="410" cy="205" rx="11" ry="4" fill="#EDE9FE"/>
+        <ellipse cx="470" cy="208" rx="18" ry="7" fill="#4ADE80"/><ellipse cx="470" cy="208" rx="8" ry="3" fill="#EDE9FE"/>
+        <text x="335" y="230" font-size="9" fill="#64748b" text-anchor="middle">큰것</text>
+        <text x="470" y="230" font-size="9" fill="#64748b" text-anchor="middle">작은것</text>
+        <text x="510" y="185" font-size="22" fill="#cbd5e1">→</text>
+        <!-- STEP 3: restack -->
+        <text x="650" y="28" font-size="13" fill="#059669" text-anchor="middle" font-weight="700">③ 페그 재스택 (스킬B) ✅</text>
+        <rect x="646" y="118" width="8" height="112" fill="#e2e8f0"/>
+        <ellipse cx="650" cy="215" rx="42" ry="12" fill="#F472B6"/><ellipse cx="650" cy="215" rx="10" ry="4" fill="#e2e8f0"/>
+        <ellipse cx="650" cy="192" rx="30" ry="10" fill="#60A5FA"/><ellipse cx="650" cy="192" rx="9" ry="3" fill="#e2e8f0"/>
+        <ellipse cx="650" cy="172" rx="20" ry="8" fill="#4ADE80"/><ellipse cx="650" cy="172" rx="7" ry="3" fill="#e2e8f0"/>
+        <text x="705" y="150" font-size="20">🏆</text>
+      </svg>
+      <div class="scene-cap">🎬 전체 흐름: 무작위 링 3개 → 크기순 정렬(스킬A) → 페그에 큰 것부터 재스택(스킬B)</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ② 왜 링이 유리 -->
+<section id="s2" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">② 왜 링(도넛 모양)이 유리할까?</h2>
+  <p class="sec-lead">큐브 대신 링을 쓰면 <b>파지도 정렬도 쉬워요.</b> 링만의 장점이 있어요.</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">🎯</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>도넛을 막대에 끼우는 놀이 있죠? 링은 <b>가운데 구멍</b>이 있어서 두 가지가 좋아요:
+        ① 구멍이 있어 <b>집기 쉽고</b> ② 막대(페그)에 끼우면 <b>구멍이 저절로 중심을 잡아요.</b>
+        큐브처럼 정중앙을 mm 단위로 안 맞춰도 돼요!</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 페그가 링 구멍의 중심을 자동으로 잡아주는 걸 <b>"self-aligning(자동 정렬)"</b>이라고 해요.
+        큐브 스택보다 오차에 관대해서 성공률이 더 잘 나와요.</p>
+      </div>
+    </div>
+
+    <!-- 큐브 vs 링 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- cube: precise needed -->
+        <text x="195" y="30" font-size="14" fill="#D97706" text-anchor="middle" font-weight="700">🧊 큐브 : 정밀해야 함</text>
+        <rect x="150" y="150" width="90" height="30" rx="4" fill="#2563EB"/>
+        <rect x="158" y="120" width="74" height="30" rx="4" fill="#DC2626"/>
+        <line x1="195" y1="115" x2="195" y2="185" stroke="#DC2626" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="270" y="130" font-size="14" fill="#DC2626">⚠️</text>
+        <text x="195" y="205" font-size="11" fill="#D97706" text-anchor="middle">1mm 어긋나면 무너짐</text>
+        <!-- divider -->
+        <line x1="390" y1="50" x2="390" y2="195" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="6 6"/>
+        <!-- ring: self-aligning -->
+        <text x="585" y="30" font-size="14" fill="#059669" text-anchor="middle" font-weight="700">🍩 링 : 저절로 정렬</text>
+        <rect x="581" y="90" width="8" height="95" fill="#e2e8f0"/>
+        <ellipse cx="585" cy="175" rx="45" ry="13" fill="#F472B6"/><ellipse cx="585" cy="175" rx="11" ry="4" fill="#e2e8f0"/>
+        <ellipse cx="585" cy="150" rx="33" ry="10" fill="#60A5FA"/><ellipse cx="585" cy="150" rx="9" ry="3" fill="#e2e8f0"/>
+        <ellipse cx="585" cy="128" rx="22" ry="8" fill="#4ADE80"/><ellipse cx="585" cy="128" rx="7" ry="3" fill="#e2e8f0"/>
+        <!-- falling ring aligning -->
+        <ellipse cx="640" cy="95" rx="24" ry="7" fill="#4ADE80" opacity=".4"/>
+        <path d="M620 100 q-10 15 -25 22" fill="none" stroke="#059669" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#af)"/>
+        <defs><marker id="af" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0 0 l5 3 l-5 3z" fill="#059669"/></marker></defs>
+        <text x="585" y="205" font-size="11" fill="#059669" text-anchor="middle">구멍이 페그를 따라 안착 ✅</text>
+      </svg>
+      <div class="scene-cap">🍩 큐브는 mm 단위 정밀이 필요하지만, 링은 페그가 중심을 자동으로 잡아줘요(self-aligning)</div>
+    </div>
+
+    <div class="vs-grid">
+      <div class="vs-card vs-good">
+        <h5>✅ 링의 장점</h5>
+        <p style="font-size:.9rem;">① 구멍이 있어 <b>파지 안정</b> ② 페그가 <b>자동 정렬</b>
+        ③ 크기 차이로 <b>순서 명확</b>. 큐브 탑보다 성공률↑</p>
+      </div>
+      <div class="vs-card vs-bad">
+        <h5>⚠️ 그래도 어려운 점</h5>
+        <p style="font-size:.9rem;">2단계 연속이라 <b>롱호라이즌</b>. 정렬 실수가 재스택으로 <b>이어지면 실패</b>.
+        재시도 로직이 꼭 필요해요.</p>
+      </div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🎨</div>
+      <div><b>사진 속 링 활용:</b> 색깔 링(주황·연두·파랑·분홍)을 그대로 쓰면 돼요. 크기마다 색이 다르면
+      로봇이 "지금 큰 링(분홍)"처럼 <b>색+크기를 함께</b> 보고 판단해 정렬이 쉬워져요. 3개면 크기 차이가 <b>확실히 나는</b> 링으로.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ③ 2스킬 구조 -->
+<section id="s3" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">③ 두 개의 스킬로 나누기</h2>
+  <p class="sec-lead">한 번에 다 배우기 어려워요. <b>정렬(스킬A)</b>과 <b>재스택(스킬B)</b>을 각각 배운 뒤 이어 붙여요.</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">🧩</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>요리를 배울 때 <b>재료 손질</b>과 <b>볶기</b>를 따로 연습하고 합치죠?
+        로봇도 <b>①정렬</b>과 <b>②재스택</b>을 <b>각각</b> 잘하게 만든 다음, 순서대로 이어요.
+        한꺼번에 배우면 뭐가 문제인지 찾기 어려워요.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 이걸 <b>"스킬 분해(skill decomposition)"</b>라고 해요.
+        긴 작업을 작은 스킬로 나눠 각각 마스터하고 연결하는 게 롱호라이즌의 정석이에요.</p>
+      </div>
+    </div>
+
+    <div class="phase-grid">
+      <div class="phase-card phase-1">
+        <span class="phase-badge" style="background:#2563EB;">스킬 A</span>
+        <h5>📏 크기순 정렬</h5>
+        <div class="phase-num" style="color:#2563EB;">200회</div>
+        <p style="font-size:.85rem;">무작위 링 3개를 큰→중간→작은 순으로 한 줄 정렬. "Sort rings by size".</p>
+      </div>
+      <div class="phase-card phase-2">
+        <span class="phase-badge" style="background:#059669;">스킬 B</span>
+        <h5>🍩 페그 재스택</h5>
+        <div class="phase-num" style="color:#059669;">200회</div>
+        <p style="font-size:.85rem;">정렬된 링을 큰 것부터 페그에 끼우기. "Stack rings on the peg". 구멍이 정렬 도움.</p>
+      </div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🔍</div>
+      <div><b>왜 나누나?</b> 스킬을 따로 배우면 <b>어느 스킬이 약한지</b> 바로 알 수 있어요.
+      "정렬은 잘 되는데 재스택이 실패"처럼 문제를 콕 집어 개선할 수 있죠. 합쳐만 두면 디버깅이 어려워요.</div>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">💡</div>
+      <div><b>스킬 B는 스킬 A를 warm start:</b> 정렬(A) 모델을 출발점으로 재스택(B)을 학습하면
+      "링 집기" 기본기가 공유돼 더 빨리 배워요. 단, 둘은 다른 스킬이라 <b>학습 방식에 주의</b>가 필요해요(⑤에서 설명).</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ④ 체이닝·재시도 -->
+<section id="s4" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">④ 스킬 연결(체이닝)과 재시도 — 진짜 어려운 부분</h2>
+  <p class="sec-lead">두 스킬을 이어 붙일 때 <b>"넘어가는 순간(hand-off)"</b>이 가장 어려워요. 이걸 알면 성공률이 올라가요.</p>
+
+  <div class="card">
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>핵심 난제 (hand-off 문제):</b> 정렬(A)이 <b>끝난 상태</b>를 재스택(B)이 <b>본 적 없으면</b> 실패해요.
+      예를 들어 A가 링을 조금 삐뚤게 정렬해 놓으면, B는 "삐뚤어진 링"을 학습 안 했으니 못 집어요.
+      스킬을 이을 때 이 <b>연결 지점</b>이 가장 위험해요.</div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🏃</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>이어달리기에서 <b>바통 넘기는 순간</b>이 제일 실수 많죠? 앞 주자가 애매한 위치에 바통을 두면
+        뒤 주자가 못 잡아요. 로봇 스킬 연결도 똑같아요 — <b>A가 끝낸 자리에서 B가 시작</b>하는데,
+        그 자리가 B가 모르는 상태면 실패해요.</p>
+        <p class="analogy-real">💡 <b>해결법</b> — B를 학습할 때 <b>"A가 만들 수 있는 다양한 상태"</b>에서 시작하도록 데이터를 모아요.
+        그리고 <b>재시도(안 되면 다시)</b> 로직을 넣어요.</p>
+      </div>
+    </div>
+
+    <!-- 성공률 곱셈 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 200" xmlns="http://www.w3.org/2000/svg">
+        <text x="390" y="28" font-size="14" fill="#1e293b" text-anchor="middle" font-weight="700">롱호라이즌 = 성공률이 곱해짐 (그래서 재시도가 필수!)</text>
+        <!-- skill A -->
+        <rect x="80" y="70" width="150" height="60" rx="12" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+        <text x="155" y="95" font-size="13" fill="#2563EB" text-anchor="middle" font-weight="700">스킬 A (정렬)</text>
+        <text x="155" y="117" font-size="15" fill="#2563EB" text-anchor="middle" font-weight="900">75%</text>
+        <text x="255" y="105" font-size="20" fill="#7C3AED" text-anchor="middle" font-weight="900">×</text>
+        <!-- skill B -->
+        <rect x="290" y="70" width="150" height="60" rx="12" fill="#D1FAE5" stroke="#059669" stroke-width="2"/>
+        <text x="365" y="95" font-size="13" fill="#059669" text-anchor="middle" font-weight="700">스킬 B (재스택)</text>
+        <text x="365" y="117" font-size="15" fill="#059669" text-anchor="middle" font-weight="900">75%</text>
+        <text x="465" y="105" font-size="20" fill="#7C3AED" text-anchor="middle" font-weight="900">=</text>
+        <!-- result -->
+        <rect x="500" y="65" width="180" height="70" rx="12" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
+        <text x="590" y="90" font-size="12" fill="#DC2626" text-anchor="middle" font-weight="700">전체 성공률</text>
+        <text x="590" y="115" font-size="18" fill="#DC2626" text-anchor="middle" font-weight="900">약 56%</text>
+        <text x="590" y="155" font-size="10" fill="#991b1b" text-anchor="middle">0.75 × 0.75 = 0.56</text>
+        <!-- note -->
+        <text x="390" y="185" font-size="11" fill="#7C3AED" text-anchor="middle">각각 75%여도 이어붙이면 56%로 뚝! → 재시도로 방어</text>
+      </svg>
+      <div class="scene-cap">📉 각 스킬이 75%여도 연결하면 56%로 떨어져요. 그래서 "재시도/복구"가 필수예요</div>
+    </div>
+
+    <h4 class="blk">🔄 재시도(복구) 로직이 핵심</h4>
+    <div class="callout c-tip">
+      <div class="callout-icon">🔧</div>
+      <div><b>실전 핵심:</b> "한 번에 완벽"을 기대하지 말고 <b>"안 되면 다시"</b>를 넣으세요.
+      링이 페그에 안 들어가면 → 다시 집어서 재시도. 실제 연구도 <b>"복구 못할 때만 실패"</b>로 쳐요.
+      재시도가 있으면 56% → 훨씬 높아져요.</div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🔗</div>
+      <div><b>체이닝 실행 방법:</b> "정렬 끝나면 자동으로 재스택"은 기본 명령어엔 없어요.
+      Python으로 <b>작업 목록 만들어 순서대로 실행</b>(정렬 완료 판단 → 재스택 명령)하는 체이닝 코드가 필요해요.
+      먼저 각 스킬을 따로 실행해 검증하고, 그다음 코드로 자동 연결하세요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑤ 학습 방식 -->
+<section id="s5" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑤ 학습 방식 : 정렬과 재스택은 다른 스킬</h2>
+  <p class="sec-lead">10번도 <b>순차학습 주의</b>가 필요해요. 정렬(A)과 재스택(B)은 완전히 다른 일이니까요.</p>
+
+  <div class="card">
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>10번은 순차학습 주의 케이스!</b> 정렬(A)과 재스택(B)은 <b>완전히 다른 스킬</b>이에요.
+      "A 200회 → B 200회" 순차로만 하면, B 학습 후 <b>A(정렬)를 까먹을 수</b> 있어요.
+      여러분이 앞서 물어본 함정의 대표 케이스예요. 8번(색 분류)과 비슷해요!</div>
+    </div>
+
+    <table class="dtl">
+      <thead><tr><th>학습 방식</th><th>어떻게</th><th>10번에서는?</th></tr></thead>
+      <tbody>
+        <tr><td><b>통합 재학습</b><br>⭐추천</td><td>정렬+재스택 데이터를 <b>합쳐서</b> 학습 (각 task 텍스트로 구분)</td><td>✅ <b>안전!</b> 두 스킬 다 기억. 명령으로 전환</td></tr>
+        <tr><td><b>순차 warm start</b></td><td>정렬(A) → 재스택(B) 이어서</td><td>⚠️ <b>주의.</b> B 배우다 A를 까먹을 수 있음</td></tr>
+        <tr><td><b>따로 2개 모델</b></td><td>정렬용·재스택용 모델 각각</td><td>△ 각각 최고 성능 / ❌ 모델 2개 관리, 전환 복잡</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">💡</div>
+      <div><b>추천 조합:</b> 정렬·재스택 데이터를 <b>통합 재학습</b>하면 한 모델이 두 스킬을 다 갖게 돼요(멀티태스크).
+      그다음 <b>체이닝 코드</b>로 "정렬 → 재스택" 순서를 실행하면 돼요. 능력은 통합 학습으로, 순서는 체이닝으로!</div>
+    </div>
+
+    <div class="callout c-warn">
+      <div class="callout-icon">⚠️</div>
+      <div><b>꼭 확인:</b> 재스택(B) 학습 후 <b>정렬(A)도 다시 테스트</b>하세요.
+      A 성공률이 떨어졌으면 통합 재학습으로 전환. "다른 스킬이라 순차는 위험"하다는 걸 기억하세요.</div>
+    </div>
+
+    <h4 class="blk">🔀 7번·8번·10번 학습 방식 비교</h4>
+    <table class="dtl">
+      <thead><tr><th>시나리오</th><th>1→2단계 관계</th><th>학습 방식</th></tr></thead>
+      <tbody>
+        <tr><td><b>7번</b> 탑쌓기</td><td>2층 ⊂ 3층 (<b>포함</b>)</td><td>✅ 순차 warm start OK</td></tr>
+        <tr><td><b>8번</b> 색 분류</td><td>빨강 ≠ 파랑 (<b>다른 스킬</b>)</td><td>⚠️ 통합 재학습</td></tr>
+        <tr><td><b>10번</b> 링</td><td>정렬 ≠ 재스택 (<b>다른 스킬</b>)</td><td>⚠️ 통합 재학습</td></tr>
+      </tbody>
+    </table>
+    <div class="callout c-info">
+      <div class="callout-icon">🔑</div>
+      <div><b>판별법:</b> 2단계가 1단계를 <b>포함/확장</b>하면 순차 OK(7번), <b>완전히 다른 스킬</b>이면 통합 재학습(8·10번).
+      10번은 "정렬과 재스택"이 다른 일이라 통합이 안전해요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑥ 실습 명령어 -->
+<section id="s6" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑥ 실습 명령어 (녹화 → 통합학습 → 체이닝 추론)</h2>
+  <p class="sec-lead">스킬마다 녹화하고, 합쳐서 학습한 뒤, 체이닝으로 이어 실행해요.</p>
+
+  <div class="card">
+    <h4 class="blk">1️⃣ 녹화 : 스킬마다 다른 single_task로</h4>
+    <div class="code">
+<span class="cmt"># 📏 스킬 A : 크기순 정렬 (200회)</span><br>
+lerobot-record <span class="key">--robot.type</span>=so101_follower <span class="key">--robot.port</span>=/dev/ttyACM0 \<br>
+&nbsp;&nbsp;<span class="key">--dataset.repo_id</span>=<span class="str">$HF_USER/ring_sort</span> \<br>
+&nbsp;&nbsp;<span class="key">--dataset.single_task</span>=<span class="hl str">"Sort the rings by size"</span> \<br>
+&nbsp;&nbsp;<span class="key">--dataset.num_episodes</span>=<span class="num">200</span> \<br>
+&nbsp;&nbsp;<span class="key">--teleop.type</span>=so101_leader <span class="key">--teleop.port</span>=/dev/ttyACM1<br>
+<br>
+<span class="cmt"># 🍩 스킬 B : 페그 재스택 (200회) — repo_id·single_task만 변경</span><br>
+<span class="cmt"># --dataset.repo_id=$HF_USER/ring_restack</span><br>
+<span class="cmt"># --dataset.single_task="Stack the rings on the peg"</span>
+    </div>
+    <div class="callout c-tip">
+      <div class="callout-icon">💡</div>
+      <div>재스택(B) 데이터는 <b>정렬이 조금씩 다른 여러 상태</b>에서 시작하도록 모으세요.
+      그래야 hand-off 문제(A가 만든 상태를 B가 못 보는 것)를 줄여요.</div>
+    </div>
+
+    <h4 class="blk">2️⃣ 통합 학습 : 두 스킬 데이터를 합쳐서</h4>
+    <div class="code">
+<span class="cmt"># 정렬·재스택 데이터를 합쳐서 학습 (통합 재학습)</span><br>
+lerobot-train <span class="key">--policy.path</span>=lerobot/smolvla_base \<br>
+&nbsp;&nbsp;<span class="key">--dataset.repo_id</span>=<span class="hl str">$HF_USER/ring_sort,$HF_USER/ring_restack</span> \<br>
+&nbsp;&nbsp;<span class="key">--batch_size</span>=<span class="num">64</span> <span class="key">--steps</span>=<span class="num">25000</span> \<br>
+&nbsp;&nbsp;<span class="key">--output_dir</span>=<span class="str">outputs/train/ring_full</span> <span class="key">--policy.device</span>=cuda
+    </div>
+
+    <h4 class="blk">3️⃣ 체이닝 추론 : 정렬 → 재스택 순서로</h4>
+    <div class="code">
+<span class="cmt"># 방법A) 따로 실행 : 정렬 먼저 → 끝나면 재스택</span><br>
+lerobot-rollout <span class="key">--policy.path</span>=<span class="str">outputs/train/ring_full/checkpoint</span> \<br>
+&nbsp;&nbsp;<span class="key">--task</span>=<span class="hl str">"Sort the rings by size"</span> <span class="key">--duration</span>=<span class="num">40</span> ... <span class="cmt"># 정렬</span><br>
+lerobot-rollout <span class="key">--policy.path</span>=<span class="str">outputs/train/ring_full/checkpoint</span> \<br>
+&nbsp;&nbsp;<span class="key">--task</span>=<span class="hl str">"Stack the rings on the peg"</span> <span class="key">--duration</span>=<span class="num">50</span> ... <span class="cmt"># 재스택</span><br>
+<br>
+<span class="cmt"># 방법B) 체이닝 스크립트 (자동 연속 + 재시도)</span><br>
+tasks = [<span class="str">"Sort the rings by size"</span>, <span class="str">"Stack the rings on the peg"</span>]<br>
+<span class="kw">for</span> task <span class="kw">in</span> tasks:&nbsp;&nbsp;<span class="cmt"># 순서대로, 완료 판단 후 다음으로</span><br>
+&nbsp;&nbsp;<span class="fn">run_until_done</span>(policy, robot, task, retry=<span class="num">2</span>)&nbsp;<span class="cmt"># 재시도 2회</span>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div><b>스킬 A 녹화·학습</b> — 정렬 200회 → 학습 → 정렬 정확도 확인.</div></div>
+      <div class="step"><div class="step-n">2</div><div><b>스킬 B 녹화·통합 학습</b> — 재스택 200회 → A+B 합쳐서 학습.</div></div>
+      <div class="step"><div class="step-n">3</div><div><b>각 스킬 따로 검증</b> — 정렬만·재스택만 각각 성공률 측정(방법A).</div></div>
+      <div class="step"><div class="step-n">4</div><div><b>체이닝 + 재시도</b> — 두 스킬을 이어 실행. 안 되면 재시도(방법B).</div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑦ 취업 포인트 & 종합 -->
+<section id="s7" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑦ 취업 포인트 & 종합 정리</h2>
+  <p class="sec-lead">10번은 <b>가장 임팩트 큰 데모</b>예요. 여러 능력을 한 번에 보여줘요.</p>
+
+  <div class="card" style="border:2px solid var(--p);">
+    <h4 class="blk" style="margin-top:0;">📊 10번 한눈 요약표</h4>
+    <table class="dtl">
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><b>작업</b></td><td>무작위 링 3개 → 크기순 정렬 → 페그 재스택 (롱호라이즌)</td></tr>
+        <tr><td><b>스킬 A</b></td><td>📏 크기순 정렬 · <span class="num-hi">200회</span></td></tr>
+        <tr><td><b>스킬 B</b></td><td>🍩 페그 재스택 · <span class="num-hi">200회</span></td></tr>
+        <tr><td><b>학습 방식</b></td><td>⚠️ <b>통합 재학습</b> (정렬≠재스택, 다른 스킬)</td></tr>
+        <tr><td><b>실행</b></td><td>체이닝(정렬→재스택) + <b>재시도 필수</b></td></tr>
+        <tr><td><b>핵심 난제</b></td><td>hand-off(연결 지점) + 성공률 곱셈</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>솔직한 진실:</b> 2단계 연속이라 각 75%여도 전체는 ~56%. 링이 유리해도 <b>"긴 작업"의 본질적 어려움</b>은 남아요.
+      <b>재시도/복구 로직</b>이 성공률의 열쇠예요. 이걸 이해하고 구현하는 게 진짜 실력!</div>
+    </div>
+
+    <div class="pf">
+      <div class="pf-title">💼 취업 포트폴리오 강점 (최강!)</div>
+      <b>"무작위 → 크기 인식 정렬 → 자동정렬 재스택 + 체이닝 + 재시도"</b>는 가장 임팩트 큰 데모예요:
+      <br>① <b>인식</b>(크기 판단) ② <b>계획</b>(순서 정하기) ③ <b>조립</b>(재스택) ④ <b>롱호라이즌 제어</b>(체이닝·재시도)를 한 데모에!
+      실물 링이라 <b>비전공 면접관도 이해</b>하는 훌륭한 시연이에요.
+    </div>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">🎯</div>
+      <div><b>10번의 핵심 3가지:</b> ① <b>링은 유리</b>(구멍 파지, self-aligning) ② <b>통합 재학습</b>으로 두 스킬 다 기억
+      (7번과 다름!) ③ <b>체이닝+재시도</b>로 hand-off 문제와 성공률 곱셈을 방어.</div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🔗</div>
+      <div><b>시나리오 연결:</b> 10번은 7번(탑쌓기)의 "쌓기" 기술 + 8번(분류)의 "인식" 기술을 <b>합친 종합판</b>이에요.
+      앞선 시나리오를 마스터하면 10번의 각 스킬이 이미 익숙해요. <b>커리큘럼의 최종 관문</b>이에요.</div>
+    </div>
+
+    <div class="pf" style="border-left-color:var(--p);background:linear-gradient(135deg,#FAFAFF,#EDE9FE);">
+      <div class="pf-title" style="color:var(--p);">💎 핵심 한 줄</div>
+      10번은 <b>인식+계획+조립+롱호라이즌 제어</b>를 한 번에 보여주는 종합 실습이에요.
+      링의 self-aligning 장점을 살리고, <b>통합 재학습으로 두 스킬을 갖춘 뒤 체이닝·재시도로 이어 실행</b>하는 게 정석입니다!
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:1rem 0 3.5rem;color:var(--mut);font-size:.88rem;">
+  🦾 ZETABANK · Physical AI Master Course &nbsp;|&nbsp; 실습 시나리오 10번 · 무작위 링 정렬·재스택 완전판
+</div>
+
+</section>
+
+</body>
+</html>

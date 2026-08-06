@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9번 재설계 : 공을 다른 형태 통에 넣기 (멀티태스크)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#7C3AED; --p-l:#EDE9FE; --blue:#2563EB; --blue-l:#DBEAFE;
+  --suc:#059669; --suc-l:#D1FAE5; --warn:#D97706; --warn-l:#FEF3C7;
+  --dng:#DC2626; --dng-l:#FEE2E2; --surf:#F5F3FF; --card:#fff;
+  --tx:#1E293B; --mut:#64748B; --bd:#E2E8F0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--tx);background:var(--surf);line-height:1.75;}
+code,pre{font-family:'JetBrains Mono',monospace;}
+.container{max-width:940px;margin:0 auto;padding:0 1.5rem;}
+
+.hero{background:linear-gradient(135deg,#78350F,#F59E0B);color:#fff;padding:3.5rem 0 3rem;position:relative;overflow:hidden;}
+.hero::before{content:"";position:absolute;top:-40%;right:-8%;width:460px;height:460px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%);border-radius:50%;}
+.hero-in{position:relative;z-index:1;}
+.hero h1{font-size:2.2rem;font-weight:900;line-height:1.22;margin-bottom:.9rem;}
+.hero .sub{font-size:1.05rem;opacity:.96;max-width:710px;margin-bottom:1.3rem;}
+.tag-row{display:flex;gap:.55rem;flex-wrap:wrap;}
+.tag{background:rgba(255,255,255,.2);padding:.4rem 1rem;border-radius:999px;font-size:.83rem;font-weight:500;}
+
+section{padding:2.8rem 0;}
+.sec-title{font-size:1.7rem;font-weight:900;margin-bottom:.4rem;display:flex;align-items:center;gap:.55rem;}
+.sec-lead{color:var(--mut);margin-bottom:1.8rem;}
+
+.card{background:var(--card);border-radius:18px;box-shadow:0 6px 26px rgba(120,53,15,.08);border:1px solid var(--bd);padding:1.8rem;margin-bottom:1.6rem;}
+
+.analogy{display:flex;gap:1.1rem;padding:1.3rem;background:var(--warn-l);border-radius:14px;border-left:5px solid var(--warn);margin:1.3rem 0;}
+.analogy-icon{font-size:2.2rem;flex-shrink:0;}
+.analogy-title{font-weight:700;font-size:.78rem;color:var(--warn);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;}
+.analogy-real{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--warn);font-size:.9rem;color:#92400e;}
+
+.scene{background:linear-gradient(160deg,#FFFBEB,#FEF3C7);border-radius:16px;padding:1.2rem;margin:1.4rem 0;border:1px solid var(--bd);}
+.scene svg{display:block;width:100%;height:auto;max-width:780px;margin:0 auto;}
+.scene-cap{text-align:center;font-size:.83rem;color:var(--mut);margin-top:.6rem;font-weight:500;}
+
+.callout{display:flex;gap:.85rem;padding:1.05rem 1.25rem;border-radius:12px;margin:1.1rem 0;align-items:flex-start;}
+.callout-icon{font-size:1.35rem;flex-shrink:0;}
+.c-tip{background:var(--suc-l);}
+.c-warn{background:var(--warn-l);}
+.c-truth{background:#FEF2F2;border:1px solid #FECACA;}
+.c-info{background:var(--blue-l);}
+
+.badge{padding:.32rem .85rem;border-radius:999px;font-size:.8rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;}
+.b-mid{background:var(--warn-l);color:var(--warn);}
+.b-hard{background:var(--dng-l);color:var(--dng);}
+.b-data{background:var(--blue-l);color:var(--blue);}
+.b-rate{background:var(--p-l);color:var(--p);}
+.diff-row{display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1.3rem;}
+
+table.dtl{width:100%;border-collapse:collapse;margin:1.3rem 0;font-size:.88rem;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+table.dtl th{background:var(--warn);color:#fff;padding:.8rem .7rem;text-align:left;font-size:.83rem;}
+table.dtl td{padding:.72rem .7rem;border-bottom:1px solid var(--bd);vertical-align:top;}
+table.dtl tr:last-child td{border-bottom:none;}
+table.dtl tr:nth-child(even){background:#fffbeb;}
+.num-hi{font-weight:900;color:var(--warn);}
+
+.code{background:#1e1e2e;color:#cdd6f4;border-radius:12px;padding:1.05rem 1.25rem;font-size:.8rem;overflow-x:auto;margin:1.1rem 0;line-height:1.65;}
+.code .cmt{color:#6c7086;} .code .key{color:#f38ba8;} .code .str{color:#a6e3a1;} .code .num{color:#fab387;}
+
+.steps{margin:1.3rem 0;}
+.step{display:flex;gap:.9rem;padding:.9rem 0;border-bottom:1px dashed var(--bd);}
+.step:last-child{border-bottom:none;}
+.step-n{width:32px;height:32px;border-radius:50%;background:var(--warn);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem;}
+
+.pf{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:14px;padding:1.2rem 1.4rem;margin-top:1.3rem;border-left:5px solid var(--suc);}
+.pf-title{font-weight:900;color:var(--suc);font-size:.92rem;margin-bottom:.4rem;}
+
+h4.blk{font-size:1.05rem;font-weight:700;margin:1.4rem 0 .7rem;display:flex;align-items:center;gap:.45rem;}
+
+.scn{background:var(--card);border-radius:20px;box-shadow:0 8px 30px rgba(120,53,15,.1);margin-bottom:2.5rem;overflow:hidden;border:1px solid var(--bd);}
+.scn-head{padding:1.5rem 1.8rem;color:#fff;display:flex;align-items:center;gap:1.1rem;}
+.scn-num{font-size:2.2rem;font-weight:900;background:rgba(255,255,255,.24);width:64px;height:64px;border-radius:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.scn-head h3{font-size:1.26rem;font-weight:900;margin-bottom:.15rem;}
+.scn-head .en{font-size:.85rem;opacity:.9;font-family:'JetBrains Mono',monospace;}
+.scn-body{padding:1.8rem;}
+
+.phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.3rem 0;}
+.phase-card{border-radius:14px;padding:1.2rem;border:2px solid;text-align:center;}
+.phase-1{border-color:#059669;background:#D1FAE5;}
+.phase-2{border-color:#2563EB;background:#DBEAFE;}
+.phase-card h5{font-size:1rem;font-weight:900;margin-bottom:.3rem;}
+.phase-badge{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.7rem;font-weight:700;color:#fff;margin-bottom:.4rem;}
+.phase-num{font-size:1.5rem;font-weight:900;margin:.35rem 0;}
+
+.vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.3rem 0;}
+.vs-card{border-radius:14px;padding:1.2rem;border:2px solid;}
+.vs-good{border-color:var(--suc);background:var(--suc-l);}
+.vs-bad{border-color:var(--warn);background:var(--warn-l);}
+.vs-card h5{font-size:1rem;margin-bottom:.5rem;font-weight:900;}
+
+@media(max-width:768px){
+  .hero h1{font-size:1.6rem;}
+  .card,.scn-body{padding:1.2rem;}
+  .analogy{flex-direction:column;gap:.5rem;}
+  .vs-grid{grid-template-columns:1fr;}
+  table.dtl{font-size:.76rem;}
+  table.dtl th,table.dtl td{padding:.5rem .4rem;}
+}
+@media print{body{background:#fff;} .scn,.card{box-shadow:none;break-inside:avoid;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container hero-in">
+    <h1>⚽ 9번 재설계<br>같은 공을 다른 형태 통에 넣기</h1>
+    <p class="sub">1단계는 <b>공을 A통(원형)</b>에, 2단계는 <b>같은 공을 B통(사각)</b>에.
+    그리고 핵심 질문 — <b>"1단계 200회 + 2단계 200회를 통째로 학습하면 둘 다 잘할까?"</b>에 정확히 답합니다!</p>
+    <div class="tag-row">
+      <span class="tag">멀티태스크 학습</span>
+      <span class="tag">공 → A통 / B통</span>
+      <span class="tag">데이터 통합</span>
+      <span class="tag">긍정적 전이</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 핵심 질문 ===== -->
+<section>
+<div class="container">
+  <h2 class="sec-title">✅ 핵심 질문 : "200+200 통째로 학습하면 둘 다 잘하나?"</h2>
+  <p class="sec-lead">결론부터 — <b>네, 대체로 잘 됩니다!</b> 이게 바로 SmolVLA가 원래 잘하는 <b>"멀티태스크 학습"</b>이에요.</p>
+
+  <div class="card">
+    <div class="callout c-tip">
+      <div class="callout-icon">👍</div>
+      <div><b>정답:</b> 1단계(공→A통) 200회 + 2단계(공→B통) 200회를 <b>합쳐서 한 번에 학습</b>하면
+      한 모델이 <b>두 작업을 다 수행</b>합니다. SmolVLA는 원래 여러 작업을 하나로 학습하도록 설계됐어요!</div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🎯</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>농구랑 축구를 <b>번갈아 배우면</b> 둘 다 할 수 있죠? 게다가 "달리기"처럼 <b>공통 기술은 서로 도움</b>이 돼요.
+        로봇도 마찬가지. "공 집기"는 A통이든 B통이든 똑같으니, 두 작업이 <b>서로 도와줘요</b>(긍정적 전이).</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 명령만 다르게 줘요. "Put the ball in the round bin"(A통), "Put the ball in the square bin"(B통).
+        로봇이 명령을 보고 어느 통에 넣을지 판단해요.</p>
+      </div>
+    </div>
+
+    <!-- 멀티태스크 개념 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 290" xmlns="http://www.w3.org/2000/svg">
+        <!-- two datasets combined -->
+        <rect x="30" y="40" width="200" height="70" rx="12" fill="#D1FAE5" stroke="#059669" stroke-width="2"/>
+        <text x="130" y="68" font-size="13" fill="#059669" text-anchor="middle" font-weight="700">1단계 데이터</text>
+        <text x="130" y="90" font-size="11" fill="#334155" text-anchor="middle">공→A통(원형) 200회</text>
+        <rect x="30" y="130" width="200" height="70" rx="12" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+        <text x="130" y="158" font-size="13" fill="#2563EB" text-anchor="middle" font-weight="700">2단계 데이터</text>
+        <text x="130" y="180" font-size="11" fill="#334155" text-anchor="middle">공→B통(사각) 200회</text>
+        <!-- merge arrow -->
+        <path d="M235 90 q40 30 60 40" fill="none" stroke="#7C3AED" stroke-width="3" marker-end="url(#am)"/>
+        <path d="M235 165 q40 -15 60 -35" fill="none" stroke="#7C3AED" stroke-width="3" marker-end="url(#am)"/>
+        <defs><marker id="am" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 l7 3 l-7 3z" fill="#7C3AED"/></marker></defs>
+        <text x="270" y="45" font-size="11" fill="#7C3AED" font-weight="700">합쳐서</text>
+        <!-- single model -->
+        <rect x="310" y="95" width="150" height="90" rx="14" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2.5"/>
+        <text x="385" y="130" font-size="26" text-anchor="middle">🧠</text>
+        <text x="385" y="160" font-size="12" fill="#7C3AED" text-anchor="middle" font-weight="700">하나의 모델</text>
+        <text x="385" y="177" font-size="10" fill="#7C3AED" text-anchor="middle">(멀티태스크)</text>
+        <!-- outputs -->
+        <path d="M462 120 l40 -20" stroke="#059669" stroke-width="2.5" marker-end="url(#ao)"/>
+        <path d="M462 160 l40 20" stroke="#2563EB" stroke-width="2.5" marker-end="url(#ao)"/>
+        <defs><marker id="ao" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0 0 l6 3 l-6 3z" fill="#94a3b8"/></marker></defs>
+        <!-- task A result -->
+        <rect x="510" y="70" width="240" height="65" rx="12" fill="#F0FDF4" stroke="#059669" stroke-width="2"/>
+        <text x="530" y="98" font-size="11" fill="#334155">명령: "round bin" →</text>
+        <circle cx="660" cy="103" r="12" fill="#F59E0B"/>
+        <path d="M685 95 l40 0 l-4 20 l-32 0 z" fill="#86EFAC"/><path d="M685 95 l40 0 l0 -8 l-40 0 z" fill="#16A34A"/>
+        <text x="630" y="128" font-size="10" fill="#059669" font-weight="700">공을 원형 통에 ✅</text>
+        <!-- task B result -->
+        <rect x="510" y="150" width="240" height="65" rx="12" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+        <text x="530" y="178" font-size="11" fill="#334155">명령: "square bin" →</text>
+        <circle cx="660" cy="183" r="12" fill="#F59E0B"/>
+        <rect x="685" y="172" width="40" height="26" rx="3" fill="#93C5FD"/><rect x="685" y="168" width="40" height="6" fill="#2563EB"/>
+        <text x="630" y="208" font-size="10" fill="#2563EB" font-weight="700">공을 사각 통에 ✅</text>
+      </svg>
+      <div class="scene-cap">🎬 두 데이터를 합쳐 하나의 모델로 → 명령에 따라 원형 통/사각 통 둘 다 수행</div>
+    </div>
+
+    <h4 class="blk">⚖️ 하지만 알아둘 진실 (멀티태스크의 특성)</h4>
+    <div class="vs-grid">
+      <div class="vs-card vs-good">
+        <h5>✅ 좋은 점 (긍정적 전이)</h5>
+        <p style="font-size:.9rem;">"공 집기"는 두 작업 공통이라 <b>서로 도와줘요.</b>
+        같은 공이니 파지 스킬이 공유돼 <b>오히려 각 작업이 더 안정</b>될 수 있어요.</p>
+      </div>
+      <div class="vs-card vs-bad">
+        <h5>⚠️ 주의점 (약간의 경쟁)</h5>
+        <p style="font-size:.9rem;">단일 작업만 할 때보다 <b>평균 성공률이 조금 떨어질 수</b> 있어요
+        (한 연구: 단일 78% vs 멀티 72%). 두 작업이 모델을 나눠 쓰니까요.</p>
+      </div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">📚</div>
+      <div><b>검증된 사실:</b> SmolVLA는 <b>원래 멀티태스크로 학습</b>돼요. 논문도 여러 데이터셋을 합쳐 하나의 정책으로 학습했어요.
+      비슷한 작업끼리는 <b>긍정적 전이</b>로 성능이 오르기도 합니다.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== 시나리오 상세 ===== -->
+<section style="padding-top:0;">
+<div class="container">
+<div class="scn">
+  <div class="scn-head" style="background:linear-gradient(135deg,#D97706,#FBBF24);">
+    <div class="scn-num">9</div>
+    <div>
+      <h3>공을 다른 형태 통에 넣기</h3>
+      <div class="en">Ball → Different Bin Shapes</div>
+    </div>
+  </div>
+  <div class="scn-body">
+    <div class="diff-row">
+      <span class="badge b-mid">🟠 난이도 : 중상</span>
+      <span class="badge b-rate">🎯 멀티태스크로 둘 다 수행</span>
+      <span class="badge b-data">📸 각 200회 = 총 400회</span>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🗑️</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>같은 공인데 <b>어떤 통에 넣느냐</b>만 달라요. 1단계는 <b>동그란 통</b>, 2단계는 <b>네모난 통</b>.
+        통 모양이 다르면 <b>넣는 각도·위치</b>가 조금 달라져요. 그래서 각각 연습이 필요해요.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 통 입구 모양이 다르니 로봇이 접근 방향을 조금 바꿔야 해요.
+        하지만 "공 집기"는 똑같아서 그 부분은 쉽게 공유됩니다.</p>
+      </div>
+    </div>
+
+    <!-- 두 통 형태 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 240" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="195" width="780" height="45" fill="#FEF3C7"/>
+        <line x1="0" y1="195" x2="780" y2="195" stroke="#fcd34d" stroke-width="2"/>
+        <!-- STEP 1: round bin -->
+        <text x="200" y="30" font-size="14" fill="#059669" text-anchor="middle" font-weight="700">① 1단계 : 원형 통에</text>
+        <circle cx="120" cy="130" r="20" fill="#F59E0B"/>
+        <path d="M150 120 q60 -25 130 25" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#s1)"/>
+        <defs><marker id="s1" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 l7 3 l-7 3z" fill="#059669"/></marker></defs>
+        <!-- round bin -->
+        <ellipse cx="290" cy="165" rx="45" ry="14" fill="#86EFAC"/>
+        <ellipse cx="290" cy="150" rx="45" ry="14" fill="#D1FAE5" stroke="#16A34A" stroke-width="2"/>
+        <ellipse cx="290" cy="150" rx="38" ry="10" fill="#fff" opacity=".5"/>
+        <circle cx="290" cy="150" r="13" fill="#F59E0B"/>
+        <text x="290" y="215" font-size="11" fill="#16A34A" text-anchor="middle" font-weight="700">🥣 원형 통 (넓은 입구)</text>
+        <!-- divider -->
+        <line x1="400" y1="50" x2="400" y2="200" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="6 6"/>
+        <!-- STEP 2: square bin -->
+        <text x="590" y="30" font-size="14" fill="#2563EB" text-anchor="middle" font-weight="700">② 2단계 : 사각 통에</text>
+        <circle cx="490" cy="130" r="20" fill="#F59E0B"/>
+        <path d="M520 120 q60 -25 130 25" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#s2)"/>
+        <defs><marker id="s2" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 l7 3 l-7 3z" fill="#2563EB"/></marker></defs>
+        <!-- square bin -->
+        <path d="M620 145 l90 0 l-8 40 l-74 0 z" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+        <path d="M620 145 l90 0 l0 -8 l-90 0 z" fill="#93C5FD"/>
+        <circle cx="665" cy="165" r="13" fill="#F59E0B"/>
+        <text x="665" y="215" font-size="11" fill="#2563EB" text-anchor="middle" font-weight="700">📦 사각 통 (각진 입구)</text>
+      </svg>
+      <div class="scene-cap">🎬 같은 공을 1단계는 원형 통, 2단계는 사각 통에. 통 모양에 따라 넣는 방식이 조금 달라요</div>
+    </div>
+
+    <h4 class="blk">🪜 커리큘럼 2단계 (여러분 설계)</h4>
+    <div class="phase-grid">
+      <div class="phase-card phase-1">
+        <span class="phase-badge" style="background:#059669;">1단계</span>
+        <h5>🥣 공 → 원형 통</h5>
+        <div class="phase-num" style="color:#059669;">200회</div>
+        <p style="font-size:.85rem;">"Put the ball in the round bin"</p>
+      </div>
+      <div class="phase-card phase-2">
+        <span class="phase-badge" style="background:#2563EB;">2단계</span>
+        <h5>📦 공 → 사각 통</h5>
+        <div class="phase-num" style="color:#2563EB;">200회</div>
+        <p style="font-size:.85rem;">"Put the ball in the square bin"</p>
+      </div>
+    </div>
+
+    <h4 class="blk">🔑 여러분 질문의 3가지 학습 방법 비교</h4>
+    <table class="dtl">
+      <thead><tr><th>방법</th><th>어떻게</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><b>① 통째로 학습<br>(멀티태스크)</b><br>⭐추천</td><td>1단계 200회 + 2단계 200회를 <b>처음부터 합쳐서</b> 학습</td><td>✅ <b>둘 다 잘함.</b> 긍정적 전이로 안정적. 단일보다 평균 살짝↓ 가능</td></tr>
+        <tr><td><b>② 순차 학습</b></td><td>1단계 학습 후 → 2단계 이어서(warm start)</td><td>⚠️ 2단계는 잘 되나 <b>1단계(원형 통)를 까먹을</b> 수 있음</td></tr>
+        <tr><td><b>③ 따로 2개</b></td><td>원형용 모델, 사각용 모델 <b>각각</b> 학습</td><td>✅ 각각 최고 성능 / ❌ 모델 2개 관리, 명령 전환 불가</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">💡</div>
+      <div><b>여러분 질문 정답:</b> "200+200 통째로 학습하면 둘 다 잘하나?" → <b>네, 방법 ①(멀티태스크)이 정답이에요!</b>
+      두 작업이 "공 집기"를 공유해서 서로 도와줘요. 한 모델로 명령에 따라 원형/사각 통 <b>둘 다 수행</b>합니다.</div>
+    </div>
+
+    <h4 class="blk">📋 단계별 실습 순서</h4>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div><b>1단계 데이터 200회</b> — 공을 오목 받침대에서 집어 <b>원형 통</b>에. "Put the ball in the round bin". 위치 5곳 랜덤.</div></div>
+      <div class="step"><div class="step-n">2</div><div><b>2단계 데이터 200회</b> — 같은 공을 <b>사각 통</b>에. "Put the ball in the square bin". 통 위치도 랜덤.</div></div>
+      <div class="step"><div class="step-n">3</div><div><b>통째로(멀티태스크) 학습</b> — 400회를 <b>합쳐서</b> 한 번에 학습. 명령 텍스트로 두 작업 구분.</div></div>
+      <div class="step"><div class="step-n">4</div><div>평가 — 원형 통만, 사각 통만 각각 성공률 측정. <b>두 통이 같이 있을 때</b> 명령대로 골라 넣는지도 확인.</div></div>
+    </div>
+
+    <div class="callout c-warn">
+      <div class="callout-icon">⚽</div>
+      <div><b>공 특성 대응:</b> 공은 굴러가니 <b>오목한 받침대</b>에서 시작. 두 통 모두 공이 안착되게 <b>입구가 충분히 넓은</b> 통으로.
+      무광(matte) 공을 쓰면 링라이트 반사로 헷갈리지 않아요.</div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🎨</div>
+      <div><b>통 구분 팁:</b> 통 <b>모양</b>이 다르니 색은 같아도 되지만, <b>색까지 다르게</b>(원형=초록, 사각=파랑) 하면
+      로봇이 명령과 통을 연결하기 더 쉬워요. 명령 텍스트를 <b>정확히 일관되게</b> 쓰세요.</div>
+    </div>
+
+    <h4 class="blk">💻 멀티태스크 통합 학습 명령어</h4>
+    <div class="code">
+<span class="cmt"># 1단계 데이터: "Put the ball in the round bin"</span><br>
+<span class="cmt"># 2단계 데이터: "Put the ball in the square bin"</span><br>
+<span class="cmt"># → 두 데이터를 하나의 데이터셋으로 합쳐서 학습</span><br>
+lerobot-train <span class="key">--policy.path</span>=lerobot/smolvla_base \<br>
+&nbsp;&nbsp;<span class="key">--dataset.repo_id</span>=<span class="str">$HF_USER/ball_to_bins_merged</span> \<br>
+&nbsp;&nbsp;<span class="key">--batch_size</span>=<span class="num">64</span> <span class="key">--steps</span>=<span class="num">25000</span> <span class="key">--policy.device</span>=cuda
+    </div>
+
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>솔직한 진실:</b> 통째로 학습하면 둘 다 하지만, 단일 작업만 할 때보다 <b>평균 성공률이 조금 낮을 수</b> 있어요.
+      대신 <b>모델 하나로 두 작업</b>을 명령으로 전환하는 게 큰 장점이에요. 실전에선 이게 훨씬 유용합니다!</div>
+    </div>
+
+    <div class="pf">
+      <div class="pf-title">💼 취업 포트폴리오 강점</div>
+      "멀티태스크 학습으로 하나의 모델이 명령에 따라 다른 작업 수행 + 긍정적 전이 분석" =
+      <b>VLA의 핵심(언어로 작업 전환)을 제대로 활용</b>. 이게 단일 작업만 하는 것보다 훨씬 높은 평가를 받아요!
+    </div>
+  </div>
+</div>
+
+<!-- 요약 -->
+<div class="scn" style="border:2px solid var(--warn);">
+  <div class="scn-head" style="background:linear-gradient(135deg,#78350F,#D97706);">
+    <div class="scn-num">📌</div>
+    <div>
+      <h3>9번 한눈 요약</h3>
+      <div class="en">Summary</div>
+    </div>
+  </div>
+  <div class="scn-body">
+    <table class="dtl">
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><b>작업</b></td><td>같은 공을 다른 형태 통에 (원형 통 / 사각 통)</td></tr>
+        <tr><td><b>1단계</b></td><td>🥣 공 → 원형 통 · <span class="num-hi">200회</span></td></tr>
+        <tr><td><b>2단계</b></td><td>📦 공 → 사각 통 · <span class="num-hi">200회</span></td></tr>
+        <tr><td><b>학습 방식</b></td><td>✅ <b>통째로(멀티태스크) 학습 추천</b> — 400회 합쳐서</td></tr>
+        <tr><td><b>결과</b></td><td>한 모델이 명령에 따라 두 통 <b>모두 수행</b>. 긍정적 전이로 안정</td></tr>
+        <tr><td><b>주의</b></td><td>단일보다 평균 성공률 살짝↓ 가능. 하지만 실전 유용성↑</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">🔑</div>
+      <div><b>여러분 질문 최종 정답:</b> "200+200 통째로 학습하면 둘 다 잘하나?" →
+      <b>네! 멀티태스크 학습이라 둘 다 합니다.</b> "공 집기"가 공유돼 서로 도와줘요(긍정적 전이).
+      명령 텍스트로 원형/사각을 구분하게 하고, 두 통이 같이 있는 상황도 꼭 테스트하세요.</div>
+    </div>
+
+    <div class="pf">
+      <div class="pf-title">💎 핵심 한 줄</div>
+      "통째로 학습"은 SmolVLA가 원래 잘하는 <b>멀티태스크 학습</b>이에요.
+      한 모델로 명령에 따라 다른 작업을 하는 게 <b>VLA의 진짜 강점</b>. 여러분 설계가 정답입니다!
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:1.5rem 0 3.5rem;color:var(--mut);font-size:.88rem;">
+  🦾 ZETABANK · Physical AI Master Course &nbsp;|&nbsp; 9번 재설계 (공을 다른 형태 통에 · 멀티태스크)
+</div>
+
+</div>
+</section>
+
+</body>
+</html>

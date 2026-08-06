@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8번 3색 박스통 분류 완전 교육자료</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#059669; --p-l:#D1FAE5; --blue:#2563EB; --blue-l:#DBEAFE;
+  --pur:#7C3AED; --pur-l:#EDE9FE;
+  --suc:#059669; --suc-l:#D1FAE5; --warn:#D97706; --warn-l:#FEF3C7;
+  --dng:#DC2626; --dng-l:#FEE2E2; --surf:#F0FDF9; --card:#fff;
+  --tx:#1E293B; --mut:#64748B; --bd:#E2E8F0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--tx);background:var(--surf);line-height:1.75;}
+code,pre{font-family:'JetBrains Mono',monospace;}
+.container{max-width:940px;margin:0 auto;padding:0 1.5rem;}
+
+.hero{background:linear-gradient(135deg,#065F46,#10B981);color:#fff;padding:3.8rem 0 3.2rem;position:relative;overflow:hidden;}
+.hero::before{content:"";position:absolute;top:-40%;right:-8%;width:480px;height:480px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%);border-radius:50%;}
+.hero-in{position:relative;z-index:1;}
+.hero .eyebrow{font-size:.9rem;font-weight:700;opacity:.9;letter-spacing:.08em;margin-bottom:.6rem;}
+.hero h1{font-size:2.6rem;font-weight:900;line-height:1.2;margin-bottom:.9rem;}
+.hero .sub{font-size:1.1rem;opacity:.96;max-width:690px;margin-bottom:1.4rem;}
+.tag-row{display:flex;gap:.55rem;flex-wrap:wrap;}
+.tag{background:rgba(255,255,255,.2);padding:.4rem 1rem;border-radius:999px;font-size:.83rem;font-weight:500;}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin-top:1.6rem;}
+.toc a{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:.7rem .9rem;color:#fff;text-decoration:none;font-size:.86rem;font-weight:700;transition:background .2s;}
+.toc a:hover{background:rgba(255,255,255,.3);}
+
+section{padding:3rem 0;}
+.sec-title{font-size:1.75rem;font-weight:900;margin-bottom:.4rem;display:flex;align-items:center;gap:.55rem;scroll-margin-top:1rem;}
+.sec-lead{color:var(--mut);margin-bottom:1.8rem;}
+
+.card{background:var(--card);border-radius:18px;box-shadow:0 6px 26px rgba(6,95,70,.08);border:1px solid var(--bd);padding:1.9rem;margin-bottom:1.6rem;}
+
+.analogy{display:flex;gap:1.1rem;padding:1.4rem;background:var(--p-l);border-radius:14px;border-left:5px solid var(--p);margin:1.4rem 0;}
+.analogy-icon{font-size:2.4rem;flex-shrink:0;}
+.analogy-title{font-weight:700;font-size:.78rem;color:var(--p);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;}
+.analogy-real{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--p);font-size:.9rem;color:#065f46;}
+
+.scene{background:linear-gradient(160deg,#F7FEFB,#D1FAE5);border-radius:16px;padding:1.3rem;margin:1.5rem 0;border:1px solid var(--bd);}
+.scene svg{display:block;width:100%;height:auto;max-width:780px;margin:0 auto;}
+.scene-cap{text-align:center;font-size:.84rem;color:var(--mut);margin-top:.6rem;font-weight:500;}
+
+.callout{display:flex;gap:.85rem;padding:1.1rem 1.3rem;border-radius:12px;margin:1.2rem 0;align-items:flex-start;}
+.callout-icon{font-size:1.4rem;flex-shrink:0;}
+.c-tip{background:var(--suc-l);}
+.c-warn{background:var(--warn-l);}
+.c-truth{background:#FEF2F2;border:1px solid #FECACA;}
+.c-info{background:var(--blue-l);}
+
+.badge{padding:.34rem .9rem;border-radius:999px;font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;}
+.b-easy{background:var(--suc-l);color:var(--suc);}
+.b-mid{background:var(--warn-l);color:var(--warn);}
+.b-hard{background:var(--dng-l);color:var(--dng);}
+.b-data{background:var(--blue-l);color:var(--blue);}
+.b-rate{background:var(--pur-l);color:var(--pur);}
+.diff-row{display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1.4rem;}
+
+table.dtl{width:100%;border-collapse:collapse;margin:1.4rem 0;font-size:.88rem;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+table.dtl th{background:var(--p);color:#fff;padding:.85rem .75rem;text-align:left;font-size:.84rem;}
+table.dtl td{padding:.75rem .75rem;border-bottom:1px solid var(--bd);vertical-align:top;}
+table.dtl tr:last-child td{border-bottom:none;}
+table.dtl tr:nth-child(even){background:#f0fdf9;}
+.num-hi{font-weight:900;color:var(--p);}
+
+.code{background:#1e1e2e;color:#cdd6f4;border-radius:12px;padding:1.1rem 1.3rem;font-size:.82rem;overflow-x:auto;margin:1.2rem 0;line-height:1.7;}
+.code .cmt{color:#6c7086;} .code .key{color:#f38ba8;} .code .str{color:#a6e3a1;} .code .num{color:#fab387;} .code .hl{background:#45475a;border-radius:3px;padding:0 3px;color:#f9e2af;}
+
+.steps{margin:1.4rem 0;}
+.step{display:flex;gap:1rem;padding:1rem 0;border-bottom:1px dashed var(--bd);}
+.step:last-child{border-bottom:none;}
+.step-n{width:34px;height:34px;border-radius:50%;background:var(--p);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem;}
+
+.pf{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:14px;padding:1.3rem 1.5rem;margin-top:1.4rem;border-left:5px solid var(--suc);}
+.pf-title{font-weight:900;color:var(--suc);font-size:.95rem;margin-bottom:.5rem;}
+
+h4.blk{font-size:1.15rem;font-weight:700;margin:1.7rem 0 .8rem;display:flex;align-items:center;gap:.45rem;}
+
+.phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.4rem 0;}
+.phase-card{border-radius:16px;padding:1.3rem;border:2px solid;text-align:center;}
+.phase-1{border-color:var(--suc);background:var(--suc-l);}
+.phase-2{border-color:var(--warn);background:var(--warn-l);}
+.phase-badge{display:inline-block;padding:.2rem .75rem;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff;margin-bottom:.5rem;}
+.phase-card h5{font-size:1.05rem;font-weight:900;margin-bottom:.3rem;}
+.phase-num{font-size:1.7rem;font-weight:900;margin:.4rem 0;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin:1.4rem 0;}
+.stat-card{background:var(--surf);border-radius:12px;padding:1.2rem;text-align:center;border:1px solid var(--bd);}
+.stat-number{font-size:2rem;font-weight:900;color:var(--p);line-height:1;}
+.stat-label{font-weight:700;font-size:.82rem;margin-top:.4rem;}
+.stat-desc{font-size:.75rem;color:var(--mut);margin-top:.2rem;}
+
+@media(max-width:768px){
+  .hero h1{font-size:1.9rem;}
+  .card{padding:1.3rem;}
+  .analogy{flex-direction:column;gap:.6rem;}
+  table.dtl{font-size:.76rem;}
+  table.dtl th,table.dtl td{padding:.5rem .4rem;}
+}
+@media print{body{background:#fff;} .card{box-shadow:none;break-inside:avoid;} .hero{background:#065F46 !important;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container hero-in">
+    <div class="eyebrow">SO-101 × SmolVLA · 실습 시나리오 8번</div>
+    <h1>♻️ 3색 박스통 분류<br>색깔 맞춰 통에 넣기</h1>
+    <p class="sub">"빨간 블록은 빨간 통에, 파란 블록은 파란 통에" — 분리수거처럼 색을 보고 골라 담기.
+    <b>언어를 이해해 물체를 구분</b>하는, VLA의 진짜 실력을 시험하는 작업이에요.</p>
+    <div class="tag-row">
+      <span class="tag">색 분류(Sorting)</span>
+      <span class="tag">언어 grounding</span>
+      <span class="tag">통합 재학습</span>
+      <span class="tag">재활용 자동화</span>
+    </div>
+    <div class="toc">
+      <a href="#s1">① 무엇을 하나</a>
+      <a href="#s2">② 왜 어려운가</a>
+      <a href="#s3">③ 커리큘럼</a>
+      <a href="#s4">④ 학습 방식</a>
+      <a href="#s5">⑤ 색깔·명령</a>
+      <a href="#s6">⑥ 실습 명령어</a>
+      <a href="#s7">⑦ 취업 포인트</a>
+    </div>
+  </div>
+</div>
+
+<!-- ① 개요 -->
+<section id="s1">
+<div class="container">
+  <h2 class="sec-title">① 무엇을 하는 실습인가?</h2>
+  <p class="sec-lead">한 문장으로: <b>블록의 색을 보고, 같은 색 통에 넣기.</b> 분리수거의 로봇 버전이에요.</p>
+
+  <div class="card">
+    <div class="diff-row">
+      <span class="badge b-hard">🔴 난이도 : 상 (색 분류는 어려움!)</span>
+      <span class="badge b-rate">🎯 통·대비 잘하면 향상</span>
+      <span class="badge b-data">📸 색깔별 균형 데이터</span>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">♻️</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>분리수거를 생각해봐요. <b>플라스틱은 파란 통, 캔은 초록 통, 종이는 빨간 통</b>에 넣죠?
+        로봇도 똑같아요 — <b>"빨간 블록은 빨간 통에"</b> 넣게 시켜요.
+        블록을 <b>집는 것</b>뿐 아니라 <b>색을 보고 어느 통인지 판단</b>까지 해야 해요.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 명령이 "Put the red block in the red bin"처럼 <b>색↔통 짝</b>이에요.
+        로봇이 <b>색을 인식(Vision) + 명령을 이해(Language) + 올바른 통에 넣기(Action)</b>를 다 해야 해요.</p>
+      </div>
+    </div>
+
+    <!-- 전체 개요 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 270" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="220" width="780" height="50" fill="#D1FAE5"/>
+        <line x1="0" y1="220" x2="780" y2="220" stroke="#6ee7b7" stroke-width="2"/>
+        <!-- ring light -->
+        <ellipse cx="390" cy="28" rx="60" ry="11" fill="none" stroke="#FCD34D" stroke-width="5"/>
+        <text x="390" y="16" font-size="10" fill="#b45309" text-anchor="middle">💡 링라이트 조명</text>
+        <!-- command box -->
+        <rect x="30" y="52" width="250" height="44" rx="12" fill="#fff" stroke="#059669" stroke-width="2"/>
+        <text x="45" y="72" font-size="11" fill="#059669" font-weight="700">명령:</text>
+        <text x="45" y="89" font-size="10.5" fill="#1e293b" font-family="JetBrains Mono">"Put red block in red bin"</text>
+        <!-- robot -->
+        <g opacity=".85">
+          <rect x="60" y="135" width="12" height="85" rx="4" fill="#94a3b8"/>
+          <rect x="66" y="135" width="48" height="11" rx="6" fill="#64748b" transform="rotate(18 66 140)"/>
+          <circle cx="66" cy="140" r="8" fill="#475569"/>
+        </g>
+        <!-- blocks -->
+        <rect x="255" y="188" width="32" height="32" rx="5" fill="#DC2626"/>
+        <rect x="255" y="188" width="32" height="32" rx="5" fill="none" stroke="#059669" stroke-width="3" stroke-dasharray="4 3"/>
+        <text x="271" y="238" font-size="10" fill="#DC2626" text-anchor="middle" font-weight="700">빨강</text>
+        <rect x="300" y="190" width="30" height="30" rx="5" fill="#16A34A" opacity=".85"/>
+        <rect x="342" y="190" width="30" height="30" rx="5" fill="#2563EB" opacity=".85"/>
+        <!-- arrow red to red bin -->
+        <path d="M290 195 q130 -55 235 20" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#a8)"/>
+        <defs><marker id="a8" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 l7 3 l-7 3z" fill="#059669"/></marker></defs>
+        <!-- THREE BINS -->
+        <path d="M505 185 l72 0 l-7 35 l-58 0 z" fill="#FCA5A5"/><path d="M505 185 l72 0 l0 -15 l-72 0 z" fill="#DC2626"/>
+        <ellipse cx="541" cy="185" rx="36" ry="7" fill="#7F1D1D"/>
+        <text x="541" y="243" font-size="11" fill="#DC2626" text-anchor="middle" font-weight="700">🔴 빨강 통</text>
+        <path d="M590 190 l60 0 l-6 30 l-48 0 z" fill="#86EFAC"/><path d="M590 190 l60 0 l0 -13 l-60 0 z" fill="#16A34A"/>
+        <ellipse cx="620" cy="190" rx="30" ry="6" fill="#14532D"/>
+        <text x="620" y="243" font-size="11" fill="#16A34A" text-anchor="middle" font-weight="700">🟢 초록 통</text>
+        <path d="M665 193 l58 0 l-6 27 l-46 0 z" fill="#93C5FD"/><path d="M665 193 l58 0 l0 -12 l-58 0 z" fill="#2563EB"/>
+        <ellipse cx="694" cy="193" rx="29" ry="6" fill="#1E3A8A"/>
+        <text x="694" y="243" font-size="11" fill="#2563EB" text-anchor="middle" font-weight="700">🔵 파랑 통</text>
+      </svg>
+      <div class="scene-cap">🎬 전체 흐름: "빨강 블록을 빨강 통에" 명령 → 로봇이 색 보고 → 맞는 통에 (분리수거처럼)</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ② 왜 어려운가 -->
+<section id="s2" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">② 색 분류는 왜 "어려운" 작업일까?</h2>
+  <p class="sec-lead">솔직히 말하면 — 색 분류는 <b>SmolVLA가 가장 어려워하는</b> 작업 중 하나예요. 이유를 알면 대응할 수 있어요.</p>
+
+  <div class="card">
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>솔직한 진실:</b> 연구에서 <b>색 분류(Color Sorting)는 가장 어려운 벤치마크</b>로, 성공률이 <b>0~10%</b>로 매우 낮았어요.
+      SmolVLA는 <b>색을 구분하는 능력이 약한</b> 편이에요(작은 모델이라). 이걸 <b>미리 알고 대비</b>하는 게 실력이에요!</div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🎨</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>단순히 "블록 집기"는 색을 몰라도 돼요. 하지만 "빨간 것만 골라"는 <b>색을 정확히 알아보고 + 명령과 연결</b>해야 해요.
+        이건 훨씬 어려운 일이에요. 게다가 SmolVLA는 <b>작고 가벼운 모델</b>이라 색 구분 능력이 큰 모델보다 약해요.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — "언어 grounding"(명령의 '빨간'과 실제 빨간 블록을 연결하는 것)이 어려워요.
+        단순 집기(70~95%)와 달리 색 분류는 성공률이 뚝 떨어져요.</p>
+      </div>
+    </div>
+
+    <!-- 난이도 비교 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 210" xmlns="http://www.w3.org/2000/svg">
+        <text x="390" y="28" font-size="14" fill="#1e293b" text-anchor="middle" font-weight="700">작업별 성공률 비교 (SmolVLA 기준)</text>
+        <!-- axis -->
+        <line x1="180" y1="180" x2="740" y2="180" stroke="#cbd5e1" stroke-width="2"/>
+        <!-- bars -->
+        <!-- pen transfer 70 -->
+        <rect x="210" y="75" width="80" height="105" rx="4" fill="#059669"/>
+        <text x="250" y="65" font-size="13" fill="#059669" text-anchor="middle" font-weight="700">70%</text>
+        <text x="250" y="198" font-size="10" fill="#475569" text-anchor="middle">단순 집기</text>
+        <!-- pick place 45 -->
+        <rect x="330" y="112" width="80" height="68" rx="4" fill="#D97706"/>
+        <text x="370" y="102" font-size="13" fill="#D97706" text-anchor="middle" font-weight="700">45%</text>
+        <text x="370" y="198" font-size="10" fill="#475569" text-anchor="middle">위치 지정</text>
+        <!-- packing 10 -->
+        <rect x="450" y="165" width="80" height="15" rx="4" fill="#DC2626"/>
+        <text x="490" y="155" font-size="13" fill="#DC2626" text-anchor="middle" font-weight="700">10%</text>
+        <text x="490" y="198" font-size="10" fill="#475569" text-anchor="middle">물체 담기</text>
+        <!-- color sorting 5 -->
+        <rect x="570" y="172" width="80" height="8" rx="4" fill="#991B1B"/>
+        <text x="610" y="162" font-size="13" fill="#991B1B" text-anchor="middle" font-weight="700">5%</text>
+        <text x="610" y="198" font-size="10" fill="#991B1B" text-anchor="middle" font-weight="700">색 분류 ⚠️</text>
+        <!-- note -->
+        <text x="610" y="130" font-size="9" fill="#DC2626" text-anchor="middle">가장 어려움!</text>
+        <path d="M610 135 l0 30" stroke="#DC2626" stroke-width="1.5" marker-end="url(#ad)"/>
+        <defs><marker id="ad" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0 0 l5 3 l-5 3z" fill="#DC2626"/></marker></defs>
+      </svg>
+      <div class="scene-cap">📊 단순 집기(70%)는 쉽지만, 색 분류(5%)는 가장 어려움. 언어 grounding이 필요하기 때문</div>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">💡</div>
+      <div><b>그래도 방법이 있어요!</b> 성공률을 올리는 3가지 열쇠: ① <b>통을 명확하게</b>(위치 고정·큰 통)
+      ② <b>색 대비 최대화</b>(원색+무채색 배경) ③ <b>통합 재학습</b>(뒤에서 설명). 어렵다고 포기할 게 아니라 <b>제대로 설계</b>하면 돼요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ③ 커리큘럼 -->
+<section id="s3" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">③ 2색 → 3색 단계별 커리큘럼</h2>
+  <p class="sec-lead">처음부터 3색은 어려워요. <b>2색 2통 먼저</b> 성공시키고 <b>초록을 추가</b>해 확장해요.</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">🎨</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>색칠 공부할 때 <b>빨강·파랑 두 색</b>부터 익히고 초록을 더하죠? 로봇도 똑같아요.
+        <b>2색(빨강↔빨강통, 파랑↔파랑통)</b> 먼저 확실히 하고, 잘 되면 <b>초록 통을 추가</b>해 3색으로.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 색이 많아질수록 로봇이 헷갈려요. 2색으로 "색↔통 짝맞춤"의 기본을 다지고 확장하는 게 안전해요.</p>
+      </div>
+    </div>
+
+    <!-- 2색 → 3색 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- phase 1: 2 colors -->
+        <rect x="20" y="30" width="350" height="175" rx="14" fill="#D1FAE5" opacity=".4" stroke="#059669" stroke-width="2"/>
+        <text x="195" y="58" font-size="14" fill="#059669" text-anchor="middle" font-weight="700">1단계 · 2색 2통</text>
+        <!-- red -->
+        <rect x="80" y="110" width="28" height="28" rx="5" fill="#DC2626"/>
+        <path d="M108 124 q40 -30 75 0" fill="none" stroke="#DC2626" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#r1)"/>
+        <path d="M185 130 l40 0 l-4 22 l-32 0 z" fill="#FCA5A5"/><path d="M185 130 l40 0 l0 -8 l-40 0 z" fill="#DC2626"/>
+        <!-- blue -->
+        <rect x="80" y="155" width="28" height="28" rx="5" fill="#2563EB"/>
+        <path d="M108 169 q60 10 120 -10" fill="none" stroke="#2563EB" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#r1)"/>
+        <path d="M240 130 l40 0 l-4 22 l-32 0 z" fill="#93C5FD"/><path d="M240 130 l40 0 l0 -8 l-40 0 z" fill="#2563EB"/>
+        <defs><marker id="r1" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0 0 l6 3 l-6 3z" fill="#64748b"/></marker></defs>
+        <text x="195" y="195" font-size="11" fill="#059669" text-anchor="middle">기본 짝맞춤 확립</text>
+        <!-- arrow -->
+        <path d="M375 115 l45 0" stroke="#D97706" stroke-width="3" marker-end="url(#big)"/>
+        <defs><marker id="big" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 l7 3 l-7 3z" fill="#D97706"/></marker></defs>
+        <text x="397" y="105" font-size="10" fill="#D97706" text-anchor="middle" font-weight="700">초록</text>
+        <text x="397" y="132" font-size="10" fill="#D97706" text-anchor="middle" font-weight="700">추가</text>
+        <!-- phase 2: 3 colors -->
+        <rect x="430" y="30" width="330" height="175" rx="14" fill="#FEF3C7" opacity=".5" stroke="#D97706" stroke-width="2"/>
+        <text x="595" y="58" font-size="14" fill="#D97706" text-anchor="middle" font-weight="700">2단계 · 3색 3통</text>
+        <rect x="470" y="105" width="24" height="24" rx="4" fill="#DC2626"/>
+        <rect x="470" y="140" width="24" height="24" rx="4" fill="#16A34A"/>
+        <rect x="470" y="175" width="24" height="24" rx="4" fill="#2563EB"/>
+        <path d="M540 135 l40 0 l-4 20 l-32 0 z" fill="#FCA5A5"/><path d="M540 135 l40 0 l0 -7 l-40 0 z" fill="#DC2626"/>
+        <path d="M595 135 l40 0 l-4 20 l-32 0 z" fill="#86EFAC"/><path d="M595 135 l40 0 l0 -7 l-40 0 z" fill="#16A34A"/>
+        <path d="M650 135 l40 0 l-4 20 l-32 0 z" fill="#93C5FD"/><path d="M650 135 l40 0 l0 -7 l-40 0 z" fill="#2563EB"/>
+        <text x="595" y="195" font-size="11" fill="#D97706" text-anchor="middle">3색으로 확장</text>
+      </svg>
+      <div class="scene-cap">🎨 2색 2통(빨강·파랑) 먼저 → 초록 추가 → 3색 3통으로 확장</div>
+    </div>
+
+    <div class="phase-grid">
+      <div class="phase-card phase-1">
+        <span class="phase-badge" style="background:#059669;">1단계</span>
+        <h5>🔴🔵 2색 2통</h5>
+        <div class="phase-num" style="color:#059669;">색당 100회</div>
+        <p style="font-size:.85rem;">빨강↔빨강통, 파랑↔파랑통. 짝맞춤 기본. 총 200회.</p>
+      </div>
+      <div class="phase-card phase-2">
+        <span class="phase-badge" style="background:#D97706;">2단계</span>
+        <h5>🟢 초록 추가</h5>
+        <div class="phase-num" style="color:#D97706;">색당 100회</div>
+        <p style="font-size:.85rem;">초록↔초록통 추가. 3색 균형 맞춰 통합 재학습.</p>
+      </div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">⚖️</div>
+      <div><b>색깔별 균형이 핵심:</b> 빨강만 200회, 파랑 50회처럼 <b>치우치면</b> 로봇이 "무조건 빨강"으로 편향돼요.
+      <b>색마다 데이터 개수를 똑같이</b> 맞추세요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ④ 학습 방식 -->
+<section id="s4" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">④ 학습 방식 : 통합 재학습이 핵심!</h2>
+  <p class="sec-lead">8번은 <b>순차 학습의 함정</b>에 걸리기 쉬워요. 여러분이 앞서 물어본 그 함정이에요.</p>
+
+  <div class="card">
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>8번은 순차학습 함정 주의!</b> 색깔은 서로 <b>다른 스킬</b>이라, "빨강 100회 → 파랑 100회 → 초록 100회"처럼
+      <b>순차로만</b> 하면 나중 색을 배우다 <b>앞 색을 까먹어요</b>(파국적 망각). 7번(탑쌓기)과 정반대예요!</div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🧠</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>영어 단어를 "월요일에 A그룹, 화요일에 B그룹"만 외우면 시험날 A를 까먹죠?
+        <b>여러 그룹을 섞어서</b> 외워야 다 기억나요. 색 분류도 <b>여러 색을 섞어서 한 번에</b> 학습해야
+        "빨강도 파랑도 초록도" 다 기억해요.</p>
+        <p class="analogy-real">💡 <b>7번과 왜 다른가?</b> — 7번(2층→3층)은 <b>포함관계</b>라 순차 OK.
+        8번(빨강≠파랑≠초록)은 <b>완전히 다른 색</b>이라 통합 재학습이 안전해요.</p>
+      </div>
+    </div>
+
+    <!-- 순차 vs 통합 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 240" xmlns="http://www.w3.org/2000/svg">
+        <!-- sequential (bad) -->
+        <text x="30" y="30" font-size="13" fill="#DC2626" font-weight="700">❌ 순차 학습 : 색을 하나씩 이어서</text>
+        <rect x="40" y="45" width="90" height="45" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="85" y="65" font-size="11" fill="#DC2626" text-anchor="middle" font-weight="700">빨강 100</text>
+        <text x="85" y="82" font-size="9" fill="#059669" text-anchor="middle">✅ 배움</text>
+        <path d="M133 67 l25 0" stroke="#94a3b8" stroke-width="2" marker-end="url(#s)"/>
+        <defs><marker id="s" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0 0 l5 3 l-5 3z" fill="#94a3b8"/></marker></defs>
+        <rect x="160" y="45" width="90" height="45" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+        <text x="205" y="65" font-size="11" fill="#D97706" text-anchor="middle" font-weight="700">파랑 100</text>
+        <text x="205" y="82" font-size="9" fill="#059669" text-anchor="middle">✅ 배움</text>
+        <path d="M253 67 l25 0" stroke="#94a3b8" stroke-width="2" marker-end="url(#s)"/>
+        <rect x="280" y="45" width="90" height="45" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+        <text x="325" y="65" font-size="11" fill="#2563EB" text-anchor="middle" font-weight="700">초록 100</text>
+        <text x="325" y="82" font-size="9" fill="#DC2626" text-anchor="middle">✅ 배움</text>
+        <path d="M375 67 l25 0" stroke="#DC2626" stroke-width="2" marker-end="url(#sr)"/>
+        <defs><marker id="sr" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0 0 l5 3 l-5 3z" fill="#DC2626"/></marker></defs>
+        <rect x="405" y="42" width="120" height="50" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
+        <text x="465" y="62" font-size="10" fill="#DC2626" text-anchor="middle" font-weight="700">빨강·파랑을</text>
+        <text x="465" y="78" font-size="10" fill="#DC2626" text-anchor="middle" font-weight="700">까먹음 ⚠️</text>
+        <text x="545" y="72" font-size="22">😵</text>
+        <!-- divider -->
+        <line x1="30" y1="115" x2="750" y2="115" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="6 6"/>
+        <!-- combined (good) -->
+        <text x="30" y="145" font-size="13" fill="#059669" font-weight="700">✅ 통합 재학습 : 3색 데이터를 합쳐서 한 번에</text>
+        <rect x="40" y="160" width="70" height="45" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+        <text x="75" y="185" font-size="10" fill="#DC2626" text-anchor="middle" font-weight="700">빨강 100</text>
+        <text x="118" y="187" font-size="16" fill="#059669">+</text>
+        <rect x="130" y="160" width="70" height="45" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+        <text x="165" y="185" font-size="10" fill="#D97706" text-anchor="middle" font-weight="700">파랑 100</text>
+        <text x="208" y="187" font-size="16" fill="#059669">+</text>
+        <rect x="220" y="160" width="70" height="45" rx="8" fill="#D1FAE5" stroke="#16A34A" stroke-width="1.5"/>
+        <text x="255" y="185" font-size="10" fill="#16A34A" text-anchor="middle" font-weight="700">초록 100</text>
+        <path d="M295 182 l35 0" stroke="#059669" stroke-width="2.5" marker-end="url(#g)"/>
+        <defs><marker id="g" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0 0 l6 3 l-6 3z" fill="#059669"/></marker></defs>
+        <rect x="335" y="158" width="150" height="50" rx="8" fill="#F0FDF4" stroke="#059669" stroke-width="2"/>
+        <text x="410" y="178" font-size="10" fill="#059669" text-anchor="middle" font-weight="700">한 번에 학습 →</text>
+        <text x="410" y="195" font-size="10" fill="#059669" text-anchor="middle" font-weight="700">3색 모두 기억 ✅</text>
+        <text x="510" y="188" font-size="22">🎉</text>
+      </svg>
+      <div class="scene-cap">⚠️ 순차로만 하면 앞 색을 까먹음 / ✅ 3색 데이터를 합쳐 재학습하면 모두 기억</div>
+    </div>
+
+    <table class="dtl">
+      <thead><tr><th>학습 방식</th><th>어떻게</th><th>8번에서는?</th></tr></thead>
+      <tbody>
+        <tr><td><b>통합 재학습</b><br>⭐추천</td><td>2색+초록 데이터를 <b>합쳐서</b> 처음부터 학습</td><td>✅ <b>정답!</b> 색끼리 안 까먹음. 균형 유지</td></tr>
+        <tr><td><b>순차 warm start</b></td><td>빨강 → 파랑 → 초록 이어서</td><td>⚠️ <b>위험.</b> 앞 색을 까먹을 수 있음</td></tr>
+        <tr><td><b>리허설(replay)</b></td><td>새 색에 이전 색 일부 섞기</td><td>△ 절충안. 통합이 더 확실</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">💡</div>
+      <div><b>여러분 질문과 연결:</b> "1단계 잘 됐고 2단계도 잘 되나?" → 8번은 <b>색이 다른 스킬</b>이라
+      2단계(초록) 후 <b>1단계(빨강·파랑)를 꼭 재테스트</b>! 떨어졌으면 통합 재학습으로. 7번과 정반대 케이스예요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑤ 색깔·명령 -->
+<section id="s5" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑤ 색깔 선택 & 명령(single_task) 짝맞춤</h2>
+  <p class="sec-lead">색 분류는 <b>색 대비</b>와 <b>명령 텍스트</b>가 성공률을 좌우해요.</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">🎯</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>비슷한 색은 사람도 헷갈리죠? 로봇은 더 심해요. <b>빨강·파랑·초록 원색</b>을 쓰고,
+        통 색과 블록 색을 <b>똑같이</b> 맞춰요. 명령도 "빨강 블록을 빨강 통에"처럼 <b>색↔통을 짝</b>지어 정확히.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 명령의 색 단어와 실제 색을 연결하는 게 "언어 grounding"이에요.
+        명령을 애매하게 쓰면(그냥 "정리해") 로봇이 뭘 어디 넣을지 몰라요.</p>
+      </div>
+    </div>
+
+    <h4 class="blk">🎨 색깔 규칙</h4>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">🔴🟢🔵</div>
+        <div class="stat-label">원색 사용</div>
+        <div class="stat-desc">대비 최고</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">=</div>
+        <div class="stat-label">통색=블록색</div>
+        <div class="stat-desc">짝 맞춤</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">⬜</div>
+        <div class="stat-label">무채색 배경</div>
+        <div class="stat-desc">흰색·회색</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">💡</div>
+        <div class="stat-label">백색광</div>
+        <div class="stat-desc">링라이트</div>
+      </div>
+    </div>
+
+    <h4 class="blk">🏷️ 명령(single_task) 짝맞춤 규칙</h4>
+    <div class="code">
+<span class="cmt"># 색마다 명령을 명확하게 — 색↔통 짝</span><br>
+<span class="cmt"># 빨강 데이터 녹화 시:</span><br>
+&nbsp;&nbsp;single_task = <span class="hl str">"Put the red block in the red bin"</span><br>
+<span class="cmt"># 파랑 데이터 녹화 시:</span><br>
+&nbsp;&nbsp;single_task = <span class="hl str">"Put the blue block in the blue bin"</span><br>
+<span class="cmt"># 초록 데이터 녹화 시:</span><br>
+&nbsp;&nbsp;single_task = <span class="hl str">"Put the green block in the green bin"</span>
+    </div>
+
+    <div class="callout c-warn">
+      <div class="callout-icon">⚠️</div>
+      <div><b>일관성이 생명:</b> 명령 텍스트를 <b>녹화·학습·추론에서 정확히 똑같이</b> 쓰세요.
+      "red bin"이라 녹화했으면 추론도 "red bin". 색 분류는 명령 이해가 핵심이라 <b>텍스트 하나만 달라도</b> 실패해요.</div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🎨</div>
+      <div><b>통도 색깔로:</b> 통 자체를 블록 색과 <b>같은 색</b>으로 하면 로봇이 "빨강 블록 → 빨강 통"을 시각적으로도 연결하기 쉬워요.
+      통 위치는 좌우를 <b>가끔 바꿔</b> 수집해서 "위치가 아니라 색으로" 판단하게 하세요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑥ 실습 명령어 -->
+<section id="s6" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑥ 실습 명령어 (녹화 → 통합학습 → 추론)</h2>
+  <p class="sec-lead">색마다 녹화하고, <b>합쳐서 통합 학습</b>하는 게 핵심이에요.</p>
+
+  <div class="card">
+    <h4 class="blk">1️⃣ 녹화 : 색마다 다른 single_task로</h4>
+    <div class="code">
+<span class="cmt"># 🔴 빨강 데이터 (색↔통 명령으로 100회)</span><br>
+lerobot-record <span class="key">--robot.type</span>=so101_follower <span class="key">--robot.port</span>=/dev/ttyACM0 \<br>
+&nbsp;&nbsp;<span class="key">--dataset.repo_id</span>=<span class="str">$HF_USER/sort_red</span> \<br>
+&nbsp;&nbsp;<span class="key">--dataset.single_task</span>=<span class="hl str">"Put the red block in the red bin"</span> \<br>
+&nbsp;&nbsp;<span class="key">--dataset.num_episodes</span>=<span class="num">100</span> \<br>
+&nbsp;&nbsp;<span class="key">--teleop.type</span>=so101_leader <span class="key">--teleop.port</span>=/dev/ttyACM1<br>
+<br>
+<span class="cmt"># 🔵 파랑, 🟢 초록도 같은 방식으로 repo_id와 single_task만 바꿔 녹화</span><br>
+<span class="cmt"># → $HF_USER/sort_blue, $HF_USER/sort_green</span>
+    </div>
+
+    <h4 class="blk">2️⃣ 통합 학습 : 3색 데이터를 합쳐서 (핵심!)</h4>
+    <div class="code">
+<span class="cmt"># 3색 데이터를 합쳐서 처음부터 학습 (순차 아님!)</span><br>
+lerobot-train <span class="key">--policy.path</span>=lerobot/smolvla_base \<br>
+&nbsp;&nbsp;<span class="key">--dataset.repo_id</span>=<span class="hl str">$HF_USER/sort_red,$HF_USER/sort_blue,$HF_USER/sort_green</span> \<br>
+&nbsp;&nbsp;<span class="key">--batch_size</span>=<span class="num">64</span> <span class="key">--steps</span>=<span class="num">25000</span> \<br>
+&nbsp;&nbsp;<span class="key">--output_dir</span>=<span class="str">outputs/train/color_sort</span> <span class="key">--policy.device</span>=cuda
+    </div>
+    <div class="callout c-tip">
+      <div class="callout-icon">💡</div>
+      <div>3색 데이터를 <b>쉼표로 나열</b>(또는 미리 하나로 병합)해서 <b>합쳐 학습</b>해요.
+      이러면 데이터셋 안에 색 3개 task가 담겨 <b>멀티태스크 + 색 균형</b>이 자동으로 돼요.</div>
+    </div>
+
+    <h4 class="blk">3️⃣ 추론 : 원하는 색 명령으로</h4>
+    <div class="code">
+<span class="cmt"># 빨강 블록을 빨강 통에 넣게 하려면 이 명령으로</span><br>
+lerobot-rollout <span class="key">--strategy.type</span>=base \<br>
+&nbsp;&nbsp;<span class="key">--policy.path</span>=<span class="str">outputs/train/color_sort/checkpoint</span> \<br>
+&nbsp;&nbsp;<span class="key">--robot.type</span>=so101_follower <span class="key">--robot.port</span>=/dev/ttyACM0 \<br>
+&nbsp;&nbsp;<span class="key">--task</span>=<span class="hl str">"Put the red block in the red bin"</span> \<br>
+&nbsp;&nbsp;<span class="key">--duration</span>=<span class="num">60</span> <span class="key">--device</span>=cuda
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div><b>2색 녹화·학습</b> — 빨강·파랑 각 100회 → 합쳐서 학습 → 성공률 확인.</div></div>
+      <div class="step"><div class="step-n">2</div><div><b>초록 추가·통합 재학습</b> — 초록 100회 녹화 → 3색 전체를 <b>합쳐서</b> 다시 학습.</div></div>
+      <div class="step"><div class="step-n">3</div><div><b>색별 재테스트</b> — 빨강만·파랑만·초록만 각각 성공률 측정. 편향 없나 확인.</div></div>
+      <div class="step"><div class="step-n">4</div><div><b>섞은 배치 테스트</b> — 통 위치를 좌우 바꾸거나 여러 블록 섞어 놓고 테스트.</div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑦ 취업 포인트 & 종합 -->
+<section id="s7" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑦ 취업 포인트 & 종합 정리</h2>
+  <p class="sec-lead">색 분류는 어렵지만, <b>제대로 해내면 강력한 어필</b>이 돼요.</p>
+
+  <div class="card" style="border:2px solid var(--p);">
+    <h4 class="blk" style="margin-top:0;">📊 8번 한눈 요약표</h4>
+    <table class="dtl">
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><b>작업</b></td><td>블록 색 보고 같은 색 통에 분류 (분리수거 로봇)</td></tr>
+        <tr><td><b>1단계</b></td><td>🔴🔵 2색 2통 · <span class="num-hi">색당 100회</span></td></tr>
+        <tr><td><b>2단계</b></td><td>🟢 초록 추가 → 3색 3통 · <span class="num-hi">색당 100회</span></td></tr>
+        <tr><td><b>학습 방식</b></td><td>⚠️ <b>통합 재학습</b> (순차는 앞 색 까먹음)</td></tr>
+        <tr><td><b>난이도</b></td><td>🔴 상 (색 분류는 SmolVLA가 어려워함)</td></tr>
+        <tr><td><b>성공 열쇠</b></td><td>원색 대비 + 통 명확 + 명령 일관성 + 색 균형</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>기대치 관리:</b> 색 분류는 원래 어려운 작업이에요(연구 성공률 0~10%). 처음부터 높은 성공률을 기대하기보다,
+      <b>"왜 어려운지 이해하고 성공률을 어떻게 올렸는지"</b>를 보여주는 게 진짜 실력이에요.</div>
+    </div>
+
+    <div class="pf">
+      <div class="pf-title">💼 취업 포트폴리오 강점</div>
+      <b>"색 기반 자동 분류 + 언어 grounding + 통합 재학습"</b>은 강력한 어필이에요:
+      <br>① <b>재활용·물류 분류 자동화</b> 직결 (산업 수요 큼) ② <b>어려운 작업을 설계로 개선</b>(대비·통·균형) 증명
+      ③ <b>순차학습 함정을 알고 통합 재학습으로 해결</b>(대부분 초보자가 모르는 부분). 통이 명확해 데모 영상도 이해하기 쉬워요!
+    </div>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">🎯</div>
+      <div><b>8번의 핵심 3가지:</b> ① <b>색 분류는 어렵다</b>는 걸 인정하고 대비 ② <b>통합 재학습</b>으로 색 안 까먹게
+      (7번과 정반대!) ③ <b>원색·통·명령 일관성</b>으로 성공률 최대화.</div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🔗</div>
+      <div><b>다른 시나리오와 연결:</b> 8번은 <b>9번(색깔 공을 색깔 통에)</b>과 결합할 수 있어요.
+      "색깔 공을 색깔 통에" 하면 공의 구르기 문제까지 통이 해결해줘요. 색 분류 노하우가 그대로 이어져요.</div>
+    </div>
+
+    <div class="pf" style="border-left-color:var(--p);background:linear-gradient(135deg,#F0FDF9,#D1FAE5);">
+      <div class="pf-title" style="color:var(--p);">💎 핵심 한 줄</div>
+      색 분류는 SmolVLA가 <b>가장 어려워하는 작업</b>이지만, 그래서 <b>제대로 해내면 차별점</b>이 커요.
+      2색부터 시작해 <b>통합 재학습</b>으로 색을 안 까먹게 하고, <b>원색·통·명령 일관성</b>으로 성공률을 올리는 게 8번의 정석입니다!
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:1rem 0 3.5rem;color:var(--mut);font-size:.88rem;">
+  🦾 ZETABANK · Physical AI Master Course &nbsp;|&nbsp; 실습 시나리오 8번 · 3색 박스통 분류 완전판
+</div>
+
+</section>
+
+</body>
+</html>

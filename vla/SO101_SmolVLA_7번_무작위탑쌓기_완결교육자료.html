@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7번 무작위 탑쌓기 완전 교육자료</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#D97706; --p-l:#FEF3C7; --blue:#2563EB; --blue-l:#DBEAFE;
+  --pur:#7C3AED; --pur-l:#EDE9FE;
+  --suc:#059669; --suc-l:#D1FAE5; --warn:#D97706; --warn-l:#FEF3C7;
+  --dng:#DC2626; --dng-l:#FEE2E2; --surf:#FFFBEB; --card:#fff;
+  --tx:#1E293B; --mut:#64748B; --bd:#E2E8F0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--tx);background:var(--surf);line-height:1.75;}
+code,pre{font-family:'JetBrains Mono',monospace;}
+.container{max-width:940px;margin:0 auto;padding:0 1.5rem;}
+
+.hero{background:linear-gradient(135deg,#78350F,#F59E0B);color:#fff;padding:3.8rem 0 3.2rem;position:relative;overflow:hidden;}
+.hero::before{content:"";position:absolute;top:-40%;right:-8%;width:480px;height:480px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%);border-radius:50%;}
+.hero-in{position:relative;z-index:1;}
+.hero .eyebrow{font-size:.9rem;font-weight:700;opacity:.9;letter-spacing:.08em;margin-bottom:.6rem;}
+.hero h1{font-size:2.6rem;font-weight:900;line-height:1.2;margin-bottom:.9rem;}
+.hero .sub{font-size:1.1rem;opacity:.96;max-width:680px;margin-bottom:1.4rem;}
+.tag-row{display:flex;gap:.55rem;flex-wrap:wrap;}
+.tag{background:rgba(255,255,255,.2);padding:.4rem 1rem;border-radius:999px;font-size:.83rem;font-weight:500;}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin-top:1.6rem;}
+.toc a{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:.7rem .9rem;color:#fff;text-decoration:none;font-size:.86rem;font-weight:700;transition:background .2s;}
+.toc a:hover{background:rgba(255,255,255,.3);}
+
+section{padding:3rem 0;}
+.sec-title{font-size:1.75rem;font-weight:900;margin-bottom:.4rem;display:flex;align-items:center;gap:.55rem;scroll-margin-top:1rem;}
+.sec-lead{color:var(--mut);margin-bottom:1.8rem;}
+
+.card{background:var(--card);border-radius:18px;box-shadow:0 6px 26px rgba(120,53,15,.08);border:1px solid var(--bd);padding:1.9rem;margin-bottom:1.6rem;}
+
+.analogy{display:flex;gap:1.1rem;padding:1.4rem;background:var(--p-l);border-radius:14px;border-left:5px solid var(--p);margin:1.4rem 0;}
+.analogy-icon{font-size:2.4rem;flex-shrink:0;}
+.analogy-title{font-weight:700;font-size:.78rem;color:var(--p);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;}
+.analogy-real{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--p);font-size:.9rem;color:#92400e;}
+
+.scene{background:linear-gradient(160deg,#FFFDF7,#FEF3C7);border-radius:16px;padding:1.3rem;margin:1.5rem 0;border:1px solid var(--bd);}
+.scene svg{display:block;width:100%;height:auto;max-width:780px;margin:0 auto;}
+.scene-cap{text-align:center;font-size:.84rem;color:var(--mut);margin-top:.6rem;font-weight:500;}
+
+.callout{display:flex;gap:.85rem;padding:1.1rem 1.3rem;border-radius:12px;margin:1.2rem 0;align-items:flex-start;}
+.callout-icon{font-size:1.4rem;flex-shrink:0;}
+.c-tip{background:var(--suc-l);}
+.c-warn{background:var(--warn-l);}
+.c-truth{background:#FEF2F2;border:1px solid #FECACA;}
+.c-info{background:var(--blue-l);}
+
+.badge{padding:.34rem .9rem;border-radius:999px;font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;}
+.b-easy{background:var(--suc-l);color:var(--suc);}
+.b-mid{background:var(--warn-l);color:var(--warn);}
+.b-hard{background:var(--dng-l);color:var(--dng);}
+.b-data{background:var(--blue-l);color:var(--blue);}
+.b-rate{background:var(--pur-l);color:var(--pur);}
+.diff-row{display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1.4rem;}
+
+table.dtl{width:100%;border-collapse:collapse;margin:1.4rem 0;font-size:.88rem;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+table.dtl th{background:var(--p);color:#fff;padding:.85rem .75rem;text-align:left;font-size:.84rem;}
+table.dtl td{padding:.75rem .75rem;border-bottom:1px solid var(--bd);vertical-align:top;}
+table.dtl tr:last-child td{border-bottom:none;}
+table.dtl tr:nth-child(even){background:#fffbeb;}
+.num-hi{font-weight:900;color:var(--p);}
+
+.code{background:#1e1e2e;color:#cdd6f4;border-radius:12px;padding:1.1rem 1.3rem;font-size:.82rem;overflow-x:auto;margin:1.2rem 0;line-height:1.7;}
+.code .cmt{color:#6c7086;} .code .key{color:#f38ba8;} .code .str{color:#a6e3a1;} .code .num{color:#fab387;} .code .hl{background:#45475a;border-radius:3px;padding:0 3px;color:#f9e2af;}
+
+.steps{margin:1.4rem 0;}
+.step{display:flex;gap:1rem;padding:1rem 0;border-bottom:1px dashed var(--bd);}
+.step:last-child{border-bottom:none;}
+.step-n{width:34px;height:34px;border-radius:50%;background:var(--p);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem;}
+
+.pf{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:14px;padding:1.3rem 1.5rem;margin-top:1.4rem;border-left:5px solid var(--suc);}
+.pf-title{font-weight:900;color:var(--suc);font-size:.95rem;margin-bottom:.5rem;}
+
+h4.blk{font-size:1.15rem;font-weight:700;margin:1.7rem 0 .8rem;display:flex;align-items:center;gap:.45rem;}
+
+.phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin:1.4rem 0;}
+.phase-card{border-radius:16px;padding:1.3rem;border:2px solid;text-align:center;}
+.phase-1{border-color:var(--suc);background:var(--suc-l);}
+.phase-2{border-color:var(--warn);background:var(--warn-l);}
+.phase-3{border-color:var(--dng);background:var(--dng-l);}
+.phase-badge{display:inline-block;padding:.2rem .75rem;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff;margin-bottom:.5rem;}
+.phase-card h5{font-size:1.05rem;font-weight:900;margin-bottom:.3rem;}
+.phase-num{font-size:1.7rem;font-weight:900;margin:.4rem 0;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin:1.4rem 0;}
+.stat-card{background:var(--surf);border-radius:12px;padding:1.2rem;text-align:center;border:1px solid var(--bd);}
+.stat-number{font-size:2rem;font-weight:900;color:var(--p);line-height:1;}
+.stat-label{font-weight:700;font-size:.82rem;margin-top:.4rem;}
+.stat-desc{font-size:.75rem;color:var(--mut);margin-top:.2rem;}
+
+@media(max-width:768px){
+  .hero h1{font-size:1.9rem;}
+  .card{padding:1.3rem;}
+  .analogy{flex-direction:column;gap:.6rem;}
+  table.dtl{font-size:.76rem;}
+  table.dtl th,table.dtl td{padding:.5rem .4rem;}
+}
+@media print{body{background:#fff;} .card{box-shadow:none;break-inside:avoid;} .hero{background:#78350F !important;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container hero-in">
+    <div class="eyebrow">SO-101 × SmolVLA · 실습 시나리오 7번</div>
+    <h1>🗼 무작위 탑쌓기<br>2개 → 3개 → (덤)4개</h1>
+    <p class="sub">책상에 아무렇게나 흩어진 블록을 로봇이 찾아서 차곡차곡 탑으로!
+    쉬운 단계부터 배워 어려운 단계로 확장하는 <b>커리큘럼 학습</b>의 정석이에요.</p>
+    <div class="tag-row">
+      <span class="tag">무작위 초기 배치</span>
+      <span class="tag">커리큘럼 학습</span>
+      <span class="tag">누적 오차</span>
+      <span class="tag">warm start</span>
+    </div>
+    <div class="toc">
+      <a href="#s1">① 무엇을 하나</a>
+      <a href="#s2">② 왜 무작위?</a>
+      <a href="#s3">③ 왜 단계별?</a>
+      <a href="#s4">④ 데이터 횟수</a>
+      <a href="#s5">⑤ 색깔 선택</a>
+      <a href="#s6">⑥ 실습 명령어</a>
+      <a href="#s7">⑦ 취업 포인트</a>
+    </div>
+  </div>
+</div>
+
+<!-- ① 개요 -->
+<section id="s1">
+<div class="container">
+  <h2 class="sec-title">① 무엇을 하는 실습인가?</h2>
+  <p class="sec-lead">한 문장으로: <b>무작위로 놓인 블록을 로봇이 집어서 안 무너지게 탑으로 쌓기.</b></p>
+
+  <div class="card">
+    <div class="diff-row">
+      <span class="badge b-mid">🟠 2층 : 중상</span>
+      <span class="badge b-hard">🔴 3층 : 어려움</span>
+      <span class="badge b-rate">🎯 2층 ~70~96% / 3층 ~30~50%</span>
+      <span class="badge b-data">📸 단계별 200회</span>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🧱</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>블록쌓기 놀이를 생각해봐요. 블록이 바닥에 <b>아무 데나 흩어져</b> 있으면,
+        하나씩 집어서 <b>정확히 위에 올려</b> 탑을 만들죠. 조금만 삐뚤어도 무너져요.
+        로봇에게 이걸 시키는 거예요 — 그것도 <b>매번 위치가 바뀌는</b> 상황에서!</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 로봇이 카메라로 블록을 <b>보고(Vision)</b>, "쌓아라"는 <b>명령을 이해(Language)</b>하고,
+        <b>팔을 움직여(Action)</b> 탑을 만들어요. 이게 VLA(Vision-Language-Action)의 전형적인 작업이에요.</p>
+      </div>
+    </div>
+
+    <!-- 전체 개요 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 260" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="210" width="780" height="50" fill="#FEF3C7"/>
+        <line x1="0" y1="210" x2="780" y2="210" stroke="#fcd34d" stroke-width="2"/>
+        <!-- ring light -->
+        <ellipse cx="390" cy="28" rx="60" ry="11" fill="none" stroke="#FCD34D" stroke-width="5"/>
+        <text x="390" y="16" font-size="10" fill="#b45309" text-anchor="middle">💡 링라이트 조명</text>
+        <!-- LEFT scattered -->
+        <text x="180" y="55" font-size="14" fill="#D97706" text-anchor="middle" font-weight="700">무작위로 흩어진 블록</text>
+        <rect x="70" y="176" width="34" height="34" rx="5" fill="#DC2626" transform="rotate(-14 87 193)"/>
+        <rect x="185" y="180" width="34" height="34" rx="5" fill="#2563EB" transform="rotate(10 202 197)"/>
+        <rect x="275" y="173" width="34" height="34" rx="5" fill="#16A34A" transform="rotate(20 292 190)"/>
+        <text x="180" y="238" font-size="11" fill="#64748b" text-anchor="middle">위치·방향 모두 랜덤 🎲</text>
+        <!-- robot arm hint -->
+        <g opacity=".8">
+          <rect x="330" y="120" width="12" height="90" rx="4" fill="#94a3b8"/>
+          <rect x="336" y="120" width="46" height="11" rx="6" fill="#64748b" transform="rotate(18 336 125)"/>
+          <circle cx="336" cy="125" r="8" fill="#475569"/>
+        </g>
+        <!-- arrow -->
+        <path d="M395 135 q40 -5 70 20" fill="none" stroke="#D97706" stroke-width="3" marker-end="url(#a1)"/>
+        <defs><marker id="a1" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 l7 3 l-7 3z" fill="#D97706"/></marker></defs>
+        <text x="420" y="120" font-size="12" fill="#D97706" font-weight="700">찾아서 쌓기</text>
+        <!-- RIGHT tower -->
+        <text x="600" y="55" font-size="14" fill="#059669" text-anchor="middle" font-weight="700">차곡차곡 탑 완성</text>
+        <rect x="568" y="176" width="60" height="34" rx="5" fill="#2563EB"/>
+        <rect x="571" y="142" width="54" height="34" rx="5" fill="#DC2626"/>
+        <rect x="574" y="108" width="48" height="34" rx="5" fill="#16A34A"/>
+        <line x1="598" y1="100" x2="598" y2="210" stroke="#059669" stroke-width="1" stroke-dasharray="3 3" opacity=".5"/>
+        <text x="660" y="120" font-size="22">✅</text>
+        <text x="598" y="238" font-size="11" fill="#059669" text-anchor="middle">중심 맞춰 안 무너지게</text>
+      </svg>
+      <div class="scene-cap">🎬 전체 흐름: 무작위로 흩어진 블록 → 로봇이 찾아서 → 중심 맞춰 차곡차곡 탑으로</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ② 왜 무작위 -->
+<section id="s2" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">② 왜 "무작위로" 놓아야 할까?</h2>
+  <p class="sec-lead">항상 같은 자리에 놓으면 안 돼요. 무작위가 <b>진짜 실력</b>을 키웁니다.</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">🎯</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>구구단을 항상 "2×3"만 외우면 "2×7"은 못 풀죠? <b>여러 문제를 풀어봐야</b> 진짜 이해예요.
+        로봇도 블록이 항상 같은 자리면 <b>위치를 통째로 외워버려요.</b>
+        무작위로 놔야 로봇이 "블록이 어디 있든 <b>보고 판단</b>"하는 걸 배워요.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 실제 SO-101 스택 연구도 <b>매 에피소드 블록 위치를 무작위</b>로 놨어요.
+        무작위 배치가 로봇 학습의 표준입니다.</p>
+      </div>
+    </div>
+
+    <!-- 고정 vs 무작위 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- fixed (bad) -->
+        <rect x="20" y="30" width="350" height="175" rx="14" fill="#FEE2E2" opacity=".5" stroke="#DC2626" stroke-width="2"/>
+        <text x="195" y="58" font-size="14" fill="#DC2626" text-anchor="middle" font-weight="700">❌ 항상 같은 자리</text>
+        <rect x="120" y="120" width="30" height="30" rx="5" fill="#DC2626"/>
+        <rect x="180" y="120" width="30" height="30" rx="5" fill="#2563EB"/>
+        <rect x="240" y="120" width="30" height="30" rx="5" fill="#16A34A"/>
+        <line x1="90" y1="155" x2="300" y2="155" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="195" y="180" font-size="11" fill="#DC2626" text-anchor="middle">위치를 통째로 외움</text>
+        <text x="195" y="196" font-size="10" fill="#991b1b" text-anchor="middle">→ 자리 바뀌면 실패</text>
+        <!-- random (good) -->
+        <rect x="410" y="30" width="350" height="175" rx="14" fill="#D1FAE5" opacity=".5" stroke="#059669" stroke-width="2"/>
+        <text x="585" y="58" font-size="14" fill="#059669" text-anchor="middle" font-weight="700">✅ 매번 무작위</text>
+        <rect x="460" y="100" width="28" height="28" rx="5" fill="#DC2626" transform="rotate(-15 474 114)"/>
+        <rect x="560" y="130" width="28" height="28" rx="5" fill="#2563EB" transform="rotate(12 574 144)"/>
+        <rect x="640" y="110" width="28" height="28" rx="5" fill="#16A34A" transform="rotate(25 654 124)"/>
+        <text x="510" y="90" font-size="16">🎲</text>
+        <text x="620" y="100" font-size="16">🎲</text>
+        <text x="585" y="180" font-size="11" fill="#059669" text-anchor="middle">보고 판단하는 법을 배움</text>
+        <text x="585" y="196" font-size="10" fill="#166534" text-anchor="middle">→ 어디 있든 성공</text>
+      </svg>
+      <div class="scene-cap">🎲 고정 위치는 "암기"라 응용 불가 / 무작위는 "이해"라 어디서든 성공</div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">📚</div>
+      <div><b>검증된 사실:</b> 데이터 모을 때 블록을 <b>여러 위치(최소 5곳)</b>에 놓고, 각 위치마다 반복 녹화하면
+      로봇이 훨씬 잘 일반화해요. "변형마다 반복"이 핵심 원칙입니다.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ③ 왜 단계별 -->
+<section id="s3" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">③ 왜 2개 → 3개 → 4개 "단계별"로?</h2>
+  <p class="sec-lead">처음부터 4층에 도전하면 실패해요. <b>쉬운 것부터 배워 확장</b>하는 게 커리큘럼 학습이에요.</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">🪜</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>수영을 배울 때 <b>물에 뜨기 → 발차기 → 자유형</b> 순서로 배우죠?
+        갑자기 자유형부터 하면 물 먹어요. 로봇도 <b>2층부터 → 3층 → 4층</b>으로 올려야
+        각 단계에서 배운 걸 <b>다음 단계에 써먹어요.</b></p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 2층 쌓기를 배운 모델을 <b>출발점(warm start)</b>으로 3층을 배우면,
+        "블록 집기·올리기" 기본기가 이미 있어서 훨씬 빨리 배워요.</p>
+      </div>
+    </div>
+
+    <!-- 커리큘럼 phase SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 250" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="205" width="780" height="45" fill="#FEF3C7"/>
+        <line x1="0" y1="205" x2="780" y2="205" stroke="#fcd34d" stroke-width="2"/>
+        <!-- phase 1: 2 blocks -->
+        <text x="130" y="35" font-size="13" fill="#059669" text-anchor="middle" font-weight="700">1단계 · 2층</text>
+        <rect x="100" y="170" width="58" height="35" rx="5" fill="#2563EB"/>
+        <rect x="103" y="137" width="52" height="35" rx="5" fill="#DC2626"/>
+        <text x="130" y="228" font-size="10" fill="#059669" text-anchor="middle">기초 확립</text>
+        <!-- arrow warm start -->
+        <path d="M175 150 l55 0" stroke="#D97706" stroke-width="3" marker-end="url(#aw)"/>
+        <defs><marker id="aw" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 l7 3 l-7 3z" fill="#D97706"/></marker></defs>
+        <text x="202" y="140" font-size="9" fill="#D97706" text-anchor="middle" font-weight="700">warm</text>
+        <text x="202" y="165" font-size="9" fill="#D97706" text-anchor="middle" font-weight="700">start</text>
+        <!-- phase 2: 3 blocks -->
+        <text x="330" y="35" font-size="13" fill="#D97706" text-anchor="middle" font-weight="700">2단계 · 3층</text>
+        <rect x="300" y="170" width="58" height="35" rx="5" fill="#2563EB"/>
+        <rect x="303" y="137" width="52" height="35" rx="5" fill="#DC2626"/>
+        <rect x="306" y="104" width="46" height="35" rx="5" fill="#16A34A"/>
+        <text x="330" y="228" font-size="10" fill="#D97706" text-anchor="middle">누적오차 관리</text>
+        <!-- arrow -->
+        <path d="M375 130 l55 0" stroke="#DC2626" stroke-width="3" marker-end="url(#aw2)"/>
+        <defs><marker id="aw2" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 l7 3 l-7 3z" fill="#DC2626"/></marker></defs>
+        <text x="402" y="120" font-size="9" fill="#DC2626" text-anchor="middle" font-weight="700">warm</text>
+        <text x="402" y="145" font-size="9" fill="#DC2626" text-anchor="middle" font-weight="700">start</text>
+        <!-- phase 3: 4 blocks (bonus) -->
+        <text x="540" y="35" font-size="13" fill="#DC2626" text-anchor="middle" font-weight="700">덤 · 4층</text>
+        <rect x="510" y="170" width="58" height="35" rx="5" fill="#2563EB"/>
+        <rect x="513" y="137" width="52" height="35" rx="5" fill="#DC2626"/>
+        <rect x="516" y="104" width="46" height="35" rx="5" fill="#16A34A"/>
+        <rect x="519" y="71" width="40" height="35" rx="5" fill="#EAB308"/>
+        <text x="540" y="228" font-size="10" fill="#DC2626" text-anchor="middle">재시도 필수</text>
+        <!-- trophy -->
+        <text x="620" y="120" font-size="28">🏆</text>
+        <!-- difficulty curve hint -->
+        <path d="M640 190 Q690 190 700 90" fill="none" stroke="#7C3AED" stroke-width="2" stroke-dasharray="4 3"/>
+        <text x="700" y="80" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="700">난이도↑</text>
+      </svg>
+      <div class="scene-cap">🪜 2층(기초) → warm start → 3층 → warm start → 4층(덤). 층 올릴수록 어려워짐</div>
+    </div>
+
+    <div class="phase-grid">
+      <div class="phase-card phase-1">
+        <span class="phase-badge" style="background:#059669;">1단계 · 기본</span>
+        <h5>🧱 2개 탑</h5>
+        <div class="phase-num" style="color:#059669;">200회</div>
+        <p style="font-size:.85rem;">블록 집기+올리기 기초. 성공률 70%+ 목표. 여기가 토대!</p>
+      </div>
+      <div class="phase-card phase-2">
+        <span class="phase-badge" style="background:#D97706;">2단계 · 확장</span>
+        <h5>🏗️ 3개 탑</h5>
+        <div class="phase-num" style="color:#D97706;">200회</div>
+        <p style="font-size:.85rem;">2층 모델 warm start. 누적오차(1mm가 쌓임) 관리 학습.</p>
+      </div>
+      <div class="phase-card phase-3">
+        <span class="phase-badge" style="background:#DC2626;">덤 · 도전</span>
+        <h5>🗼 4개 탑</h5>
+        <div class="phase-num" style="color:#DC2626;">200회</div>
+        <p style="font-size:.85rem;">3층 모델 warm start. 재시도 로직 필수. "왜 무너지나" 분석이 핵심.</p>
+      </div>
+    </div>
+
+    <div class="callout c-truth">
+      <div class="callout-icon">🔴</div>
+      <div><b>솔직한 진실 (누적 오차):</b> 층이 올라갈수록 성공률이 <b>급격히</b> 떨어져요.
+      배치할 때 <b>1mm 오차가 위층으로 갈수록 쌓여</b> 결국 무너지거든요.
+      ACT 사례에서 <b>2층 96% → 4층 78%</b>로 떨어졌어요. 이걸 이해하고 관리하는 게 실력이에요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ④ 데이터 횟수 & 학습 방식 -->
+<section id="s4" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">④ 데이터 몇 번? 어떻게 학습?</h2>
+  <p class="sec-lead">여러분 경험대로 <b>단계마다 200회</b>가 좋아요. 그리고 학습 방식이 중요해요.</p>
+
+  <div class="card">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">200</div>
+        <div class="stat-label">단계당 횟수</div>
+        <div class="stat-desc">넉넉하고 안정적</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">5곳+</div>
+        <div class="stat-label">위치 변형</div>
+        <div class="stat-desc">무작위 배치</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">10cm</div>
+        <div class="stat-label">작업 범위</div>
+        <div class="stat-desc">좁게 시작</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">2대+</div>
+        <div class="stat-label">카메라</div>
+        <div class="stat-desc">탑다운+손목</div>
+      </div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">📸</div>
+      <div><b>왜 200회?</b> SmolVLA는 변형마다 충분히 반복해야 안정적이에요. 25회는 부족(성능 나쁨),
+      50회는 최소선, <b>200회면 넉넉</b>합니다. 작업 범위를 <b>10cm로 좁게</b> 시작하면 적은 데이터로도 성공률이 높아요.</div>
+    </div>
+
+    <h4 class="blk">🔑 학습 방식 : 순차 warm start (7번은 이게 정답!)</h4>
+    <div class="callout c-tip">
+      <div class="callout-icon">✅</div>
+      <div><b>7번은 순차 warm start가 잘 통해요.</b> 왜냐면 <b>2층이 3층에 "포함"</b>되거든요.
+      3층을 배워도 2층 능력을 까먹지 않아요. 여러분이 경험한 "1단계 200회 → 2단계 200회"가 잘 되는 대표 케이스예요!</div>
+    </div>
+
+    <table class="dtl">
+      <thead><tr><th>학습 방식</th><th>어떻게</th><th>7번에서는?</th></tr></thead>
+      <tbody>
+        <tr><td><b>순차 warm start</b><br>⭐추천</td><td>2층 모델을 출발점으로 3층 학습, 3층을 출발점으로 4층</td><td>✅ <b>딱 맞음.</b> 포함관계라 안 까먹음. 데이터·시간 절약</td></tr>
+        <tr><td><b>통합 재학습</b></td><td>2·3·4층 데이터를 모두 합쳐 처음부터</td><td>△ 가능하나 7번엔 과함. 시간·비용만 더 듦</td></tr>
+        <tr><td><b>맨땅부터</b></td><td>4층을 처음부터 바로 학습</td><td>❌ 비효율. 기초 없이 어려운 것부터 = 실패 위험</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout c-warn">
+      <div class="callout-icon">⚠️</div>
+      <div><b>꼭 확인!</b> 3층 학습 후 <b>2층도 다시 테스트</b>하세요. 만약 2층 성공률이 떨어졌으면
+      (드물지만) 그때는 통합 재학습으로 전환. "포함관계라 안전"하지만 검증은 필수예요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑤ 색깔 선택 -->
+<section id="s5" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑤ 블록 색깔은 어떻게 고를까?</h2>
+  <p class="sec-lead">색깔도 성공률에 영향을 줘요. 층마다 다른 <b>원색</b>이 정답이에요.</p>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-icon">🎨</div>
+      <div>
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p>비슷한 색(주황·연두)은 카메라가 <b>헷갈려요.</b> 사람도 비슷한 색은 구분 어렵죠?
+        <b>빨강·파랑·초록</b> 같은 원색은 뚜렷이 달라서 로봇이 "이건 몇 번째 블록"인지 쉽게 알아봐요.</p>
+        <p class="analogy-real">💡 <b>실제로는</b> — 층마다 색을 다르게 하면, 영상에서 <b>어느 층이 어긋났는지</b> 한눈에 보여요.
+        디버깅과 발표 영상에 큰 도움이 돼요.</p>
+      </div>
+    </div>
+
+    <!-- 색깔 배치 SVG -->
+    <div class="scene">
+      <svg viewBox="0 0 780 180" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="145" width="780" height="35" fill="#FEF3C7"/>
+        <line x1="0" y1="145" x2="780" y2="145" stroke="#fcd34d" stroke-width="2"/>
+        <!-- good colors -->
+        <text x="200" y="30" font-size="13" fill="#059669" text-anchor="middle" font-weight="700">✅ 층마다 뚜렷한 원색</text>
+        <rect x="160" y="112" width="80" height="33" rx="5" fill="#2563EB"/><text x="200" y="133" font-size="10" fill="#fff" text-anchor="middle" font-weight="700">1층 파랑</text>
+        <rect x="165" y="79" width="70" height="33" rx="5" fill="#DC2626"/><text x="200" y="100" font-size="10" fill="#fff" text-anchor="middle" font-weight="700">2층 빨강</text>
+        <rect x="170" y="46" width="60" height="33" rx="5" fill="#16A34A"/><text x="200" y="67" font-size="10" fill="#fff" text-anchor="middle" font-weight="700">3층 초록</text>
+        <text x="290" y="95" font-size="20">👍</text>
+        <!-- divider -->
+        <line x1="400" y1="40" x2="400" y2="150" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5 5"/>
+        <!-- bad colors -->
+        <text x="580" y="30" font-size="13" fill="#DC2626" text-anchor="middle" font-weight="700">❌ 비슷한 색은 헷갈림</text>
+        <rect x="540" y="112" width="80" height="33" rx="5" fill="#FB923C"/><text x="580" y="133" font-size="10" fill="#fff" text-anchor="middle">주황</text>
+        <rect x="545" y="79" width="70" height="33" rx="5" fill="#F59E0B"/><text x="580" y="100" font-size="10" fill="#fff" text-anchor="middle">노랑주황</text>
+        <rect x="550" y="46" width="60" height="33" rx="5" fill="#FBBF24"/><text x="580" y="67" font-size="10" fill="#fff" text-anchor="middle">연노랑</text>
+        <text x="670" y="95" font-size="20">😵</text>
+      </svg>
+      <div class="scene-cap">🎨 빨강·파랑·초록 원색은 카메라가 잘 구분 / 주황·노랑 계열은 헷갈림</div>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">🎨</div>
+      <div><b>추천 색 조합:</b> 1층 🔵파랑 · 2층 🔴빨강 · 3층 🟢초록 · 4층 🟡노랑.
+      배경은 <b>무채색(흰색·회색)</b>, 조명은 <b>링라이트 백색광</b>이면 대비 최고예요.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑥ 실습 명령어 -->
+<section id="s6" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑥ 실습 명령어 (녹화 → 학습 → 추론)</h2>
+  <p class="sec-lead">실제로 돌리는 순서예요. 2층부터 시작해 warm start로 올려요.</p>
+
+  <div class="card">
+    <h4 class="blk">1️⃣ 녹화 : 무작위 위치로 200회</h4>
+    <div class="code">
+<span class="cmt"># 2층 데이터 녹화 (블록 위치를 매번 바꿔가며 200회)</span><br>
+lerobot-record \<br>
+&nbsp;&nbsp;<span class="key">--robot.type</span>=so101_follower <span class="key">--robot.port</span>=/dev/ttyACM0 \<br>
+&nbsp;&nbsp;<span class="key">--robot.cameras</span>=<span class="str">"{ top: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30},
+&nbsp;&nbsp;&nbsp;&nbsp;wrist: {type: intelrealsense, serial_number_or_name: XXXX, width: 640, height: 480, fps: 30} }"</span> \<br>
+&nbsp;&nbsp;<span class="key">--dataset.repo_id</span>=<span class="str">$HF_USER/tower_2</span> \<br>
+&nbsp;&nbsp;<span class="key">--dataset.single_task</span>=<span class="hl str">"Stack the blocks into a tower"</span> \<br>
+&nbsp;&nbsp;<span class="key">--dataset.num_episodes</span>=<span class="num">200</span> \<br>
+&nbsp;&nbsp;<span class="key">--teleop.type</span>=so101_leader <span class="key">--teleop.port</span>=/dev/ttyACM1
+    </div>
+    <div class="callout c-tip">
+      <div class="callout-icon">💡</div>
+      <div><code>single_task</code>는 이 작업의 명령이에요. <b>녹화·학습·추론에서 똑같은 텍스트</b>를 쓰세요.
+      3층 데이터는 <code>repo_id=$HF_USER/tower_3</code>로 따로 녹화하면 돼요.</div>
+    </div>
+
+    <h4 class="blk">2️⃣ 학습 : 2층 먼저 → 3층은 warm start</h4>
+    <div class="code">
+<span class="cmt"># ① 2층 학습 (베이스 모델에서 시작)</span><br>
+lerobot-train <span class="key">--policy.path</span>=lerobot/smolvla_base \<br>
+&nbsp;&nbsp;<span class="key">--dataset.repo_id</span>=<span class="str">$HF_USER/tower_2</span> \<br>
+&nbsp;&nbsp;<span class="key">--batch_size</span>=<span class="num">64</span> <span class="key">--steps</span>=<span class="num">20000</span> \<br>
+&nbsp;&nbsp;<span class="key">--output_dir</span>=<span class="str">outputs/train/tower_2</span> <span class="key">--policy.device</span>=cuda<br>
+<br>
+<span class="cmt"># ② 3층 학습 (★ 2층 모델을 출발점으로 = warm start)</span><br>
+lerobot-train <span class="key">--policy.path</span>=<span class="hl str">outputs/train/tower_2/checkpoint</span> \<br>
+&nbsp;&nbsp;<span class="key">--dataset.repo_id</span>=<span class="str">$HF_USER/tower_3</span> \<br>
+&nbsp;&nbsp;<span class="key">--batch_size</span>=<span class="num">64</span> <span class="key">--steps</span>=<span class="num">15000</span> \<br>
+&nbsp;&nbsp;<span class="key">--output_dir</span>=<span class="str">outputs/train/tower_3</span> <span class="key">--policy.device</span>=cuda
+    </div>
+
+    <h4 class="blk">3️⃣ 추론 : 로봇으로 실행 & 평가</h4>
+    <div class="code">
+<span class="cmt"># 학습된 모델로 실제 탑쌓기 실행 (60초)</span><br>
+lerobot-rollout <span class="key">--strategy.type</span>=base \<br>
+&nbsp;&nbsp;<span class="key">--policy.path</span>=<span class="str">outputs/train/tower_3/checkpoint</span> \<br>
+&nbsp;&nbsp;<span class="key">--robot.type</span>=so101_follower <span class="key">--robot.port</span>=/dev/ttyACM0 \<br>
+&nbsp;&nbsp;<span class="key">--task</span>=<span class="hl str">"Stack the blocks into a tower"</span> \<br>
+&nbsp;&nbsp;<span class="key">--duration</span>=<span class="num">60</span> <span class="key">--device</span>=cuda
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div><b>2층 녹화·학습</b> — 무작위 200회 → 학습 → 성공률 70%+ 확인.</div></div>
+      <div class="step"><div class="step-n">2</div><div><b>3층 녹화·warm start 학습</b> — 200회 → 2층 모델 이어서 학습.</div></div>
+      <div class="step"><div class="step-n">3</div><div><b>2층 재테스트</b> — 3층 학습 후 2층 성공률 안 떨어졌나 확인.</div></div>
+      <div class="step"><div class="step-n">4</div><div><b>(덤) 4층 도전</b> — 3층 warm start + 재시도 로직. "왜 무너지나" 분석.</div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ⑦ 취업 포인트 & 종합 -->
+<section id="s7" style="padding-top:0;">
+<div class="container">
+  <h2 class="sec-title">⑦ 취업 포인트 & 종합 정리</h2>
+  <p class="sec-lead">이 실습으로 무엇을 어필할 수 있는지, 핵심을 정리해요.</p>
+
+  <div class="card" style="border:2px solid var(--p);">
+    <h4 class="blk" style="margin-top:0;">📊 7번 한눈 요약표</h4>
+    <table class="dtl">
+      <thead><tr><th>단계</th><th>블록</th><th>데이터</th><th>학습</th><th>색깔</th><th>목표 성공률</th></tr></thead>
+      <tbody>
+        <tr><td><b>1단계</b></td><td>2개</td><td class="num-hi">200회</td><td>베이스에서</td><td>파+빨</td><td>~70~96%</td></tr>
+        <tr><td><b>2단계</b></td><td>3개</td><td class="num-hi">200회</td><td>2층 warm start</td><td>+초록</td><td>~30~50%</td></tr>
+        <tr><td><b>덤</b></td><td>4개</td><td class="num-hi">200회</td><td>3층 warm start</td><td>+노랑</td><td>~78%(ACT참고)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="pf">
+      <div class="pf-title">💼 취업 포트폴리오 강점</div>
+      <b>"무작위 배치 + 2→3→4 커리큘럼 + 층수별 성공률 분석"</b> 조합은 채용 담당자가 가장 좋아하는 데모예요:
+      <br>① <b>일반화 능력</b> (무작위여도 성공) ② <b>학습 전략 설계</b> (커리큘럼·warm start 이해)
+      ③ <b>문제 분석력</b> ("왜 층이 오르면 실패하나"를 데이터로 설명). 실물 블록이라 <b>비전공 면접관도 이해</b>하는 시연!
+    </div>
+
+    <div class="callout c-tip">
+      <div class="callout-icon">🎯</div>
+      <div><b>7번의 핵심 3가지:</b> ① <b>무작위</b>로 놔야 진짜 실력 ② <b>단계별 warm start</b>로 효율적 확장
+      (7번은 포함관계라 순차가 정답!) ③ <b>층마다 원색</b>으로 구분·디버깅 쉽게.</div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="callout-icon">🔗</div>
+      <div><b>다음 단계 연결:</b> 탑쌓기를 마스터하면 <b>10번 링 정렬·재스택</b>(스킬 체이닝)이나
+      <b>롱호라이즌 작업</b>으로 확장할 수 있어요. "여러 작업을 순서대로 잇는" 기술로 나아가는 발판이에요.</div>
+    </div>
+
+    <div class="pf" style="border-left-color:var(--p);background:linear-gradient(135deg,#FFFBEB,#FEF3C7);">
+      <div class="pf-title" style="color:var(--p);">💎 핵심 한 줄</div>
+      무작위에서 시작해 <b>2→3→4층으로 단계별 확장</b>하는 커리큘럼은 실제 연구가 쓰는 정석이에요.
+      7번은 "탑을 얼마나 높이, 얼마나 안정적으로" 쌓느냐로 <b>로봇 AI의 일반화와 학습 전략</b>을 한 번에 보여주는 최고의 실습입니다!
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:1rem 0 3.5rem;color:var(--mut);font-size:.88rem;">
+  🦾 ZETABANK · Physical AI Master Course &nbsp;|&nbsp; 실습 시나리오 7번 · 무작위 탑쌓기 완전판
+</div>
+
+</section>
+
+</body>
+</html>
