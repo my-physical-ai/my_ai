@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeRobot Annotate Mini — 서브태스크 자막 편집기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ LeRobot Annotate Mini · 영상 편집기 스타일 자막 도구 ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #14121F;        /* 배경: 딥 잉크 */
+  --panel: #1D1A2E;      /* 패널 */
+  --panel2: #26223A;     /* 패널 밝음 */
+  --line: #363050;       /* 경계선 */
+  --text: #EDEAF7;
+  --muted: #9C96B8;
+  --accent: #8B5CF6;     /* 코스 아이덴티티 퍼플 */
+  --accent-soft: #A78BFA;
+  --ok: #34D399;
+  --warn: #FBBF24;
+  --danger: #F87171;
+  /* 세그먼트 팔레트 (타임라인 블록 순환색) */
+  --seg0: #2DD4BF; --seg1: #F59E0B; --seg2: #F472B6; --seg3: #60A5FA; --seg4: #A3E635; --seg5: #FB923C;
+}
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--ink); color: var(--text); min-height: 100vh; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+
+/* ── 헤더 ── */
+header { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; padding: 0.5rem 0 1.25rem; border-bottom: 1px solid var(--line); }
+header h1 { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.01em; }
+header h1 .cut { color: var(--accent-soft); }
+header .sub { color: var(--muted); font-size: 0.83rem; }
+
+/* ── 카드 공통 ── */
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 1.1rem 1.25rem; margin-top: 1.1rem; }
+.card h2 { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.8rem; }
+
+/* ── 입력 요소 ── */
+label.f { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; }
+input[type="text"], input[type="number"] {
+  background: var(--panel2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 8px; padding: 0.5rem 0.7rem; font-family: inherit; font-size: 0.9rem; width: 100%;
+}
+input[type="text"]:focus, input[type="number"]:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
+.row { display: flex; gap: 0.9rem; flex-wrap: wrap; align-items: flex-end; }
+.row > div { flex: 1; min-width: 150px; }
+
+.btn {
+  background: var(--panel2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 9px; padding: 0.55rem 0.95rem; font-family: inherit; font-size: 0.88rem; font-weight: 500;
+  cursor: pointer; transition: background 0.12s, transform 0.06s; white-space: nowrap;
+}
+.btn:hover { background: #322C4E; }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; font-weight: 700; }
+.btn.primary:hover { background: #7C4DEF; }
+.btn.ok { background: var(--ok); border-color: var(--ok); color: #052e22; font-weight: 700; }
+.btn.danger-ghost { color: var(--danger); }
+.btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* ── 비디오 영역 ── */
+.player { background: black; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+video { width: 100%; display: block; max-height: 460px; background: black; }
+.player-bar { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 0.9rem; background: var(--panel2); flex-wrap: wrap; }
+.tc { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--accent-soft); min-width: 108px; }
+.tc small { color: var(--muted); font-weight: 400; font-size: 0.72rem; }
+.offset-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--warn); }
+
+/* ── 시그니처: 타임라인 트랙 ── */
+.timeline-wrap { margin-top: 0.9rem; }
+.timeline {
+  position: relative; height: 56px; background: repeating-linear-gradient(90deg, var(--panel2) 0, var(--panel2) 49px, var(--line) 49px, var(--line) 50px);
+  border: 1px solid var(--line); border-radius: 10px; cursor: crosshair; overflow: hidden;
+}
+.seg-block {
+  position: absolute; top: 7px; bottom: 7px; border-radius: 7px;
+  display: flex; align-items: center; padding: 0 0.5rem; font-size: 0.72rem; font-weight: 700; color: #10122b;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.25);
+}
+.seg-block:hover { filter: brightness(1.12); }
+.playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: white; box-shadow: 0 0 6px rgba(255,255,255,0.8); pointer-events: none; }
+.pending-mark { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--warn); pointer-events: none; }
+.tl-legend { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; }
+
+/* ── 구간 입력 ── */
+.mark-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-top: 0.9rem; }
+.mark-slot { font-family: 'JetBrains Mono', monospace; background: var(--panel2); border: 1px dashed var(--line); border-radius: 8px; padding: 0.45rem 0.7rem; font-size: 0.85rem; min-width: 96px; text-align: center; }
+.mark-slot.set { border-style: solid; border-color: var(--warn); color: var(--warn); }
+.chips { display: flex; gap: 0.45rem; flex-wrap: wrap; margin-top: 0.7rem; }
+.chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 0.28rem 0.75rem; font-size: 0.8rem; cursor: pointer; color: var(--muted); }
+.chip:hover { color: var(--text); border-color: var(--accent); }
+
+/* ── 세그먼트 목록 ── */
+table.segs { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin-top: 0.4rem; }
+table.segs th { text-align: left; color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); }
+table.segs td { padding: 0.5rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+table.segs tr:last-child td { border-bottom: none; }
+.seg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 0.4rem; }
+td.t { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; white-space: nowrap; }
+.icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.95rem; padding: 0.2rem 0.4rem; border-radius: 6px; }
+.icon-btn:hover { color: var(--danger); background: rgba(248,113,113,0.1); }
+
+/* ── 하단 액션 / 상태 ── */
+.actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 1.1rem; }
+.hint { font-size: 0.78rem; color: var(--muted); margin-top: 0.6rem; line-height: 1.6; }
+.hint kbd { font-family: 'JetBrains Mono', monospace; background: var(--panel2); border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 5px; padding: 0.05rem 0.4rem; font-size: 0.72rem; color: var(--text); }
+.toast { position: fixed; left: 50%; bottom: 1.4rem; transform: translateX(-50%); background: var(--ok); color: #052e22; font-weight: 700; padding: 0.6rem 1.2rem; border-radius: 999px; font-size: 0.88rem; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 50; }
+.toast.show { opacity: 1; }
+.empty { color: var(--muted); font-size: 0.85rem; padding: 0.8rem 0.3rem; }
+
+@media (max-width: 700px) { .tc { min-width: 0; } header h1 { font-size: 1.1rem; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>LeRobot Annotate <span class="cut">Mini</span></h1>
+    <span class="sub">서브태스크 자막 편집기 · 브라우저에서 열고, JSON으로 내보내고, 스크립트로 parquet에 반영</span>
+    <span id="reviewChip" class="mono" style="display:none; background:rgba(139,92,246,0.15); border:1px solid var(--accent); color:var(--accent-soft); border-radius:999px; padding:0.25rem 0.8rem; font-size:0.75rem;"></span>
+  </header>
+
+  <!-- 1. 에피소드 열기 -->
+  <div class="card">
+    <h2>1 · 에피소드 열기</h2>
+    <div class="row">
+      <div style="flex:0 0 auto;">
+        <label class="f">에피소드 영상 (mp4)</label>
+        <button class="btn file-btn">🎞️ 영상 파일 선택<input type="file" id="videoFile" accept="video/*"></button>
+      </div>
+      <div style="max-width:140px;">
+        <label class="f" for="epIndex">episode_index</label>
+        <input type="number" id="epIndex" value="0" min="0" step="1">
+      </div>
+      <div>
+        <label class="f" for="taskName">task (선택 · 기록용)</label>
+        <input type="text" id="taskName" placeholder="pink block into the box of yellow">
+      </div>
+      <div style="flex:0 0 auto;">
+        <label class="f">이어서 작업</label>
+        <button class="btn file-btn">📂 JSON 불러오기<input type="file" id="jsonFile" accept=".json"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 플레이어 + 타임라인 -->
+  <div class="card">
+    <h2>2 · 재생 &amp; 구간 표시</h2>
+    <div class="player">
+      <video id="video" controls preload="metadata"></video>
+      <div class="player-bar">
+        <span class="tc"><span id="curTime">00:00.00</span> <small>/ <span id="durTime">00:00.00</span></small></span>
+        <button class="btn" id="btnOffset" title="영상 하나에 여러 에피소드가 붙어 있을 때 사용">⏱ 현재 위치 = 에피소드 0초</button>
+        <span class="offset-chip" id="offsetChip">오프셋: 0.00s</span>
+      </div>
+    </div>
+
+    <div class="timeline-wrap">
+      <div class="timeline" id="timeline" title="클릭하면 해당 위치로 이동">
+        <div class="playhead" id="playhead" style="left:0%"></div>
+      </div>
+      <div class="tl-legend"><span id="tlStart">0.00s</span><span>에피소드 타임라인 (오프셋 반영)</span><span id="tlEnd">—</span></div>
+    </div>
+
+    <div class="mark-row">
+      <button class="btn" id="btnIn"><b>I</b> · 구간 시작 = 현재</button>
+      <span class="mark-slot" id="slotIn">시작 —</span>
+      <button class="btn" id="btnOut"><b>O</b> · 구간 끝 = 현재</button>
+      <span class="mark-slot" id="slotOut">끝 —</span>
+      <input type="text" id="segLabel" placeholder="라벨 (예: approach the pink block slowly)" style="flex:1; min-width:220px;">
+      <button class="btn primary" id="btnAdd">＋ 구간 추가</button>
+    </div>
+    <div class="chips" id="chips"></div>
+    <p class="hint">단축키 — <kbd>Space</kbd> 재생/정지 · <kbd>I</kbd> 시작 지정 · <kbd>O</kbd> 끝 지정 · <kbd>Enter</kbd> 구간 추가 (라벨 입력 후) · <kbd>←</kbd>/<kbd>→</kbd> 0.1초 이동.
+    라벨 어휘는 <b>추론 조향에 쓸 표현과 통일</b>하세요 (slowly, wide grip 등).</p>
+  </div>
+
+  <!-- 3. 구간 목록 -->
+  <div class="card">
+    <h2>3 · 서브태스크 구간 목록 <span class="mono" id="segCount" style="color:var(--accent-soft)"></span></h2>
+    <div id="segTableWrap"><p class="empty">아직 구간이 없습니다. 영상을 보며 I → O → 라벨 → 추가 순서로 달아 보세요.</p></div>
+    <div class="actions">
+      <button class="btn ok" id="btnExport">⬇ annotations JSON (에피소드 저장)</button>
+      <button class="btn primary" id="btnExportBoundaries" style="display:none">⬇ boundaries.json (검수 완료본 · 전체)</button>
+      <button class="btn danger-ghost" id="btnClear">전체 지우기</button>
+    </div>
+    <p class="hint">
+      <b>수동 모드:</b> 내보낸 annotations JSON들을 한 폴더에 모아 <span class="mono">apply_annotations.py</span> 실행 →
+      <span class="mono">subtask_index</span> 열 추가.<br>
+      <b>검수 모드</b> (boundaries.json 불러온 경우): 에피소드별로 확인·수정 후
+      <b>boundaries.json (검수 완료본)</b>으로 내보내면 <span class="mono">split_by_subtask.py</span>에 그대로 사용 가능.
+    </p>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">저장됨</div>
+
+<script>
+// ===== LeRobot Annotate Mini — 상태 =====
+const S = {
+  segments: [],        // {start, end, label} — 에피소드 기준 초
+  offset: 0,           // 영상 내 에피소드 시작 오프셋(초)
+  videoName: "",
+  markIn: null,
+  markOut: null,
+  boundaries: null,    // [2026-08-07 추가] 검수 모드: boundaries.json 전체 (ep번호 → 구간배열)
+  reviewEp: null,      // [2026-08-07 추가] 검수 모드에서 현재 편집 중인 에피소드
+};
+const SEG_COLORS = ["var(--seg0)","var(--seg1)","var(--seg2)","var(--seg3)","var(--seg4)","var(--seg5)"];
+const QUICK_LABELS = ["approach the pink block","open gripper wide","grasp gently","lift slowly","move to the yellow box","place and release"];
+
+const $ = id => document.getElementById(id);
+const video = $("video");
+
+// ===== 유틸 =====
+const fmt = t => {
+  if (!isFinite(t)) return "00:00.00";
+  const m = Math.floor(t/60), s = t - m*60;
+  return String(m).padStart(2,"0") + ":" + s.toFixed(2).padStart(5,"0");
+};
+const epNow = () => Math.max(0, video.currentTime - S.offset);   // 현재 에피소드 기준 시각
+const epDur = () => Math.max(0.001, (video.duration || 0) - S.offset);
+const toast = msg => { const t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 1600); };
+
+// ===== 파일 열기 =====
+$("videoFile").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  S.videoName = f.name;
+  video.src = URL.createObjectURL(f);
+  toast("영상 열림: " + f.name);
+});
+// [2026-08-07 수정] boundaries.json(자동 감지 초안) 직접 불러오기 지원 — 형식 자동 판별
+$("jsonFile").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (d.schema && String(d.schema).startsWith("lerobot-annotate-mini")) {
+        // ── 형식 A: UI 자체 annotations JSON (이어하기) ──
+        S.boundaries = null;
+        S.segments = (d.segments || []).map(s => ({start:+s.start, end:+s.end, label:String(s.label)}));
+        if (d.episode_index !== undefined) $("epIndex").value = d.episode_index;
+        if (d.task) $("taskName").value = d.task;
+        if (d.video_offset_s !== undefined) { S.offset = +d.video_offset_s; }
+        render(); toast("불러옴: 구간 " + S.segments.length + "개");
+      } else if (typeof d === "object" && Object.keys(d).some(k => /^\d+$/.test(k))) {
+        // ── 형식 B: find_boundaries_multi.py 의 boundaries.json (검수 모드) ──
+        S.boundaries = {};
+        for (const [k, v] of Object.entries(d)) {
+          if (!/^\d+$/.test(k)) continue;                     // "default" 등 제외
+          S.boundaries[k] = v.map(s => ({start:+s.start, end:+s.end, label:String(s.task ?? s.label)}));
+        }
+        const eps = Object.keys(S.boundaries).map(Number).sort((a,b)=>a-b);
+        S.reviewEp = eps[0];
+        $("epIndex").value = S.reviewEp;
+        S.segments = S.boundaries[String(S.reviewEp)].map(s => ({...s}));
+        updateReviewChip();
+        render(); toast("검수 모드: 에피소드 " + eps.length + "개 초안 로드");
+      } else {
+        alert("알 수 없는 JSON 형식입니다.");
+      }
+    } catch (err) { alert("JSON 형식 오류: " + err.message); }
+  };
+  r.readAsText(f);
+});
+
+// [2026-08-07 추가] 검수 모드: 에피소드 전환 시 현재 편집분을 메모리에 커밋 후 다음 초안 로드
+function commitCurrentToBoundaries() {
+  if (S.boundaries === null || S.reviewEp === null) return;
+  S.boundaries[String(S.reviewEp)] = S.segments.map(s => ({...s}));
+}
+$("epIndex").addEventListener("change", () => {
+  if (S.boundaries === null) return;
+  commitCurrentToBoundaries();
+  const ep = parseInt($("epIndex").value || "0", 10);
+  S.reviewEp = ep;
+  S.segments = (S.boundaries[String(ep)] || []).map(s => ({...s}));
+  updateReviewChip();
+  render(); toast("에피소드 " + ep + " 초안 로드 (영상도 해당 에피소드로 바꾸세요)");
+});
+function updateReviewChip() {
+  const chip = $("reviewChip");
+  const btnB = $("btnExportBoundaries");
+  if (S.boundaries === null) { chip.style.display = "none"; btnB.style.display = "none"; return; }
+  const eps = Object.keys(S.boundaries).length;
+  chip.style.display = "inline-block";
+  btnB.style.display = "inline-block";
+  chip.textContent = "🔍 검수 모드 · " + eps + "개 에피소드 · 현재 ep" + S.reviewEp;
+}
+
+// [2026-08-07 추가] 검수 완료본 boundaries.json 내보내기 (split_by_subtask.py 호환 형식)
+$("btnExportBoundaries").addEventListener("click", () => {
+  if (S.boundaries === null) return;
+  commitCurrentToBoundaries();
+  const outObj = {};
+  const eps = Object.keys(S.boundaries).map(Number).sort((a,b)=>a-b);
+  for (const ep of eps) {
+    outObj[String(ep)] = S.boundaries[String(ep)].map(s =>
+      ({ start:+s.start.toFixed(2), end:+s.end.toFixed(2), task: s.label }));  // label → task 복원
+  }
+  if (eps.length) outObj["default"] = outObj[String(eps[0])];
+  const blob = new Blob([JSON.stringify(outObj, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "boundaries_reviewed.json";
+  a.click();
+  toast("검수 완료본 내보냄 → split_by_subtask.py에 사용");
+});
+
+// ===== 오프셋 =====
+$("btnOffset").addEventListener("click", () => {
+  S.offset = video.currentTime;
+  $("offsetChip").textContent = "오프셋: " + S.offset.toFixed(2) + "s";
+  render(); toast("에피소드 0초 = 영상 " + fmt(S.offset));
+});
+
+// ===== I/O 마크 =====
+function setIn()  { S.markIn  = epNow(); $("slotIn").textContent  = "시작 " + S.markIn.toFixed(2) + "s"; $("slotIn").classList.add("set"); render(); }
+function setOut() { S.markOut = epNow(); $("slotOut").textContent = "끝 "   + S.markOut.toFixed(2) + "s"; $("slotOut").classList.add("set"); render(); }
+$("btnIn").addEventListener("click", setIn);
+$("btnOut").addEventListener("click", setOut);
+
+// ===== 구간 추가 =====
+function addSegment() {
+  const label = $("segLabel").value.trim();
+  if (S.markIn === null || S.markOut === null) return alert("I(시작)와 O(끝)를 먼저 지정하세요.");
+  if (!label) return alert("라벨을 입력하세요.");
+  let a = S.markIn, b = S.markOut;
+  if (b <= a) [a, b] = [b, a];                     // 뒤집혀 있으면 자동 교정
+  S.segments.push({ start:+a.toFixed(3), end:+b.toFixed(3), label });
+  S.segments.sort((x,y) => x.start - y.start);
+  S.markIn = S.markOut = null;
+  $("slotIn").textContent="시작 —"; $("slotOut").textContent="끝 —";
+  $("slotIn").classList.remove("set"); $("slotOut").classList.remove("set");
+  $("segLabel").value = "";
+  render(); toast("구간 추가됨");
+}
+$("btnAdd").addEventListener("click", addSegment);
+$("segLabel").addEventListener("keydown", e => { if (e.key === "Enter") addSegment(); });
+
+// ===== 빠른 라벨 칩 =====
+QUICK_LABELS.forEach(t => {
+  const c = document.createElement("button");
+  c.className = "chip"; c.textContent = t;
+  c.addEventListener("click", () => { $("segLabel").value = t; $("segLabel").focus(); });
+  $("chips").appendChild(c);
+});
+
+// ===== 렌더 =====
+function render() {
+  // 세그먼트 표
+  const wrap = $("segTableWrap");
+  $("segCount").textContent = S.segments.length ? "(" + S.segments.length + "개)" : "";
+  if (!S.segments.length) {
+    wrap.innerHTML = '<p class="empty">아직 구간이 없습니다. 영상을 보며 I → O → 라벨 → 추가 순서로 달아 보세요.</p>';
+  } else {
+    let html = '<table class="segs"><thead><tr><th></th><th>시작</th><th>끝</th><th>라벨</th><th></th></tr></thead><tbody>';
+    S.segments.forEach((s, i) => {
+      html += `<tr>
+        <td><span class="seg-dot" style="background:${SEG_COLORS[i % SEG_COLORS.length]}"></span>${i}</td>
+        <td class="t">${s.start.toFixed(2)}s</td>
+        <td class="t">${s.end.toFixed(2)}s</td>
+        <td>${escapeHtml(s.label)}</td>
+        <td><button class="icon-btn" data-del="${i}" title="삭제">✕</button></td>
+      </tr>`;
+    });
+    wrap.innerHTML = html + "</tbody></table>";
+    wrap.querySelectorAll("[data-del]").forEach(b =>
+      b.addEventListener("click", () => { S.segments.splice(+b.dataset.del, 1); render(); }));
+  }
+  // 타임라인 블록
+  const tl = $("timeline");
+  tl.querySelectorAll(".seg-block,.pending-mark").forEach(el => el.remove());
+  const D = epDur();
+  S.segments.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "seg-block";
+    div.style.left = (s.start / D * 100) + "%";
+    div.style.width = Math.max(1.2, (s.end - s.start) / D * 100) + "%";
+    div.style.background = SEG_COLORS[i % SEG_COLORS.length];
+    div.textContent = s.label;
+    div.title = s.label + "  (" + s.start.toFixed(2) + "–" + s.end.toFixed(2) + "s) · 클릭=이동";
+    div.addEventListener("click", ev => { ev.stopPropagation(); video.currentTime = S.offset + s.start; });
+    tl.appendChild(div);
+  });
+  [S.markIn, S.markOut].forEach(m => {
+    if (m === null) return;
+    const p = document.createElement("div");
+    p.className = "pending-mark"; p.style.left = (m / D * 100) + "%";
+    tl.appendChild(p);
+  });
+  $("tlEnd").textContent = isFinite(video.duration) ? epDur().toFixed(2) + "s" : "—";
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// ===== 플레이헤드 =====
+video.addEventListener("timeupdate", () => {
+  $("curTime").textContent = fmt(epNow());
+  $("playhead").style.left = Math.min(100, epNow() / epDur() * 100) + "%";
+});
+video.addEventListener("loadedmetadata", () => { $("durTime").textContent = fmt(video.duration); render(); });
+$("timeline").addEventListener("click", e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  video.currentTime = S.offset + (e.clientX - r.left) / r.width * epDur();
+});
+
+// ===== 단축키 (영상 편집기 관례: I/O) =====
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+  if (e.code === "Space") { e.preventDefault(); video.paused ? video.play() : video.pause(); }
+  else if (e.key === "i" || e.key === "I") setIn();
+  else if (e.key === "o" || e.key === "O") setOut();
+  else if (e.key === "ArrowLeft")  video.currentTime -= 0.1;
+  else if (e.key === "ArrowRight") video.currentTime += 0.1;
+});
+
+// ===== 내보내기 =====
+$("btnExport").addEventListener("click", () => {
+  if (!S.segments.length) return alert("내보낼 구간이 없습니다.");
+  const ep = parseInt($("epIndex").value || "0", 10);
+  const data = {
+    schema: "lerobot-annotate-mini/v1",
+    episode_index: ep,
+    task: $("taskName").value.trim() || null,
+    video_file: S.videoName || null,
+    video_offset_s: +S.offset.toFixed(3),   // 이어하기용 (parquet 적용에는 미사용)
+    segments: S.segments,                    // start/end = 에피소드 기준 초
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `annotations_ep${String(ep).padStart(6,"0")}.json`;
+  a.click();
+  toast("JSON 내보냄 — 스크립트로 적용하세요");
+});
+$("btnClear").addEventListener("click", () => { if (confirm("모든 구간을 지울까요?")) { S.segments = []; render(); } });
+
+render();
+</script>
+</body>
+</html>
