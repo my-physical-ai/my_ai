@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lerobot-rollout & DAgger v6 — chunk_size & n_action_steps - Physical AI Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --color-primary: #7C3AED;
+  --color-primary-light: #EDE9FE;
+  --color-secondary: #2563EB;
+  --color-secondary-light: #DBEAFE;
+  --color-success: #059669;
+  --color-success-light: #D1FAE5;
+  --color-warning: #D97706;
+  --color-warning-light: #FEF3C7;
+  --color-danger: #DC2626;
+  --color-danger-light: #FEE2E2;
+  --color-surface: #F8FAFC;
+  --color-card: #FFFFFF;
+  --color-text: #1E293B;
+  --color-muted: #64748B;
+  --color-border: #E2E8F0;
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--color-text);
+  background: var(--color-surface);
+  line-height: 1.75;
+}
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+section { padding: 3rem 0; }
+
+/* === 히어로 === */
+.hero {
+  background: linear-gradient(135deg, #4C1D95, #8B5CF6);
+  color: white;
+  padding: 4rem 0 3.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  top: -50%; right: -10%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%);
+  border-radius: 50%;
+}
+.hero-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; position: relative; z-index: 1; }
+.hero-tag {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.hero h1 { font-size: 2.75rem; font-weight: 900; line-height: 1.2; position: relative; z-index: 1; }
+.hero-subtitle { font-size: 1.1rem; margin-top: 1rem; opacity: 0.92; max-width: 640px; position: relative; z-index: 1; }
+
+/* === 섹션 공통 === */
+.section-title {
+  font-size: 1.9rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.section-lead { color: var(--color-muted); margin-bottom: 2rem; font-size: 1.02rem; }
+.subheading { font-size: 1.25rem; font-weight: 700; margin: 2.5rem 0 1rem; }
+
+/* === 코드 블록 === */
+.code-block {
+  background: #1E1B2E;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1.25rem 0;
+  box-shadow: 0 8px 20px rgba(76,29,149,0.15);
+}
+.code-header {
+  background: #2D2640;
+  padding: 0.7rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid #3F3760;
+}
+.dot { width: 11px; height: 11px; border-radius: 50%; }
+.dot.r { background: #FF5F56; }
+.dot.y { background: #FFBD2E; }
+.dot.g { background: #27C93F; }
+.code-title { color: #B4A9D6; font-size: 0.8rem; margin-left: 0.6rem; font-family: 'JetBrains Mono', monospace; }
+.code-block pre {
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: #E4E0F0;
+}
+.code-block .cmd { color: #A78BFA; font-weight: 500; }
+.code-block .flag { color: #7DD3FC; }
+.code-block .val { color: #FCD34D; }
+.code-block .cont { color: #6B7280; }
+.code-block .cmt { color: #6B7280; font-style: italic; }
+
+/* === 파라미터 카드 === */
+.param-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+.param-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--pc, var(--color-primary));
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+}
+.param-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--pc, var(--color-primary));
+  word-break: break-all;
+}
+.param-desc { font-size: 0.9rem; color: var(--color-muted); margin-top: 0.4rem; }
+
+/* === 비유 박스 === */
+.analogy-box {
+  display: flex; gap: 1.25rem; padding: 1.5rem;
+  background: var(--color-primary-light);
+  border-radius: 12px;
+  border-left: 4px solid var(--color-primary);
+  margin: 1.5rem 0;
+}
+.analogy-icon { font-size: 2.5rem; flex-shrink: 0; }
+.analogy-title {
+  font-weight: 700; font-size: 0.85rem; color: var(--color-primary);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;
+}
+.analogy-text { line-height: 1.7; }
+.analogy-real {
+  margin-top: 0.75rem; padding-top: 0.75rem;
+  border-top: 1px dashed var(--color-primary);
+  font-size: 0.9rem; color: var(--color-muted);
+}
+
+/* === callout === */
+.callout { display: flex; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: 10px; align-items: flex-start; margin: 1rem 0; }
+.callout-icon { font-size: 1.25rem; flex-shrink: 0; padding-top: 0.1rem; }
+.callout-content { font-size: 0.95rem; line-height: 1.6; }
+.callout-tip { background: var(--color-success-light); border-left: 3px solid var(--color-success); }
+.callout-warning { background: var(--color-warning-light); border-left: 3px solid var(--color-warning); }
+.callout-info { background: var(--color-secondary-light); border-left: 3px solid var(--color-secondary); }
+
+/* === 상태 다이어그램 === */
+.state-machine {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  margin: 1.5rem 0;
+}
+.state-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.state-node {
+  width: 100%;
+  max-width: 460px;
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  text-align: center;
+  color: white;
+  position: relative;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+.state-node .st-name { font-size: 1.15rem; font-weight: 900; letter-spacing: 0.03em; }
+.state-node .st-desc { font-size: 0.85rem; opacity: 0.92; margin-top: 0.2rem; }
+.st-auto { background: linear-gradient(135deg, #059669, #10B981); }
+.st-pause { background: linear-gradient(135deg, #D97706, #F59E0B); }
+.st-correct { background: linear-gradient(135deg, #2563EB, #3B82F6); }
+
+.state-transition {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0.4rem 0; color: var(--color-muted);
+}
+.key-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--color-card);
+  border: 2px solid var(--color-text);
+  border-bottom-width: 4px;
+  border-radius: 8px;
+  padding: 0.2rem 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--color-text);
+}
+.transition-label { font-size: 0.78rem; margin-top: 0.25rem; }
+.arrow-down { font-size: 1.1rem; line-height: 1; margin-top: 0.3rem; }
+
+/* === 순서 스텝 === */
+.step-list { counter-reset: step; margin: 1.5rem 0; }
+.step-item {
+  display: flex; gap: 1rem; align-items: flex-start;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 0.9rem;
+}
+.step-num {
+  counter-increment: step;
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 0.95rem;
+}
+.step-num::before { content: counter(step); }
+.step-content { flex: 1; }
+.step-title { font-weight: 700; margin-bottom: 0.25rem; }
+.step-title .keys { font-family: 'JetBrains Mono', monospace; color: var(--color-primary); font-size: 0.85rem; }
+.step-detail { font-size: 0.9rem; color: var(--color-muted); }
+.state-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: 6px;
+  margin: 0 0.15rem;
+}
+.badge-auto { background: var(--color-success-light); color: var(--color-success); }
+.badge-pause { background: var(--color-warning-light); color: var(--color-warning); }
+.badge-correct { background: var(--color-secondary-light); color: var(--color-secondary); }
+
+/* === 비교 카드 === */
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+.compare-card { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: var(--color-card); }
+.compare-header { padding: 1.1rem; color: white; text-align: center; }
+.compare-header h4 { margin: 0.35rem 0 0; font-size: 1.05rem; }
+.compare-icon { font-size: 1.9rem; }
+.compare-body { padding: 1rem 1.2rem; }
+.compare-item { display: flex; justify-content: space-between; gap: 1rem; padding: 0.65rem 0; border-bottom: 1px solid var(--color-border); }
+.compare-item:last-child { border-bottom: none; }
+.compare-label { color: var(--color-muted); font-size: 0.88rem; }
+.compare-value { font-weight: 700; font-size: 0.88rem; text-align: right; }
+
+/* === 비동기 추론: 서버-클라이언트 다이어그램 === */
+.sc-diagram { display: flex; align-items: stretch; gap: 0; margin: 1.5rem 0; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.75rem 1.25rem; }
+.sc-box { flex: 1; border-radius: 12px; padding: 1.25rem; text-align: center; color: white; }
+.sc-server { background: linear-gradient(135deg, #1E3A8A, #3B82F6); }
+.sc-client { background: linear-gradient(135deg, #065F46, #10B981); }
+.sc-box .sc-icon { font-size: 2rem; }
+.sc-box .sc-title { font-weight: 900; font-size: 1.05rem; margin-top: 0.3rem; }
+.sc-box .sc-role { font-size: 0.8rem; opacity: 0.92; margin-top: 0.2rem; }
+.sc-box ul { list-style: none; text-align: left; margin-top: 0.8rem; font-size: 0.8rem; }
+.sc-box ul li { padding: 0.2rem 0; padding-left: 1rem; position: relative; }
+.sc-box ul li::before { content: "▸"; position: absolute; left: 0; opacity: 0.7; }
+.sc-link { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 1rem; color: var(--color-muted); flex-shrink: 0; }
+.sc-link .arrow-r { font-size: 1.3rem; color: var(--color-secondary); }
+.sc-link .arrow-l { font-size: 1.3rem; color: var(--color-success); }
+.sc-link .sc-lbl { font-size: 0.68rem; white-space: nowrap; margin: 0.15rem 0; }
+
+/* 튜닝 표 */
+.tune-table { width: 100%; border-collapse: collapse; background: var(--color-card); border-radius: 12px; overflow: hidden; font-size: 0.88rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); margin: 1.25rem 0; }
+.tune-table th { background: #1E1B2E; color: white; padding: 0.75rem 0.9rem; text-align: left; font-size: 0.82rem; }
+.tune-table td { padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.tune-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--color-primary); font-weight: 500; white-space: nowrap; }
+.tune-table tr:last-child td { border-bottom: none; }
+.tune-table .def { font-family: 'JetBrains Mono', monospace; color: var(--color-secondary); font-weight: 700; }
+
+/* 판단 축(더 적게/더 많이) */
+.slider-row { display: flex; align-items: center; gap: 1rem; background: var(--color-card); border: 1px solid var(--color-border); border-radius: 10px; padding: 0.9rem 1.1rem; margin: 0.75rem 0; }
+.slider-param { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 700; color: var(--color-primary); flex-shrink: 0; min-width: 150px; }
+.slider-track { flex: 1; display: flex; justify-content: space-between; font-size: 0.8rem; gap: 0.5rem; }
+.slider-low, .slider-high { flex: 1; padding: 0.4rem 0.6rem; border-radius: 7px; }
+.slider-low { background: var(--color-secondary-light); color: #1E40AF; }
+.slider-high { background: var(--color-warning-light); color: #92400E; text-align: right; }
+
+/* === 반응형 === */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2rem; }
+  .section-title { font-size: 1.5rem; }
+  .code-block pre { font-size: 0.75rem; }
+  .sc-diagram { flex-direction: column; gap: 0.75rem; }
+  .sc-link { flex-direction: row; padding: 0.5rem; }
+  .sc-link .arrow-r, .sc-link .arrow-l { transform: rotate(90deg); }
+  .tune-table { font-size: 0.76rem; }
+  .slider-row { flex-direction: column; align-items: stretch; }
+  .slider-param { min-width: 0; }
+}
+
+/* === 인쇄 === */
+@media print {
+  .hero { background: white !important; color: black !important; }
+  .hero-tag { color: black; border-color: #999; }
+  .code-block { box-shadow: none; }
+  section { padding: 1.5rem 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- 1. 히어로 -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-tags">
+      <span class="hero-tag">LeRobot</span>
+      <span class="hero-tag">SO-101</span>
+      <span class="hero-tag">DAgger</span>
+      <span class="hero-tag">SmolVLA</span>
+      <span class="hero-tag">Async Inference</span>
+      <span class="hero-tag">Teleoperation</span>
+      <span class="hero-tag" style="background:rgba(110,231,183,0.28);border-color:rgba(110,231,183,0.55)">v6 · 기본 DAgger · Tab=저장</span>
+      <span class="hero-tag" style="background:rgba(167,139,250,0.28);border-color:rgba(167,139,250,0.55)">chunk_size vs n_action_steps</span>
+    </div>
+    <h1>lerobot-rollout &amp;<br>DAgger 제어 흐름</h1>
+    <p class="hero-subtitle">
+      학습된 정책(Policy)을 로봇에서 실행하고, 실수할 때 사람이 개입해 교정하는
+      <strong>DAgger</strong> 방식의 롤아웃 명령어와 키보드 제어 흐름을 정리합니다.
+      <br><strong style="color:#6EE7B7">v6 결론</strong> — <strong>기본 DAgger 모드</strong>를 쓰고, 저장 키는 <code style="color:#6EE7B7">Tab</code>이며, <strong>교정을 태스크 완료까지 마무리한 뒤 Tab</strong>을 눌러야 온전한 에피소드(동영상)가 저장됩니다.
+    </p>
+  </div>
+</header>
+
+<!-- 개념 비유 -->
+<section>
+  <div class="container">
+    <div class="analogy-box">
+      <div class="analogy-icon">🚗</div>
+      <div class="analogy-content">
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          <strong>rollout</strong>은 "운전 연수"와 같아요. 학생(정책)이 스스로 운전하다가
+          위험한 순간이 오면 <strong>강사(사람)</strong>가 보조 핸들을 잡고 올바른 방향을 잡아주죠.
+          이때 강사가 개입한 <strong>"올바른 조작"이 새 데이터로 기록</strong>되어,
+          다음 학습에서 학생이 더 똑똑해집니다.
+        </p>
+        <p class="analogy-real">
+          💡 <strong>실제로는</strong> — 정책이 로봇을 자율 실행(AUTONOMOUS)하다가,
+          사람이 리더 암(leader arm)으로 개입해 교정(CORRECTING)하면
+          그 궤적이 데이터셋에 추가됩니다. 이것이 <strong>DAgger(Dataset Aggregation)</strong>입니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. 명령어 1 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🟣 명령어 1 — DAgger 롤아웃 (SmolVLA · top+wrist)</h2>
+    <p class="section-lead">
+      학습된 SmolVLA 정책을 실행하면서, 사람이 교정한 데이터를 새 데이터셋으로 수집하는 DAgger 전략입니다.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">rollout_dagger_2realsense.sh</span>
+      </div>
+<pre><span class="cmd">lerobot-rollout</span> <span class="cont">\</span>
+  <span class="cmt"># === 팔로워 로봇 (실제로 움직이는 로봇) ===</span>
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> <span class="cont">\</span>
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.cameras</span>=<span class="val">"{
+      top:   {type: intelrealsense, serial_number_or_name: 138422072965, width: 640, height: 480, fps: 30, warmup_s: 15},
+      wrist: {type: opencv,        index_or_path: /dev/wrist_cam,        width: 640, height: 480, fps: 30, fourcc: \"MJPG\"}
+  }"</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 학습된 정책 (SmolVLA 체크포인트, 사전학습 파인튜닝) ===</span>
+  <span class="flag">--policy.path</span>=<span class="val">outputs/train/smolvla_pink_task_v3_dagger_r2/checkpoints/last/pretrained_model</span> <span class="cont">\</span>
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 카메라 키 이름 매핑 (SmolVLA 필수) ===</span>
+  <span class="flag">--rename_map</span>=<span class="val">'{"observation.images.top":"observation.images.camera1","observation.images.wrist":"observation.images.camera2"}'</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 리더 암 (사람이 개입/교정하는 조종기) ===</span>
+  <span class="flag">--teleop.type</span>=<span class="val">so101_leader</span> <span class="cont">\</span>
+  <span class="flag">--teleop.port</span>=<span class="val">/dev/ttyACM0</span> <span class="cont">\</span>
+  <span class="flag">--teleop.id</span>=<span class="val">my_leader</span> <span class="cont">\</span>
+
+  <span class="cmt"># === DAgger 전략 + 데이터 수집 설정 ===</span>
+  <span class="flag">--strategy.type</span>=<span class="val">dagger</span> <span class="cont">\</span>
+  <span class="flag">--dataset.repo_id</span>=<span class="val">data/rollout_dagger_pink_task_v3_r3</span> <span class="cont">\</span>
+  <span class="flag">--dataset.single_task</span>=<span class="val">"pink block into the box of yellow"</span> <span class="cont">\</span>
+  <span class="flag">--dataset.push_to_hub</span>=<span class="val">false</span> <span class="cont">\</span>
+  <span class="flag">--display_data</span>=<span class="val">false</span></pre>
+    </div>
+
+    <h3 class="subheading">핵심 파라미터 한눈에 보기</h3>
+    <div class="param-grid">
+      <div class="param-card" style="--pc: var(--color-primary)">
+        <div class="param-name">--robot (follower)</div>
+        <div class="param-desc">실제로 물체를 잡는 <strong>팔로워 로봇</strong>. 포트 <code>ttyACM1</code>에 연결.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-secondary)">
+        <div class="param-name">--teleop (leader)</div>
+        <div class="param-desc">사람이 잡고 교정하는 <strong>리더 암</strong>. 포트 <code>ttyACM0</code>에 연결.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-success)">
+        <div class="param-name">--strategy.type=dagger</div>
+        <div class="param-desc">자율 실행 + 사람 교정 데이터를 <strong>누적 수집</strong>하는 DAgger 모드.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-warning)">
+        <div class="param-name">--dataset.repo_id</div>
+        <div class="param-desc">이번 롤아웃에서 새로 수집되는 <strong>교정 데이터 저장 위치</strong>. DAgger 데이터셋은 <code>rollout_</code> 접두사가 붙습니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-danger)">
+        <div class="param-name">--rename_map</div>
+        <div class="param-desc">수집 시 카메라 키(<code>top</code>, <code>wrist</code>)를 SmolVLA가 기대하는 <code>camera1</code>, <code>camera2</code>로 <strong>매핑</strong>. 학습 때와 반드시 동일해야 합니다.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">📷</div>
+      <div class="callout-content">
+        이 명령은 <strong>top(RealSense) + wrist(웹캠)</strong> 2대 카메라를 사용합니다.
+        top은 시리얼 번호로, wrist는 <code>/dev/wrist_cam</code> udev 심볼릭 링크로 지정합니다.
+        각 카메라는 640×480 해상도, 30fps로 동작합니다.
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-content">
+        <strong>SmolVLA 핵심</strong> — <code>--rename_map</code>은 학습(train)과 롤아웃(rollout)에서
+        <strong>완전히 똑같이</strong> 지정해야 합니다. 키 이름이 하나라도 다르면 정책이 카메라 입력을
+        찾지 못해 실행이 실패합니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 명령어 2 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🔵 명령어 2 — 기본 롤아웃 (top+wrist · base 전략)</h2>
+    <p class="section-lead">
+      RealSense(top) + 웹캠(wrist)을 사용하고, 데이터 수집 없이 SmolVLA 정책 성능만 확인하는 <code>base</code> 전략입니다.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">rollout_base_mixed_cam.sh</span>
+      </div>
+<pre><span class="cmd">lerobot-rollout</span> <span class="cont">\</span>
+  <span class="cmt"># === 팔로워 로봇 ===</span>
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> <span class="cont">\</span>
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.cameras</span>=<span class="val">"{
+      top:   {type: intelrealsense, serial_number_or_name: \"138422072965\", width: 640, height: 480, fps: 30, warmup_s: 15},
+      wrist: {type: opencv,        index_or_path: /dev/wrist_cam,          width: 640, height: 480, fps: 30, fourcc: \"MJPG\"}
+  }"</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 학습된 정책 (SmolVLA 체크포인트) ===</span>
+  <span class="flag">--policy.path</span>=<span class="val">/home/zetabank/lerobot_outputs/train/smolvla_pink_task_2cam/checkpoints/last/pretrained_model</span> <span class="cont">\</span>
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 카메라 키 이름 매핑 (SmolVLA 필수) ===</span>
+  <span class="flag">--rename_map</span>=<span class="val">'{"observation.images.top":"observation.images.camera1","observation.images.wrist":"observation.images.camera2"}'</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 리더 암 ===</span>
+  <span class="flag">--teleop.type</span>=<span class="val">so101_leader</span> <span class="cont">\</span>
+  <span class="flag">--teleop.port</span>=<span class="val">/dev/ttyACM0</span> <span class="cont">\</span>
+  <span class="flag">--teleop.id</span>=<span class="val">my_leader</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 기본 전략 (데이터 수집 없이 실행만) ===</span>
+  <span class="flag">--strategy.type</span>=<span class="val">base</span> <span class="cont">\</span>
+  <span class="flag">--display_data</span>=<span class="val">false</span></pre>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong>top 카메라</strong>는 RealSense(<code>warmup_s: 15</code>로 15초 예열)이고,
+        <strong>wrist 카메라</strong>는 OpenCV 웹캠(<code>/dev/wrist_cam</code>, MJPG 코덱)입니다.
+        MJPG 코덱은 USB 대역폭을 아껴 프레임 드롭을 막습니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 명령어 3 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🟢 명령어 3 — DAgger 롤아웃 (3회 반복 자동 종료)</h2>
+    <p class="section-lead">
+      명령어 1과 같은 DAgger 수집이지만, <code>--strategy.num_episodes=3</code>으로
+      <strong>에피소드 3회를 채우면 자동으로 종료</strong>됩니다. 짧은 수업 실습이나 라운드별 소량 수집에 적합합니다.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">rollout_dagger_3episodes.sh</span>
+      </div>
+<pre><span class="cmd">lerobot-rollout</span> <span class="cont">\</span>
+  <span class="cmt"># === 팔로워 로봇 (실제로 움직이는 로봇) ===</span>
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> <span class="cont">\</span>
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.cameras</span>=<span class="val">"{
+      top:   {type: intelrealsense, serial_number_or_name: 138422072965, width: 640, height: 480, fps: 30, warmup_s: 15},
+      wrist: {type: opencv,        index_or_path: /dev/wrist_cam,        width: 640, height: 480, fps: 30, fourcc: \"MJPG\"}
+  }"</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 학습된 정책 (SmolVLA 체크포인트) ===</span>
+  <span class="flag">--policy.path</span>=<span class="val">outputs/train/smolvla_pink_task_v3_dagger_r2/checkpoints/last/pretrained_model</span> <span class="cont">\</span>
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 카메라 키 이름 매핑 (SmolVLA 필수) ===</span>
+  <span class="flag">--rename_map</span>=<span class="val">'{"observation.images.top":"observation.images.camera1","observation.images.wrist":"observation.images.camera2"}'</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 리더 암 (사람이 개입/교정하는 조종기) ===</span>
+  <span class="flag">--teleop.type</span>=<span class="val">so101_leader</span> <span class="cont">\</span>
+  <span class="flag">--teleop.port</span>=<span class="val">/dev/ttyACM0</span> <span class="cont">\</span>
+  <span class="flag">--teleop.id</span>=<span class="val">my_leader</span> <span class="cont">\</span>
+
+  <span class="cmt"># === DAgger 전략 + 반복 3회 지정 ===</span>
+  <span class="flag">--strategy.type</span>=<span class="val">dagger</span> <span class="cont">\</span>
+  <span class="flag">--strategy.num_episodes</span>=<span class="val">3</span> <span class="cont">\</span>
+  <span class="flag">--dataset.repo_id</span>=<span class="val">data/rollout_dagger_pink_task_v3_r3</span> <span class="cont">\</span>
+  <span class="flag">--dataset.single_task</span>=<span class="val">"pink block into the box of yellow"</span> <span class="cont">\</span>
+  <span class="flag">--dataset.push_to_hub</span>=<span class="val">false</span> <span class="cont">\</span>
+  <span class="flag">--display_data</span>=<span class="val">false</span></pre>
+    </div>
+
+    <h3 class="subheading">명령어 1과의 차이는 단 한 줄</h3>
+    <div class="param-grid">
+      <div class="param-card" style="--pc: var(--color-success)">
+        <div class="param-name">--strategy.num_episodes=3</div>
+        <div class="param-desc"><strong>에피소드 3회</strong>를 채우면 롤아웃이 자동 종료됩니다. 숫자만 바꾸면 5회, 10회, 20회 등 원하는 반복 횟수로 조절할 수 있습니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-warning)">
+        <div class="param-name">에피소드 카운트 기준</div>
+        <div class="param-desc">기본 모드(corrections-only)에서는 <strong>교정(개입) 1회 = 1 에피소드</strong>로 집계됩니다. 즉 사람이 3번 교정하면 종료됩니다.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong>수업 활용:</strong> 횟수를 지정하지 않으면 사람이 직접 종료(<code>Esc</code>)할 때까지 계속 돕니다.
+        실습 시간이 정해진 수업에서는 <code>num_episodes</code>로 팀당 수집량을 통일하면
+        공정한 비교와 시간 관리가 쉬워집니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SmolVLA 롤아웃 전 필수 준비 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🛠️ SmolVLA 롤아웃 전 필수 준비</h2>
+    <p class="section-lead">
+      SmolVLA는 롤아웃 전에 두 값을 확인해야 합니다 —
+      <code>chunk_size = 50</code>(예측)과 <code>n_action_steps = 50</code>(실행).
+      이름이 비슷해 헷갈리지만 <strong>서로 다른 값</strong>이고, 맞춰야 하는 이유도 다릅니다.
+    </p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">⚙️</div>
+      <div class="analogy-content">
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          SmolVLA는 한 번에 <strong>동작 50개(청크 50)</strong>를 계획해요. 학습 때는 이 값이
+          작게 저장돼 있을 수 있어서, 롤아웃 전에 <strong>실행할 동작 수를 50으로 맞춰</strong>줘야
+          매끄럽게 움직입니다. 마치 자동차 시동 전에 좌석과 거울을 맞추는 것과 같아요.
+        </p>
+        <p class="analogy-real">
+          💡 <strong>실제로는</strong> — 모든 체크포인트의 <code>config.json</code>에서
+          <code>n_action_steps</code>를 <code>50</code>으로 바꿔야 합니다. <code>sed</code> 한 줄로 처리합니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">patch_n_action_steps.sh</span>
+      </div>
+<pre><span class="cmt"># 체크포인트 폴더의 모든 config.json에서 n_action_steps를 50으로 패치</span>
+<span class="cmd">find</span> outputs/train/smolvla_pink_task_v3_dagger_r2/checkpoints <span class="cont">\</span>
+  -name <span class="val">"config.json"</span> <span class="cont">\</span>
+  -exec <span class="cmd">sed</span> -i <span class="val">'s/"n_action_steps": [0-9]*/"n_action_steps": 50/'</span> {} <span class="val">+</span></pre>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-content">
+        이 패치를 빠뜨리면 로봇이 <strong>짧게 끊기거나 덜덜거리며</strong> 움직일 수 있습니다.
+        롤아웃 명령을 실행하기 <strong>전에</strong> 반드시 한 번 수행하세요.
+      </div>
+    </div>
+
+    <!-- ★ v6 신규: 두 값의 차이와 각각의 이유 -->
+    <h3 class="subheading">🎯 두 값은 다릅니다 — <code>chunk_size</code> vs <code>n_action_steps</code></h3>
+    <p class="section-lead" style="margin-bottom:1.25rem;">
+      이름이 비슷해 하나로 착각하기 쉽지만, 하나는 <strong>"몇 개를 내다볼까(예측)"</strong>,
+      다른 하나는 <strong>"그중 몇 개를 실행할까(실행)"</strong>입니다. 관계는 항상
+      <code>n_action_steps ≤ chunk_size</code>입니다.
+    </p>
+
+    <div class="analogy-box" style="background: var(--color-secondary-light); border-left-color: var(--color-secondary);">
+      <div class="analogy-icon">🗺️</div>
+      <div class="analogy-content">
+        <div class="analogy-title" style="color: var(--color-secondary);">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          내비게이션이 <strong>앞으로 50km 경로를 미리 계산</strong>해두는 게 <code>chunk_size=50</code>이에요.
+          하지만 실제로는 <strong>그 경로를 따라 50km를 다 달린 뒤</strong> 다시 경로를 새로 계산하죠 —
+          이게 <code>n_action_steps=50</code>입니다. 만약 <code>n_action_steps=1</code>이면,
+          <strong>1km 갈 때마다 50km 경로 전체를 매번 새로 계산</strong>하는 셈이라 차가 자꾸 멈칫거립니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="param-grid">
+      <div class="param-card" style="--pc: var(--color-primary)">
+        <div class="param-name">chunk_size = 50 &nbsp;(예측)</div>
+        <div class="param-desc">
+          정책이 <strong>한 번에 예측하는</strong> 동작 시퀀스의 길이. SmolVLA는 미래 50스텝을 한 묶음으로
+          내놓도록 <strong>학습</strong>됐습니다. 이건 모델 출력 헤드의 <strong>텐서 크기에 박힌 구조값</strong>입니다.
+        </div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-success)">
+        <div class="param-name">n_action_steps = 50 &nbsp;(실행)</div>
+        <div class="param-desc">
+          예측한 50개 중 <strong>실제로 실행하고</strong> 다음 추론까지 갈 개수. 체크포인트 기본값이
+          <strong><code>1</code>로 잘못 박혀</strong> 있어, 롤아웃 전 반드시 <code>50</code>으로 고쳐야 합니다.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="subheading" style="font-size:1.1rem;">왜 <code>chunk_size = 50</code>이어야 하나 — <span style="color:var(--color-primary)">학습과 같아야 하니까</span></h3>
+    <div class="callout callout-info">
+      <div class="callout-icon">🔒</div>
+      <div class="callout-content">
+        <code>chunk_size</code>는 <strong>바꾸는 값이 아니라 학습값을 그대로 따라가는</strong> 값입니다.
+        학습된 가중치는 "50개 출력"에 맞춰져 있어서, 추론 때 다른 값을 주면
+        ① <strong>텐서 shape가 안 맞아 에러</strong>가 나거나, ② 형상이 맞아도
+        <strong>"50스텝 앞을 내다보는 습관"으로 학습된 예측 분포가 무너집니다.</strong>
+        학습·추론 조건은 같아야 한다는 ML의 기본 원칙 — SmolVLA는 그 값이 <strong>50</strong>입니다.
+      </div>
+    </div>
+
+    <h3 class="subheading" style="font-size:1.1rem;">왜 <code>n_action_steps = 50</code>이어야 하나 — <span style="color:var(--color-success)">기본값 1이 함정이라서</span></h3>
+    <div class="callout callout-warning">
+      <div class="callout-icon">🕳️</div>
+      <div class="callout-content">
+        SmolVLA 체크포인트의 <code>config.json</code>에는 이 값이 <strong><code>1</code>로 기본 설정</strong>돼 있습니다.
+        이대로 두면 정책이 <strong>50개를 힘들게 예측해놓고 딱 1개만 실행</strong>한 뒤 버리고,
+        <strong>매 스텝마다 무거운 VLA 추론을 새로</strong> 돌립니다. SmolVLA는 추론이 느린 모델이라
+        <strong>한 스텝 움직이고 멈칫, 또 멈칫</strong>하는 극심한 버벅임이 생기고, 예측의 49/50을
+        매번 버리니 계산 낭비도 큽니다. <strong>50으로 바꾸면 추론 횟수가 1/50로 줄어</strong> 매끄러워집니다.
+      </div>
+    </div>
+
+    <h3 class="subheading" style="font-size:1.1rem;">한눈에 — 예측 vs 실행</h3>
+    <div class="state-machine">
+      <div style="display:flex; flex-direction:column; gap:0.9rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; font-weight:700; color:var(--color-primary); min-width:130px;">예측 (chunk_size)</span>
+          <div style="display:flex; gap:3px; flex-wrap:wrap;">
+            <!-- 50칸: 예측된 동작 -->
+            <span style="font-size:0.7rem; color:var(--color-muted);">50개 예측 →</span>
+            <div style="display:flex; gap:2px;">
+              <span style="width:10px;height:20px;background:var(--color-primary);border-radius:2px;opacity:0.9"></span>
+              <span style="width:10px;height:20px;background:var(--color-primary);border-radius:2px;opacity:0.8"></span>
+              <span style="width:10px;height:20px;background:var(--color-primary);border-radius:2px;opacity:0.7"></span>
+              <span style="width:10px;height:20px;background:var(--color-primary);border-radius:2px;opacity:0.6"></span>
+              <span style="width:10px;height:20px;background:var(--color-primary);border-radius:2px;opacity:0.5"></span>
+              <span style="font-size:0.75rem; color:var(--color-muted); align-self:center; padding:0 4px;">… (총 50)</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; font-weight:700; color:var(--color-success); min-width:130px;">실행 =50 (권장)</span>
+          <div style="display:flex; gap:2px; align-items:center;">
+            <span style="width:10px;height:20px;background:var(--color-success);border-radius:2px;"></span>
+            <span style="width:10px;height:20px;background:var(--color-success);border-radius:2px;"></span>
+            <span style="width:10px;height:20px;background:var(--color-success);border-radius:2px;"></span>
+            <span style="width:10px;height:20px;background:var(--color-success);border-radius:2px;"></span>
+            <span style="width:10px;height:20px;background:var(--color-success);border-radius:2px;"></span>
+            <span style="font-size:0.75rem; color:var(--color-success); align-self:center; padding:0 4px;">… 50개 모두 실행 → <strong>추론 1회 / 50스텝</strong> ✅</span>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; font-weight:700; color:var(--color-danger); min-width:130px;">실행 =1 (기본·함정)</span>
+          <div style="display:flex; gap:2px; align-items:center;">
+            <span style="width:10px;height:20px;background:var(--color-danger);border-radius:2px;"></span>
+            <span style="width:10px;height:20px;background:var(--color-border);border-radius:2px;"></span>
+            <span style="width:10px;height:20px;background:var(--color-border);border-radius:2px;"></span>
+            <span style="width:10px;height:20px;background:var(--color-border);border-radius:2px;"></span>
+            <span style="width:10px;height:20px;background:var(--color-border);border-radius:2px;"></span>
+            <span style="font-size:0.75rem; color:var(--color-danger); align-self:center; padding:0 4px;">1개만 실행, 49개 버림 → <strong>추론 50회 / 50스텝</strong> ❌ 버벅임</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="subheading" style="font-size:1.1rem;">패치 전 확인 — 지금 값이 뭔지 먼저 보기</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">check_action_params.sh</span>
+      </div>
+<pre><span class="cmt"># 롤아웃 전, 두 값이 실제로 어떻게 박혀 있는지 확인</span>
+<span class="cmd">grep</span> -E <span class="val">'"(chunk_size|n_action_steps)"'</span> <span class="cont">\</span>
+  outputs/train/smolvla_pink_task_v3_dagger_r2/checkpoints/last/pretrained_model/config.json
+
+<span class="cmt"># 예상 출력:</span>
+<span class="cmt">#   "chunk_size": 50,        ← 학습값 그대로 (건드리지 않음)</span>
+<span class="cmt">#   "n_action_steps": 1,     ← ★ 1이면 함정! 50으로 패치 필요</span></pre>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">🧭</div>
+      <div class="callout-content">
+        <strong>정리:</strong> <code>chunk_size</code>는 "<strong>학습과 같아야</strong> 해서" 50 —
+        그래서 <strong>확인만</strong> 하고 손대지 않습니다. <code>n_action_steps</code>는
+        "<strong>기본값 1이 함정</strong>이라서" 50으로 <strong>패치</strong>합니다.
+        이유가 서로 달라서, 하나는 확인·하나는 수정이라는 점을 꼭 기억하세요.
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🎛️</div>
+      <div class="callout-content">
+        <strong>DAgger 교정 팁:</strong> <code>n_action_steps=50</code>이면 정책이 한 번에 약
+        <strong>1.6초(50스텝 @30fps)</strong>를 쭉 실행합니다. 교정 실습에서 개입 반응이 둔하게 느껴지면,
+        <strong>25~30 정도로 낮춰</strong> 정책이 더 자주 관측을 갱신하게 할 수 있습니다.
+        (단, <code>chunk_size</code>는 절대 낮추지 마세요 — 학습값이라 예측 품질이 깨집니다.)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 세 명령어 비교 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">⚖️ 세 명령어 비교</h2>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-header" style="background: linear-gradient(135deg,#4C1D95,#8B5CF6)">
+          <span class="compare-icon">🟣</span>
+          <h4>명령어 1 · DAgger</h4>
+        </div>
+        <div class="compare-body">
+          <div class="compare-item"><span class="compare-label">전략</span><span class="compare-value">dagger</span></div>
+          <div class="compare-item"><span class="compare-label">카메라</span><span class="compare-value">top+wrist<br>(RealSense+웹캠)</span></div>
+          <div class="compare-item"><span class="compare-label">데이터 수집</span><span class="compare-value" style="color:var(--color-success)">✔ 수집함</span></div>
+          <div class="compare-item"><span class="compare-label">사람 개입</span><span class="compare-value">교정→데이터화</span></div>
+          <div class="compare-item"><span class="compare-label">용도</span><span class="compare-value">정책 개선 반복</span></div>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-header" style="background: linear-gradient(135deg,#1E3A8A,#3B82F6)">
+          <span class="compare-icon">🔵</span>
+          <h4>명령어 2 · Base</h4>
+        </div>
+        <div class="compare-body">
+          <div class="compare-item"><span class="compare-label">전략</span><span class="compare-value">base</span></div>
+          <div class="compare-item"><span class="compare-label">카메라</span><span class="compare-value">top+wrist<br>(RealSense+웹캠)</span></div>
+          <div class="compare-item"><span class="compare-label">데이터 수집</span><span class="compare-value" style="color:var(--color-danger)">✘ 안 함</span></div>
+          <div class="compare-item"><span class="compare-label">사람 개입</span><span class="compare-value">확인용 실행</span></div>
+          <div class="compare-item"><span class="compare-label">용도</span><span class="compare-value">정책 성능 평가</span></div>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-header" style="background: linear-gradient(135deg,#064E3B,#10B981)">
+          <span class="compare-icon">🟢</span>
+          <h4>명령어 3 · DAgger ×3</h4>
+        </div>
+        <div class="compare-body">
+          <div class="compare-item"><span class="compare-label">전략</span><span class="compare-value">dagger</span></div>
+          <div class="compare-item"><span class="compare-label">카메라</span><span class="compare-value">top+wrist<br>(RealSense+웹캠)</span></div>
+          <div class="compare-item"><span class="compare-label">데이터 수집</span><span class="compare-value" style="color:var(--color-success)">✔ 수집함</span></div>
+          <div class="compare-item"><span class="compare-label">종료 방식</span><span class="compare-value">3 에피소드 후 자동</span></div>
+          <div class="compare-item"><span class="compare-label">용도</span><span class="compare-value">정량 실습·소량 수집</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. DAgger 상태 제어 흐름 (핵심) -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🎮 DAgger 키보드 제어 흐름</h2>
+    <p class="section-lead">
+      롤아웃 중에는 <strong>Space</strong>와 <strong>Tab</strong> 두 키로 3가지 상태를 오갑니다.
+      핵심 규칙: <strong>먼저 Space로 일시정지한 뒤에야 Tab으로 교정</strong>할 수 있습니다.
+    </p>
+
+    <div class="analogy-box" style="background: var(--color-warning-light); border-left-color: var(--color-warning);">
+      <div class="analogy-icon">🚦</div>
+      <div class="analogy-content">
+        <div class="analogy-title" style="color: var(--color-warning);">핵심 규칙</div>
+        <p class="analogy-text">
+          달리는 차(AUTONOMOUS)에서 바로 핸들을 뺏을 수는 없습니다.
+          먼저 <strong>Space로 차를 세우고(PAUSED)</strong>, 그 다음 <strong>Tab으로 핸들을 넘겨받아야(CORRECTING)</strong> 합니다.
+        </p>
+      </div>
+    </div>
+
+    <h3 class="subheading">상태 전이 다이어그램</h3>
+    <div class="state-machine">
+      <div class="state-flow">
+
+        <div class="state-node st-auto">
+          <div class="st-name">AUTONOMOUS</div>
+          <div class="st-desc">정책이 로봇을 자율 실행 중</div>
+        </div>
+
+        <div class="state-transition">
+          <span class="arrow-down">↓</span>
+          <span class="key-chip">⎵ Space</span>
+          <span class="transition-label">정책 일시정지</span>
+          <span class="arrow-down">↓</span>
+        </div>
+
+        <div class="state-node st-pause">
+          <div class="st-name">PAUSED</div>
+          <div class="st-desc">로봇 정지 · 교정 대기 상태</div>
+        </div>
+
+        <div class="state-transition">
+          <span class="arrow-down">↓</span>
+          <span class="key-chip">⇥ Tab</span>
+          <span class="transition-label">리더 암으로 교정 시작</span>
+          <span class="arrow-down">↓</span>
+        </div>
+
+        <div class="state-node st-correct">
+          <div class="st-name">CORRECTING</div>
+          <div class="st-desc">사람이 리더 암으로 직접 조작 · 교정 데이터 기록</div>
+        </div>
+
+        <div class="state-transition">
+          <span class="arrow-down">↑↓</span>
+          <span class="key-chip">⇥ Tab</span>
+          <span class="transition-label">교정 종료 → 다시 PAUSED로</span>
+          <span class="arrow-down">↑</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🔁</div>
+      <div class="callout-content">
+        <strong>PAUSED</strong>에서 <strong>Space</strong>를 다시 누르면 <strong>AUTONOMOUS</strong>로 복귀해 정책이 이어서 실행됩니다.
+        즉 <strong>Space</strong>는 "정책 재생/정지" 토글, <strong>Tab</strong>은 "사람 교정 시작/종료" 토글로 이해하면 쉽습니다.
+      </div>
+    </div>
+
+    <h3 class="subheading">실전 조작 순서 (4단계)</h3>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title"><span class="keys">Space</span> — 정책 일시정지</div>
+          <div class="step-detail">
+            <span class="state-badge badge-auto">AUTONOMOUS</span> →
+            <span class="state-badge badge-pause">PAUSED</span>
+            &nbsp; 로봇이 실수하려는 순간, Space로 정책을 멈춥니다.
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title"><span class="keys">Tab</span> — 교정 시작</div>
+          <div class="step-detail">
+            <span class="state-badge badge-pause">PAUSED</span> →
+            <span class="state-badge badge-correct">CORRECTING</span>
+            &nbsp; 리더 암을 잡고 올바른 동작을 직접 시연합니다. 이 궤적이 데이터로 기록됩니다.
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title"><span class="keys">Tab</span> — 교정 종료</div>
+          <div class="step-detail">
+            <span class="state-badge badge-correct">CORRECTING</span> →
+            <span class="state-badge badge-pause">PAUSED</span>
+            &nbsp; 교정을 마치면 Tab을 다시 눌러 정지 상태로 돌아옵니다.
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title"><span class="keys">Space</span> — 정책 재개</div>
+          <div class="step-detail">
+            <span class="state-badge badge-pause">PAUSED</span> →
+            <span class="state-badge badge-auto">AUTONOMOUS</span>
+            &nbsp; 다시 Space를 눌러 정책이 이어서 자율 실행하도록 합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-content">
+        <strong>주의:</strong> <span class="state-badge badge-auto">AUTONOMOUS</span> 상태에서 곧바로
+        <strong>Tab</strong>을 눌러도 교정으로 넘어가지 않습니다. 반드시 <strong>Space → PAUSED</strong>를 먼저 거쳐야 합니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ★★ v6 최종 결론: 기본 DAgger · Tab=저장 · 완료까지 마무리 ★★ -->
+<section style="background: linear-gradient(180deg, #ECFDF5, var(--color-surface));">
+  <div class="container">
+    <h2 class="section-title">🏁 v6 실무 결론 — 기본 DAgger로, <span style="color:var(--color-success)">교정을 끝까지</span> 가야 저장된다</h2>
+    <p class="section-lead">
+      소스(<code>dagger.py</code>·<code>configs.py</code>)를 직접 확인해 확정한 <strong>현재 v0.6.0 기준 최선의 방식</strong>입니다.
+      결론부터: <strong>기본 DAgger 모드(record_autonomous 없이)</strong>를 쓰고,
+      <strong>저장 키는 Tab</strong>이며, <strong>교정을 시작했으면 태스크 완료까지 손 떼지 말고 마무리한 뒤 Tab</strong>을 눌러야
+      <strong>온전한 에피소드(동영상)</strong>가 저장됩니다.
+    </p>
+
+    <div class="analogy-box" style="background: var(--color-success-light); border-left-color: var(--color-success);">
+      <div class="analogy-icon">🎬</div>
+      <div class="analogy-content">
+        <div class="analogy-title" style="color: var(--color-success);">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          <strong>녹화 버튼(Tab)을 누른 순간부터 다시 누를 때까지</strong>가 한 편의 영상입니다.
+          중간에 "여기까지 교정했으니 됐다" 하고 <strong>완료 전에 Tab을 누르면</strong>,
+          영상이 <strong>결말 없이 뚝 끊긴 채</strong> 저장됩니다.
+          그래서 <strong>블록을 박스에 넣는 마지막 순간까지</strong> 손으로 끌고 간 다음 Tab을 눌러야
+          "실패 → 회복 → 완료"가 담긴 <strong>제대로 된 한 편</strong>이 남습니다.
+        </p>
+        <p class="analogy-real">
+          💡 <strong>실제로는</strong> — <code>dagger.py</code>에서 <strong>교정 종료(Tab) = <code>save_episode()</code> 호출</strong>입니다.
+          즉 Tab을 누르는 그 지점까지의 궤적이 그대로 하나의 에피소드로 확정·저장됩니다.
+        </p>
+      </div>
+    </div>
+
+    <h3 class="subheading">🎹 실제 키는 3개뿐 — 소스로 확정</h3>
+    <p class="section-lead" style="margin-bottom:1rem;">
+      <code>DAggerKeyboardConfig</code> 기본값입니다. 실행 직후 터미널에도
+      <code>pause_resume='space', correction='tab', ...</code> 로 출력됩니다.
+    </p>
+    <div class="param-grid">
+      <div class="param-card" style="--pc: var(--color-secondary)">
+        <div class="param-name"><span class="keys">Space</span> · pause_resume</div>
+        <div class="param-desc">정책 실행 토글. <strong>AUTONOMOUS ↔ PAUSED</strong>. 실수 조짐이 보이면 먼저 Space로 멈춥니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-success)">
+        <div class="param-name"><span class="keys">Tab</span> · correction <span style="color:var(--color-success)">= 저장</span></div>
+        <div class="param-desc">교정 녹화 토글. <strong>PAUSED ↔ CORRECTING</strong>. 교정을 <strong>끝내는 Tab이 곧 저장</strong>입니다("Correction N saved" 음성).</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-muted)">
+        <div class="param-name"><span class="keys">Enter</span> · upload / <span class="keys">ESC</span> · 종료</div>
+        <div class="param-desc">Enter는 Hub 푸시(<code>push_to_hub=false</code>면 미사용). ESC는 세션 전체 종료.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🚫</div>
+      <div class="callout-content">
+        <strong>재녹화(다시 찍기) 키는 없습니다.</strong> discard/re-record 기능은
+        <strong>episodic 전략에만</strong> 있고 기본 DAgger엔 코드 자체가 없습니다.
+        그래서 <strong>"Tab 누르기 전에 완료까지 제대로 끝내는 것"</strong>이 유일한 품질 관리 수단입니다.
+        이미 저장된 나쁜 에피소드는 나중에 <code>lerobot-edit-dataset</code>로 해당 <code>episode_index</code>를 삭제해 정리합니다.
+      </div>
+    </div>
+
+    <h3 class="subheading">✅ 왜 이게 "지금 가장 좋은 솔루션"인가</h3>
+    <div class="param-grid">
+      <div class="param-card" style="--pc: var(--color-success)">
+        <div class="param-name">① 학습에 유효한 온전한 궤적</div>
+        <div class="param-desc">"실패 상태 → 올바른 완료 행동"의 매핑이 <strong>끝까지</strong> 담겨야, 원본 데모와 합쳐 파인튜닝할 때 일관된 신호가 됩니다. 중간에 끊기면 완료로 가는 뒷부분이 사라집니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-primary)">
+        <div class="param-name">② 초반 개입의 이점</div>
+        <div class="param-desc">되돌릴 수 없는 실수·머뭇거림·궤적 이탈은 대개 <strong>초반 접근·정렬</strong>에서 나타납니다. 이때 한 번 바로잡아 완료까지 끌고 가면 가장 값어치 큰 데이터가 됩니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-warning)">
+        <div class="param-name">③ 개입은 최소·결정적으로</div>
+        <div class="param-desc">한 에피소드에 개입이 여러 번 흩어지면 데이터가 지저분해집니다. <strong>초반 한 번, 결정적일 때만</strong> 개입하고 이후엔 완료까지 이어가는 게 품질·효율 모두 낫습니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-secondary)">
+        <div class="param-name">④ intervention 태그 유지</div>
+        <div class="param-desc">교정 프레임엔 <code>intervention=True</code>가 붙어(dagger.py), 나중에 <strong>개입 프레임에 가중치</strong>를 더 주는 학습이 가능합니다.</div>
+      </div>
+    </div>
+
+    <h3 class="subheading">🟢 명령어 (최종) — 기본 DAgger + SmolVLA(RTC)</h3>
+    <p class="section-lead">
+      <code>record_autonomous</code>를 <strong>빼고</strong>(기본=corrections-only), SmolVLA라 <code>--inference.type=rtc</code>를 넣고,
+      기본값 10에서 멈추지 않도록 <code>--strategy.num_episodes=30</code>을 지정했습니다.
+    </p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">rollout_dagger_basic_finish_v6.sh</span>
+      </div>
+<pre><span class="cmd">lerobot-rollout</span> <span class="cont">\</span>
+  <span class="cmt"># === DAgger 기본 모드 (corrections-only) + 30 에피소드 ===</span>
+  <span class="flag">--strategy.type</span>=<span class="val">dagger</span> <span class="cont">\</span>
+  <span class="flag">--strategy.num_episodes</span>=<span class="val">30</span> <span class="cont">\</span>   <span class="cmt"># 기본값 10 → 30으로</span>
+
+  <span class="cmt"># === 팔로워 로봇 ===</span>
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> <span class="cont">\</span>
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.cameras</span>=<span class="val">"{
+      top:   {type: intelrealsense, serial_number_or_name: 138422072965, width: 640, height: 480, fps: 30, warmup_s: 15},
+      wrist: {type: opencv,        index_or_path: /dev/wrist_cam,        width: 640, height: 480, fps: 30, fourcc: \"MJPG\"}
+  }"</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 리더 암 (교정 조종기) ===</span>
+  <span class="flag">--teleop.type</span>=<span class="val">so101_leader</span> <span class="cont">\</span>
+  <span class="flag">--teleop.port</span>=<span class="val">/dev/ttyACM0</span> <span class="cont">\</span>
+  <span class="flag">--teleop.id</span>=<span class="val">my_leader</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 정책 (SmolVLA) + 비동기 추론 RTC ===</span>
+  <span class="flag">--policy.path</span>=<span class="val">outputs/train/smolvla_pink_task_v3_dagger_r2/checkpoints/last/pretrained_model</span> <span class="cont">\</span>
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> <span class="cont">\</span>
+  <span class="flag">--inference.type</span>=<span class="val">rtc</span> <span class="cont">\</span>   <span class="cmt"># SmolVLA는 RTC 권장 (sync는 ACT용)</span>
+
+  <span class="cmt"># === 카메라 키 매핑 (SmolVLA 필수) ===</span>
+  <span class="flag">--rename_map</span>=<span class="val">'{"observation.images.top":"observation.images.camera1","observation.images.wrist":"observation.images.camera2"}'</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 데이터셋 + 음성 안내 ===</span>
+  <span class="flag">--play_sounds</span>=<span class="val">true</span> <span class="cont">\</span>
+  <span class="flag">--dataset.repo_id</span>=<span class="val">data/rollout_dagger_pink_task_v3_r3</span> <span class="cont">\</span>
+  <span class="flag">--dataset.single_task</span>=<span class="val">"pink block into the box of yellow"</span> <span class="cont">\</span>
+  <span class="flag">--dataset.push_to_hub</span>=<span class="val">false</span> <span class="cont">\</span>
+  <span class="flag">--display_data</span>=<span class="val">false</span></pre>
+    </div>
+
+    <h3 class="subheading">🎯 실전 조작 순서 — "완료까지" 강조판</h3>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title"><span class="keys">관찰</span> — 정책 자율 주행 지켜보기</div>
+          <div class="step-detail">
+            <span class="state-badge badge-auto">AUTONOMOUS</span>
+            &nbsp; 초반 접근·정렬에서 실패 조짐(머뭇거림·이탈)이 보이는지 봅니다.
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title"><span class="keys">Space</span> — 일시정지</div>
+          <div class="step-detail">
+            <span class="state-badge badge-auto">AUTONOMOUS</span> →
+            <span class="state-badge badge-pause">PAUSED</span>
+            &nbsp; 로봇이 자세를 유지하고 리더 암이 정렬됩니다.
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title"><span class="keys">Tab</span> — 교정 시작 (녹화 ON)</div>
+          <div class="step-detail">
+            <span class="state-badge badge-pause">PAUSED</span> →
+            <span class="state-badge badge-correct">CORRECTING</span>
+            &nbsp; 여기서부터 궤적이 <code>intervention=True</code>로 기록됩니다.
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title" style="color:var(--color-success)">🔑 완료까지 손 떼지 말고 시연 — 핵심</div>
+          <div class="step-detail">
+            리더 암으로 <strong>블록을 박스에 넣는 마지막 순간까지</strong> 직접 끌고 갑니다.
+            여기서 멈추면 영상이 결말 없이 끊깁니다.
+          </div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title"><span class="keys">Tab</span> — 교정 종료 = <span style="color:var(--color-success)">저장</span></div>
+          <div class="step-detail">
+            <span class="state-badge badge-correct">CORRECTING</span> →
+            <span class="state-badge badge-pause">PAUSED</span>
+            &nbsp; <strong>이 순간 에피소드 저장</strong> + "Correction N saved" 음성. 다음 에피소드로.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong>교정 도중 잘못됐다 싶으면</strong> Tab으로 끊지 말고 <strong>그대로 이어서 제대로 완료</strong>한 뒤 Tab을 누르세요.
+        Tab 전까진 저장되지 않으므로, 완료만 시키면 온전한 에피소드가 됩니다.
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-content">
+        <strong>기본 모드 vs 전체 저장(아래 v5 섹션) 정리:</strong>
+        단일 미세 교정·소량이면 지금의 <strong>기본 모드(교정 구간만, 완료까지 마무리)</strong>가 가볍고 유효합니다.
+        "집기→넣기"의 자율 구간 인과까지 통째로 담고 싶다면 아래 <code>record_autonomous=true</code>를 검토하세요.
+        <strong>현재 확정 방침은 기본 모드 + 완료까지 마무리</strong>입니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ★ v5 신규 1: record_autonomous 전체 저장 모드 -->
+<section style="background: linear-gradient(180deg, #FFFBEB, var(--color-surface));">
+  <div class="container">
+    <h2 class="section-title">🆕 v5 핵심 — <code style="font-size:1.3rem">--strategy.record_autonomous=true</code></h2>
+    <p class="section-lead">
+      기본 DAgger는 <strong>사람이 교정한 구간만</strong> 저장합니다(corrections-only).
+      이 옵션을 켜면 <strong>로봇이 스스로 실행한 자율 구간까지 전부</strong> 하나의 흐름으로 저장합니다.
+      2단계(집기 → 넣기)처럼 <strong>난이도가 높은 다단계 작업</strong>에서 반드시 필요한 모드입니다.
+    </p>
+
+    <div class="analogy-box" style="background: var(--color-warning-light); border-left-color: var(--color-warning);">
+      <div class="analogy-icon">📹</div>
+      <div class="analogy-content">
+        <div class="analogy-title" style="color: var(--color-warning);">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          운전 연수를 <strong>"강사가 핸들 잡은 순간만"</strong> 녹화하면(기본 모드),
+          나중에 영상만 봐서는 <strong>"학생이 어쩌다 그 위험한 상황에 빠졌는지"</strong>를 알 수 없습니다.
+          <code>record_autonomous=true</code>는 <strong>연수 전 과정을 통째로 녹화</strong>하는 것 —
+          학생의 실수 과정 + 강사의 교정이 <strong>한 편의 영상</strong>으로 남습니다.
+        </p>
+        <p class="analogy-real">
+          💡 <strong>실제로는</strong> — 정책 자율 구간(잘못 흘러간 상태)과 사람 교정 구간(정답 행동)이
+          한 에피소드에 이어져 저장되고, 개입 프레임에는 <code>intervention=True</code> 태그가 붙습니다.
+        </p>
+      </div>
+    </div>
+
+    <h3 class="subheading">두 저장 모드 비교 — 무엇이 저장되는가</h3>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-header" style="background: linear-gradient(135deg,#78350F,#D97706)">
+          <span class="compare-icon">✂️</span>
+          <h4>기본 (corrections-only)</h4>
+        </div>
+        <div class="compare-body">
+          <div class="compare-item"><span class="compare-label">플래그</span><span class="compare-value">없음 (기본값)</span></div>
+          <div class="compare-item"><span class="compare-label">저장 범위</span><span class="compare-value">교정 구간만</span></div>
+          <div class="compare-item"><span class="compare-label">에피소드</span><span class="compare-value">교정 1회 = 1 에피소드</span></div>
+          <div class="compare-item"><span class="compare-label">데이터량</span><span class="compare-value" style="color:var(--color-success)">적음 (가벼움)</span></div>
+          <div class="compare-item"><span class="compare-label">적합</span><span class="compare-value">소량 · 단순 작업<br>단일 미세 교정</span></div>
+        </div>
+      </div>
+      <div class="compare-card" style="outline:3px solid var(--color-warning); outline-offset:2px;">
+        <div class="compare-header" style="background: linear-gradient(135deg,#1E3A8A,#2563EB)">
+          <span class="compare-icon">📼</span>
+          <h4>🆕 전체 저장 (record_autonomous)</h4>
+        </div>
+        <div class="compare-body">
+          <div class="compare-item"><span class="compare-label">플래그</span><span class="compare-value">record_autonomous=true</span></div>
+          <div class="compare-item"><span class="compare-label">저장 범위</span><span class="compare-value">자율 + 교정 전체</span></div>
+          <div class="compare-item"><span class="compare-label">에피소드</span><span class="compare-value">시간 기반 회전<br>(Sentry와 동일)</span></div>
+          <div class="compare-item"><span class="compare-label">데이터량</span><span class="compare-value" style="color:var(--color-warning)">많음 (무거움)</span></div>
+          <div class="compare-item"><span class="compare-label">적합</span><span class="compare-value"><strong>다단계 · 고난도</strong><br>2단계 이상 작업</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="subheading">✅ 이 옵션의 장점 4가지</h3>
+    <div class="param-grid">
+      <div class="param-card" style="--pc: var(--color-secondary)">
+        <div class="param-name">① 실패 맥락 보존</div>
+        <div class="param-desc">정책이 <strong>어쩌다 잘못된 상태에 빠졌는지</strong> 그 과정이 통째로 남습니다. 교정만 저장하면 "왜 그 상황이 됐는지"가 사라져, 다단계 작업의 분포 이동(distribution shift)을 못 배웁니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-primary)">
+        <div class="param-name">② 다단계 작업에 필수</div>
+        <div class="param-desc"><strong>집기 → 넣기</strong>처럼 단계가 이어지는 작업은, 1단계 자율 실행의 결과가 2단계 시작 상태를 결정합니다. 자율 구간이 있어야 <strong>단계 간 연결</strong>을 학습합니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-success)">
+        <div class="param-name">③ 성공·실패 균형</div>
+        <div class="param-desc">정책이 <strong>잘한 자율 구간</strong>도 함께 저장돼, 교정 데이터에만 과적합되는 것을 막습니다. "정상 행동"의 분포가 유지됩니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-warning)">
+        <div class="param-name">④ intervention 플래그로 취사선택</div>
+        <div class="param-desc">전체를 저장하되 <code>intervention=True</code> 태그가 붙으므로, 학습 때 <strong>개입 프레임에만 가중치</strong>를 더 줄 수 있습니다. 저장은 전체, 강조는 교정 — 둘 다 챙깁니다.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-content">
+        <strong>왜 2단계라서 이걸 써야 하나?</strong> — 지금 작업이 "핑크 블록 집기 → 노란 박스에 넣기"의
+        <strong>2단계 연쇄</strong>라, 1단계에서 정책이 어떻게 집었는지(자율 구간)가 2단계 성패를 좌우합니다.
+        교정만 저장하면 이 <strong>단계 간 인과</strong>가 끊겨 난이도 높은 작업이 잘 학습되지 않습니다.
+        소량·단순 작업이면 기본 모드가 효율적이지만, <strong>고난도 다단계에서는 전체 저장이 정석</strong>입니다.
+      </div>
+    </div>
+
+    <h3 class="subheading">🟠 명령어 4 — 전체 저장 DAgger 롤아웃 (v5)</h3>
+    <p class="section-lead">
+      명령어 1과 동일하되 <code>--strategy.record_autonomous=true</code> 한 줄이 추가됐습니다.
+      자율 구간까지 저장되므로 <strong>시간/에피소드 회전 설정</strong>을 함께 지정합니다.
+    </p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">rollout_dagger_full_record_v5.sh</span>
+      </div>
+<pre><span class="cmd">lerobot-rollout</span> <span class="cont">\</span>
+  <span class="cmt"># === 팔로워 로봇 (실제로 움직이는 로봇) ===</span>
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> <span class="cont">\</span>
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.cameras</span>=<span class="val">"{
+      top:   {type: intelrealsense, serial_number_or_name: 138422072965, width: 640, height: 480, fps: 30, warmup_s: 15},
+      wrist: {type: opencv,        index_or_path: /dev/wrist_cam,        width: 640, height: 480, fps: 30, fourcc: \"MJPG\"}
+  }"</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 학습된 정책 (SmolVLA 체크포인트) ===</span>
+  <span class="flag">--policy.path</span>=<span class="val">outputs/train/smolvla_pink_task_v3_dagger_r2/checkpoints/last/pretrained_model</span> <span class="cont">\</span>
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 카메라 키 이름 매핑 (SmolVLA 필수) ===</span>
+  <span class="flag">--rename_map</span>=<span class="val">'{"observation.images.top":"observation.images.camera1","observation.images.wrist":"observation.images.camera2"}'</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 리더 암 (사람이 개입/교정하는 조종기) ===</span>
+  <span class="flag">--teleop.type</span>=<span class="val">so101_leader</span> <span class="cont">\</span>
+  <span class="flag">--teleop.port</span>=<span class="val">/dev/ttyACM0</span> <span class="cont">\</span>
+  <span class="flag">--teleop.id</span>=<span class="val">my_leader</span> <span class="cont">\</span>
+
+  <span class="cmt"># === DAgger 전략 + ★전체 저장 모드★ ===</span>
+  <span class="flag">--strategy.type</span>=<span class="val">dagger</span> <span class="cont">\</span>
+  <span class="flag">--strategy.record_autonomous</span>=<span class="val">true</span> <span class="cont">\</span>   <span class="cmt"># ★ v5 핵심: 자율 구간까지 전체 저장</span>
+  <span class="flag">--dataset.repo_id</span>=<span class="val">data/rollout_dagger_pink_task_v3_r3_full</span> <span class="cont">\</span>
+  <span class="flag">--dataset.single_task</span>=<span class="val">"pink block into the box of yellow"</span> <span class="cont">\</span>
+  <span class="flag">--dataset.push_to_hub</span>=<span class="val">false</span> <span class="cont">\</span>
+  <span class="flag">--display_data</span>=<span class="val">false</span></pre>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚖️</div>
+      <div class="callout-content">
+        <strong>트레이드오프 인지:</strong> 전체 저장은 데이터량이 크게 늘어 <strong>디스크·인코딩 시간</strong>이 증가합니다.
+        소량 라운드라면 기본(corrections-only)이 효율적입니다. 지금처럼 <strong>2단계 고난도</strong>라서
+        불가피하게 전체 저장을 택하는 것이니, <code>repo_id</code>에 <code>_full</code> 접미사를 붙여
+        기본 모드 데이터셋과 <strong>명확히 구분·관리</strong>하시길 권합니다.
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">🔑</div>
+      <div class="callout-content">
+        <strong>키 조작은 동일:</strong> 전체 저장 모드에서도 <strong>Space(정지)→Tab(교정)→Tab(교정끝)→Space(재개)</strong>
+        흐름은 그대로입니다. 차이는 "무엇이 파일로 남느냐"일 뿐, 사람이 조작하는 방식은 바뀌지 않습니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ★ v5 신규 2: 저장 데이터 검증 스크립트 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🔍 저장 확인 — parquet 스키마 검증 스크립트</h2>
+    <p class="section-lead">
+      수집이 끝나면 <strong>진짜로 intervention 태그가 붙었는지, 자율 구간이 저장됐는지</strong> 확인해야 합니다.
+      아래 스크립트로 컬럼 목록과 개입 프레임 비율을 점검하세요.
+    </p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">🩺</div>
+      <div class="analogy-content">
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          수집 직후 스키마 확인은 <strong>요리 후 "간 보기"</strong>와 같습니다.
+          학습(=손님 대접)에 들어가기 전에, <strong>데이터가 의도대로 저장됐는지</strong> 한 숟갈 떠서 확인하는 것 —
+          여기서 <code>intervention</code> 컬럼이 없으면 뭔가 잘못된 것입니다.
+        </p>
+      </div>
+    </div>
+
+    <h3 class="subheading">먼저 — 원래 쓰시던 확인 스크립트 점검</h3>
+    <div class="callout callout-info">
+      <div class="callout-icon">📋</div>
+      <div class="callout-content">
+        보내주신 스크립트는 <strong>동작은 맞습니다.</strong> <code>recursive=True</code>로 <code>chunk-*</code>
+        하위 폴더까지 잘 훑고 있습니다. 다만 두 가지 <strong>안전 보강</strong>이 필요합니다 —
+        ① 파일이 없을 때 <code>sorted(...)[0]</code>가 <code>IndexError</code>로 죽음,
+        ② 핵심 목적인 <code>intervention</code> 컬럼 존재/비율 출력이 없음.
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">기존 스크립트 (동작 O · 안전판 X)</span>
+      </div>
+<pre><span class="cmd">python</span> -c <span class="val">"
+import pandas as pd, glob
+f = sorted(glob.glob('data/rollout_dagger_pink_task_v3_r3/data/**/*.parquet', recursive=True))[0]
+df = pd.read_parquet(f)
+print(df.columns.tolist())
+print(df.shape)
+"</span></pre>
+    </div>
+
+    <h3 class="subheading">✅ v5 권장 — 안전판 + 개입 비율까지 확인</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">check_dagger_dataset.py</span>
+      </div>
+<pre><span class="cmt"># 사용법: python check_dagger_dataset.py data/rollout_dagger_pink_task_v3_r3_full</span>
+<span class="cmd">import</span> sys, glob
+<span class="cmd">import</span> pandas <span class="cmd">as</span> pd
+
+root = sys.argv[1] <span class="cmd">if</span> len(sys.argv) &gt; 1 <span class="cmd">else</span> <span class="val">"data/rollout_dagger_pink_task_v3_r3_full"</span>
+files = sorted(glob.glob(f<span class="val">"{root}/data/**/*.parquet"</span>, recursive=<span class="val">True</span>))
+
+<span class="cmt"># ① 안전판: 파일이 없으면 친절히 알려주고 종료</span>
+<span class="cmd">if not</span> files:
+    print(f<span class="val">"❌ parquet 파일이 없습니다: {root}/data/"</span>)
+    print(<span class="val">"   경로가 맞는지, 수집이 끝났는지 확인하세요."</span>)
+    sys.exit(1)
+
+print(f<span class="val">"✅ parquet 파일 {len(files)}개 발견"</span>)
+
+<span class="cmt"># ② 전체 에피소드를 합쳐 컬럼·개입 비율 확인</span>
+df = pd.concat([pd.read_parquet(f) <span class="cmd">for</span> f <span class="cmd">in</span> files], ignore_index=<span class="val">True</span>)
+print(<span class="val">"컬럼:"</span>, df.columns.tolist())
+print(<span class="val">"전체 프레임 수:"</span>, len(df))
+
+<span class="cmt"># ③ 핵심: intervention 태그 존재 여부 + 비율</span>
+<span class="cmd">if</span> <span class="val">"intervention"</span> <span class="cmd">in</span> df.columns:
+    n_iv = int(df[<span class="val">"intervention"</span>].sum())
+    ratio = n_iv / len(df) * 100
+    print(f<span class="val">"🖐  개입 프레임: {n_iv} / {len(df)} ({ratio:.1f}%)"</span>)
+    <span class="cmd">if</span> ratio == 0:
+        print(<span class="val">"⚠️  개입이 0% — 교정이 저장되지 않았습니다. 키 조작을 확인하세요."</span>)
+    <span class="cmd">elif</span> ratio &gt; 80:
+        print(<span class="val">"⚠️  개입 80%↑ — corrections-only 모드일 가능성. 자율 구간이 거의 없습니다."</span>)
+    <span class="cmd">else</span>:
+        print(<span class="val">"👍  자율+교정이 함께 저장된 정상적인 전체 저장 데이터로 보입니다."</span>)
+<span class="cmd">else</span>:
+    print(<span class="val">"ℹ️  intervention 컬럼 없음 — 이 LeRobot 버전/설정에서는 태그를 남기지 않습니다."</span>)
+
+<span class="cmt"># ④ 에피소드 개수도 확인 (있으면)</span>
+<span class="cmd">if</span> <span class="val">"episode_index"</span> <span class="cmd">in</span> df.columns:
+    print(<span class="val">"에피소드 수:"</span>, df[<span class="val">"episode_index"</span>].nunique())</pre>
+    </div>
+
+    <h3 class="subheading">출력 예시 — 이렇게 나오면 정상</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">terminal output</span>
+      </div>
+<pre><span class="cmt">✅ parquet 파일 3개 발견
+컬럼: ['action', 'observation.state', 'observation.images.camera1',
+       'observation.images.camera2', 'timestamp', 'intervention',
+       'episode_index', 'frame_index', 'task_index', ...]
+전체 프레임 수: 4820
+🖐  개입 프레임: 1446 / 4820 (30.0%)
+👍  자율+교정이 함께 저장된 정상적인 전체 저장 데이터로 보입니다.
+에피소드 수: 3</span></pre>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">📊</div>
+      <div class="callout-content">
+        <strong>개입 비율 읽는 법:</strong> 첫 라운드에서 <strong>개입 30% 안팎</strong>이면 건강한 신호입니다
+        (정책이 70%는 스스로 해내고, 30%만 사람이 도움). 라운드가 진행되며 정책이 좋아지면
+        이 비율이 <strong>점점 낮아지는 것</strong>이 정상입니다. 반대로 계속 높으면 정책 학습이 정체된 신호입니다.
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🔗</div>
+      <div class="callout-content">
+        <strong>다음 단계 — 재학습 시 병합:</strong> 이렇게 검증한 <code>_full</code> 데이터셋은
+        <strong>기존 수집분과 합쳐서</strong> 학습해야 합니다. 교정본만으로 학습하면 원래 잘하던 부분을 잊는
+        <strong>catastrophic forgetting</strong>이 발생합니다. 초기 라운드 권장 비율은
+        <strong>기존 : 교정 ≈ 3~5 : 1</strong>이며, 반드시 <strong>원본 + 교정을 누적</strong>해 학습하세요.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 비동기 추론 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">⚡ 비동기 추론 (Async Inference) — SmolVLA의 핵심</h2>
+    <p class="section-lead">
+      SmolVLA 같은 큰 VLA 모델은 추론이 느려서, 로봇이 "다음 동작 계산될 때까지 멈춰 기다리는" 지연이 생깁니다.
+      비동기 추론은 <strong>동작 예측과 동작 실행을 분리</strong>해 이 멈춤을 없앱니다.
+    </p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">🍳</div>
+      <div class="analogy-content">
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          <strong>동기 추론</strong>은 요리사가 접시 하나를 다 내주고 나서야 다음 요리를 시작하는 것과 같아요.
+          손님(로봇)은 그동안 <strong>가만히 기다립니다.</strong> <strong>비동기 추론</strong>은 손님이 지금 접시를
+          먹는 동안 요리사가 <strong>미리 다음 접시를 만드는 것</strong>이라, 접시가 끊기지 않아요.
+        </p>
+        <p class="analogy-real">
+          💡 <strong>실제로는</strong> — 로봇이 현재 동작 청크를 실행하는 동안, 정책 서버는 이미 다음 청크를
+          계산합니다. <strong>현재 청크가 소진되기 전에</strong> 다음 청크가 준비되므로 멈춤(idle)이 사라집니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-diagram">
+      <div class="sc-box sc-server">
+        <div class="sc-icon">🧠</div>
+        <div class="sc-title">Policy Server</div>
+        <div class="sc-role">추론 담당 (GPU PC)</div>
+        <ul>
+          <li>관측값 받아 동작 청크 예측</li>
+          <li>강력한 GPU에서 실행</li>
+          <li>원격 PC여도 됨</li>
+        </ul>
+      </div>
+      <div class="sc-link">
+        <span class="arrow-r">→</span>
+        <span class="sc-lbl">동작 청크</span>
+        <span class="sc-lbl">관측값</span>
+        <span class="arrow-l">←</span>
+      </div>
+      <div class="sc-box sc-client">
+        <div class="sc-icon">🤖</div>
+        <div class="sc-title">Robot Client</div>
+        <div class="sc-role">실행 담당 (로봇 제어 PC)</div>
+        <ul>
+          <li>큐에서 동작 꺼내 실행</li>
+          <li>실행 중에도 관측값 전송</li>
+          <li>큐 소진 전 새 청크 수신</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🖥️</div>
+      <div class="callout-content">
+        <strong>분산 구조의 장점:</strong> 추론(무거움)은 강력한 GPU 서버에서, 로봇 제어(가벼움)는 로봇 옆 PC에서.
+        서버와 클라이언트를 <strong>같은 PC</strong>에서 돌려도 되고, <strong>네트워크로 분리</strong>해도 됩니다.
+        모든 LeRobot 정책(ACT 포함)에서 쓸 수 있지만, 추론이 느린 SmolVLA·π0 같은 VLA에서 특히 효과가 큽니다.
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🆕</div>
+      <div class="callout-content">
+        <strong>v0.6.0 기준, 비동기를 쓰는 방법은 두 가지입니다.</strong>
+        ① <strong>내장 백엔드</strong>: 기존 <code>lerobot-rollout</code> 명령에 <code>--inference.type=rtc</code> 한 줄만 추가
+        (백그라운드 스레드가 비동기로 청크 계산 · 같은 PC · <strong>가장 간단, 수업 권장</strong>).
+        ② <strong>분산 방식</strong>: 정책 서버 + 로봇 클라이언트를 분리 실행 (원격 GPU 활용 가능).
+        아래에서 순서대로 설명합니다.
+      </div>
+    </div>
+
+    <h3 class="subheading">🅰️ 방법 1 — 내장 비동기 백엔드 (--inference.type=rtc) · 수업 권장</h3>
+    <p class="section-lead" style="margin-bottom: 1rem;">
+      별도 서버 없이, <strong>앞의 명령어 1·2·3에 플래그만 추가</strong>하면 됩니다. 모든 전략(base·dagger)과 호환됩니다.
+      메인 루프가 현재 동작을 실행하는 동안 백그라운드 스레드가 다음 청크를 병렬 계산합니다.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">rollout_base_rtc_async.sh — 명령어 2에 RTC 추가 버전</span>
+      </div>
+<pre><span class="cmd">lerobot-rollout</span> <span class="cont">\</span>
+  <span class="flag">--strategy.type</span>=<span class="val">base</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 🆕 비동기 백엔드 (이 4줄이 추가 전부) ===</span>
+  <span class="flag">--inference.type</span>=<span class="val">rtc</span> <span class="cont">\</span>
+  <span class="flag">--inference.rtc.execution_horizon</span>=<span class="val">10</span> <span class="cont">\</span>
+  <span class="flag">--inference.rtc.max_guidance_weight</span>=<span class="val">10.0</span> <span class="cont">\</span>
+  <span class="flag">--inference.queue_threshold</span>=<span class="val">30</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 이하 기존 명령어 2와 동일 ===</span>
+  <span class="flag">--policy.path</span>=<span class="val">/home/zetabank/lerobot_outputs/train/smolvla_pink_task_2cam/checkpoints/last/pretrained_model</span> <span class="cont">\</span>
+  <span class="flag">--policy.device</span>=<span class="val">cuda</span> <span class="cont">\</span>
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> <span class="cont">\</span>
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.cameras</span>=<span class="val">"{ top: {type: intelrealsense, serial_number_or_name: 116622071569, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: 12, width: 640, height: 480, fps: 30}}"</span> <span class="cont">\</span>
+  <span class="flag">--rename_map</span>=<span class="val">"{observation.images.top: observation.images.camera1, observation.images.wrist: observation.images.camera2}"</span> <span class="cont">\</span>
+  <span class="flag">--task</span>=<span class="val">"pink block into the box of yellow"</span> <span class="cont">\</span>
+  <span class="flag">--duration</span>=<span class="val">60</span> <span class="cont">\</span>
+  <span class="flag">--display_data</span>=<span class="val">false</span></pre>
+    </div>
+
+    <div class="param-grid">
+      <div class="param-card" style="--pc: var(--color-secondary)">
+        <div class="param-name">--inference.rtc.execution_horizon</div>
+        <div class="param-desc">새 청크로 넘어갈 때 <strong>이전 청크와 섞는(blend) 스텝 수</strong>. 이음새를 부드럽게 만듭니다. 기본값은 정책마다 다름.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-primary)">
+        <div class="param-name">--inference.rtc.max_guidance_weight</div>
+        <div class="param-desc">청크 간 <strong>일관성 강제 강도</strong>. 클수록 이전 계획을 존중해 튐이 줄어듭니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-warning)">
+        <div class="param-name">--inference.queue_threshold</div>
+        <div class="param-desc">큐 최대 크기(기본 30). 이보다 쌓이면 배압(backpressure)으로 계산을 조절합니다.</div>
+      </div>
+      <div class="param-card" style="--pc: var(--color-success)">
+        <div class="param-name">--inference.rtc.prefix_attention_schedule</div>
+        <div class="param-desc">블렌딩 스케줄: <code>LINEAR</code> · <code>EXP</code> · <code>ONES</code> · <code>ZEROS</code>. 기본값으로 시작하세요. <strong>(아래 그림 설명 참고)</strong></div>
+      </div>
+    </div>
+
+    <h3 class="subheading">🏃 prefix_attention_schedule 쉽게 이해하기 — 이어달리기 바통 터치</h3>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">🏃</div>
+      <div class="analogy-content">
+        <div class="analogy-title">이해하기 쉽게!</div>
+        <p class="analogy-text">
+          로봇은 동작을 "청크(계획 묶음)" 단위로 실행합니다. <strong>옛 청크가 달리는 선수, 새 청크가 다음 선수</strong>예요.
+          문제는 바통을 넘기는 순간 — 두 선수의 속도가 다르면 바통을 떨어뜨리죠(= 팔이 "툭" 튀는 현상).
+          그래서 RTC는 바통 터치 구간에서 <strong>옛 계획과 새 계획을 겹쳐서 섞는데</strong>,
+          이 스케줄은 그 구간에서 <strong>"옛 계획을 얼마나, 어떤 식으로 존중할까"</strong>를 정하는 규칙입니다.
+        </p>
+        <p class="analogy-real">
+          💡 <strong>기억법</strong> — <code>execution_horizon</code>이 바통 터치 구간의 <strong>"길이"</strong>라면,
+          <code>prefix_attention_schedule</code>은 그 구간 안에서 섞는 <strong>"모양"</strong>입니다.
+        </p>
+      </div>
+    </div>
+
+    <!-- 4가지 스케줄 SVG 그래프 -->
+    <div style="background: var(--color-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.75rem 1.5rem; margin: 1.5rem 0;">
+      <div style="font-weight: 800; margin-bottom: 0.25rem;">📉 블렌딩 구간에서 "옛 계획의 비중"이 줄어드는 4가지 모양</div>
+      <div style="font-size: 0.85rem; color: var(--color-muted); margin-bottom: 1rem;">가로: 블렌딩 구간 진행 (execution_horizon 스텝) · 세로: 옛 계획을 존중하는 비중</div>
+      <svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;" role="img" aria-label="prefix attention schedule 4가지 곡선">
+        <!-- 축 -->
+        <line x1="60" y1="20" x2="60" y2="250" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="60" y1="250" x2="600" y2="250" stroke="#CBD5E1" stroke-width="2"/>
+        <!-- y축 라벨 -->
+        <text x="50" y="30" text-anchor="end" font-size="12" fill="#64748B" font-family="Noto Sans KR, sans-serif">100%</text>
+        <text x="50" y="140" text-anchor="end" font-size="12" fill="#64748B" font-family="Noto Sans KR, sans-serif">50%</text>
+        <text x="50" y="254" text-anchor="end" font-size="12" fill="#64748B" font-family="Noto Sans KR, sans-serif">0%</text>
+        <text x="20" y="150" text-anchor="middle" font-size="12" fill="#475569" font-family="Noto Sans KR, sans-serif" transform="rotate(-90 20 150)">옛 계획 비중</text>
+        <!-- x축 라벨 -->
+        <text x="65" y="272" font-size="12" fill="#64748B" font-family="Noto Sans KR, sans-serif">블렌딩 시작</text>
+        <text x="595" y="272" text-anchor="end" font-size="12" fill="#64748B" font-family="Noto Sans KR, sans-serif">블렌딩 끝</text>
+        <!-- 격자 -->
+        <line x1="60" y1="135" x2="600" y2="135" stroke="#F1F5F9" stroke-width="1"/>
+        <line x1="330" y1="20" x2="330" y2="250" stroke="#F1F5F9" stroke-width="1"/>
+
+        <!-- ONES: 내내 100% 유지 -->
+        <path d="M 60 25 L 585 25 L 585 250" fill="none" stroke="#059669" stroke-width="3.5" stroke-linejoin="round"/>
+        <!-- LINEAR: 직선 감소 -->
+        <path d="M 60 25 L 585 250" fill="none" stroke="#2563EB" stroke-width="3.5"/>
+        <!-- EXP: 급감 후 완만 -->
+        <path d="M 60 25 C 140 200, 260 240, 585 249" fill="none" stroke="#D97706" stroke-width="3.5"/>
+        <!-- ZEROS: 즉시 0 -->
+        <path d="M 60 25 L 60 250 L 585 250" fill="none" stroke="#DC2626" stroke-width="3.5" stroke-dasharray="7 5" stroke-linejoin="round"/>
+
+        <!-- 곡선 라벨 -->
+        <text x="300" y="45" font-size="13" font-weight="700" fill="#059669" font-family="JetBrains Mono, monospace">ONES</text>
+        <text x="330" y="128" font-size="13" font-weight="700" fill="#2563EB" font-family="JetBrains Mono, monospace">LINEAR</text>
+        <text x="150" y="225" font-size="13" font-weight="700" fill="#D97706" font-family="JetBrains Mono, monospace">EXP</text>
+        <text x="75" y="243" font-size="13" font-weight="700" fill="#DC2626" font-family="JetBrains Mono, monospace">ZEROS</text>
+      </svg>
+
+      <!-- 범례 카드 -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem; margin-top: 1rem;">
+        <div style="border-left: 4px solid #059669; background: var(--color-surface); border-radius: 8px; padding: 0.6rem 0.8rem;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.78rem; font-weight:700; color:#059669;">ONES</div>
+          <div style="font-size:0.78rem; color:var(--color-muted);">앞 곡 볼륨 <strong>끝까지 크게</strong> → 가장 부드러움, 반응 느림</div>
+        </div>
+        <div style="border-left: 4px solid #2563EB; background: var(--color-surface); border-radius: 8px; padding: 0.6rem 0.8rem;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.78rem; font-weight:700; color:#2563EB;">LINEAR</div>
+          <div style="font-size:0.78rem; color:var(--color-muted);"><strong>일정하게 서서히</strong> 줄임 → 균형형 (무난)</div>
+        </div>
+        <div style="border-left: 4px solid #D97706; background: var(--color-surface); border-radius: 8px; padding: 0.6rem 0.8rem;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.78rem; font-weight:700; color:#D97706;">EXP</div>
+          <div style="font-size:0.78rem; color:var(--color-muted);"><strong>처음에 확 줄이고</strong> 뒤엔 살짝 → 새 계획 빠른 반영</div>
+        </div>
+        <div style="border-left: 4px solid #DC2626; background: var(--color-surface); border-radius: 8px; padding: 0.6rem 0.8rem;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.78rem; font-weight:700; color:#DC2626;">ZEROS</div>
+          <div style="font-size:0.78rem; color:var(--color-muted);">앞 곡 <strong>뚝 끊기</strong> → 블렌딩 없음, 튐 위험 최대</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">🎚️</div>
+      <div class="callout-content">
+        <strong>튜닝 요령:</strong> 먼저 <strong>기본값</strong>으로 돌려보세요(정책마다 잘 맞는 스케줄이 이미 지정돼 있음).
+        그다음 로봇 팔이 청크 경계에서 <strong>움찔거리면 → ONES 쪽</strong>으로,
+        새 상황 반응이 <strong>굼뜨면 → EXP 쪽</strong>으로 조정합니다.
+        ZEROS는 사실상 "블렌딩 끄기"라 실습에서는 비교 실험용으로만 쓰세요.
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">🎮</div>
+      <div class="callout-content">
+        <strong>DAgger와도 호환:</strong> 공식 문서 기준 "모든 전략이 두 백엔드 모두와 작동"하므로,
+        명령어 1(dagger)에도 <code>--inference.type=rtc</code>를 붙일 수 있습니다.
+        단, 앞서 본 <strong>교정 후 재개 시 스냅백 이슈(GitHub #3747)</strong>가 바로 RTC+DAgger 조합에서
+        보고된 것이니, 재개 직후 1~2초는 거동을 관찰하세요.
+      </div>
+    </div>
+
+    <h3 class="subheading">🅱️ 방법 2 — 분산 비동기 (정책 서버 + 로봇 클라이언트)</h3>
+    <p class="section-lead" style="margin-bottom: 1rem;">
+      추론을 <strong>다른 PC(원격 GPU)</strong>에서 돌리고 싶을 때 사용합니다. 로봇 옆 PC가 약할 때 유용합니다.
+    </p>
+
+    <h3 class="subheading">📦 0단계 — 설치 (async 의존성)</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">install_async.sh</span>
+      </div>
+<pre><span class="cmt"># async 추가 의존성 설치 (한 번만)</span>
+<span class="cmd">pip install</span> -e <span class="val">".[async]"</span></pre>
+    </div>
+
+    <h3 class="subheading">🧠 1단계 — 정책 서버 켜기 (터미널 1 · GPU PC)</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">policy_server.sh</span>
+      </div>
+<pre><span class="cmd">python</span> -m <span class="val">lerobot.async_inference.policy_server</span> <span class="cont">\</span>
+  <span class="flag">--host</span>=<span class="val">0.0.0.0</span> <span class="cont">\</span>   <span class="cmt"># 같은 PC면 127.0.0.1, 원격이면 0.0.0.0</span>
+  <span class="flag">--port</span>=<span class="val">8080</span></pre>
+    </div>
+    <div class="callout callout-tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        서버는 처음엔 <strong>빈 껍데기</strong>입니다. 어떤 정책을 쓸지는 클라이언트가 처음 연결할 때(handshake)
+        전달합니다. 그래서 서버 명령엔 <code>--host</code>와 <code>--port</code>만 있으면 됩니다.
+        원격 PC로 돌릴 때는 <code>0.0.0.0</code>으로 열고, 클라이언트에는 서버의 실제 IP를 알려주세요.
+      </div>
+    </div>
+
+    <h3 class="subheading">🤖 2단계 — 로봇 클라이언트 켜기 (터미널 2 · 로봇 PC)</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="code-title">robot_client_smolvla.sh</span>
+      </div>
+<pre><span class="cmd">python</span> -m <span class="val">lerobot.async_inference.robot_client</span> <span class="cont">\</span>
+  <span class="cmt"># === 서버 주소 (1단계에서 켠 서버) ===</span>
+  <span class="flag">--server_address</span>=<span class="val">127.0.0.1:8080</span> <span class="cont">\</span>   <span class="cmt"># 원격이면 서버_IP:8080</span>
+
+  <span class="cmt"># === 로봇 (팔로워) ===</span>
+  <span class="flag">--robot.type</span>=<span class="val">so101_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.port</span>=<span class="val">/dev/ttyACM1</span> <span class="cont">\</span>
+  <span class="flag">--robot.id</span>=<span class="val">my_follower</span> <span class="cont">\</span>
+  <span class="flag">--robot.cameras</span>=<span class="val">"{ top: {type: intelrealsense, serial_number_or_name: 116622071569, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: 12, width: 640, height: 480, fps: 30}}"</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 정책 (SmolVLA · 서버에서 로드됨) ===</span>
+  <span class="flag">--task</span>=<span class="val">"pink block into the box of yellow"</span> <span class="cont">\</span>
+  <span class="flag">--policy_type</span>=<span class="val">smolvla</span> <span class="cont">\</span>
+  <span class="flag">--pretrained_name_or_path</span>=<span class="val">outputs/train/smolvla_pink_task_2cam/checkpoints/last/pretrained_model</span> <span class="cont">\</span>
+  <span class="flag">--policy_device</span>=<span class="val">cuda</span> <span class="cont">\</span>
+
+  <span class="cmt"># === 비동기 핵심 튜닝 파라미터 ===</span>
+  <span class="flag">--actions_per_chunk</span>=<span class="val">50</span> <span class="cont">\</span>
+  <span class="flag">--chunk_size_threshold</span>=<span class="val">0.5</span> <span class="cont">\</span>
+  <span class="flag">--aggregate_fn_name</span>=<span class="val">weighted_average</span> <span class="cont">\</span>
+  <span class="flag">--debug_visualize_queue_size</span>=<span class="val">true</span></pre>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">📷</div>
+      <div class="callout-content">
+        <strong>카메라 키 주의:</strong> 클라이언트의 카메라 키는 <strong>정책이 기대하는 이름과 일치</strong>해야 합니다.
+        학습 때 <code>rename_map</code>으로 <code>camera1/camera2</code>를 썼다면, 여기서도 동일하게 맞추세요.
+        (앞선 롤아웃 명령어와 같은 원칙 — 학습·추론 간 키 일관성)
+      </div>
+    </div>
+
+    <h3 class="subheading">🎛️ 핵심 튜닝 파라미터 2가지</h3>
+    <table class="tune-table">
+      <thead>
+        <tr><th>파라미터</th><th>기본값</th><th>하는 일</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>actions_per_chunk</td>
+          <td class="def">50</td>
+          <td>정책이 한 번에 내놓는 동작 개수. 클수록 큐가 빌 위험은 줄지만, 먼 미래까지 예측해 <strong>정밀도가 떨어질</strong> 수 있음. 보통 10~50.</td>
+        </tr>
+        <tr>
+          <td>chunk_size_threshold</td>
+          <td class="def">0.5</td>
+          <td>큐가 이 비율 이하로 줄면 새 관측값을 서버로 보냄(0~1). 클수록 자주 갱신돼 <strong>반응성↑·대역폭↑</strong>. 0에 가까우면 동기 추론처럼 됨.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="slider-row">
+      <span class="slider-param">actions_per_chunk ↑</span>
+      <div class="slider-track">
+        <span class="slider-low">작게 → 정밀하지만 큐 빌 위험</span>
+        <span class="slider-high">크게 → 안정적이나 정밀도 ↓</span>
+      </div>
+    </div>
+    <div class="slider-row">
+      <span class="slider-param">chunk_size_threshold ↑</span>
+      <div class="slider-track">
+        <span class="slider-low">0에 가까이 → 동기(느림)</span>
+        <span class="slider-high">1에 가까이 → 반응성↑·대역폭↑</span>
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">📊</div>
+      <div class="callout-content">
+        <strong>튜닝 3원칙:</strong> ① 큐가 자주 비면 <code>fps</code>를 낮추세요(서버 추론이 못 따라오는 것).
+        ② <code>chunk_size_threshold</code>는 <strong>0.5~0.6</strong>이 대체로 잘 맞습니다.
+        ③ <code>--debug_visualize_queue_size=true</code>로 <strong>큐 크기 그래프</strong>를 보면서 조정하세요 —
+        큐가 0에 자주 닿으면 멈춤이 생기는 신호입니다.
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🧮</div>
+      <div class="callout-content">
+        <strong>서버 메모리 참고:</strong> 추론 시 π0는 약 14GB, SmolVLA는 약 2GB를 씁니다.
+        SmolVLA가 가벼워서 작은 GPU에서도 async가 잘 돕니다. 정책·디바이스 조합이 평균 추론 지연을 좌우합니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 추론 방식 3가지 비교 -->
+<section>
+  <div class="container">
+    <h2 class="section-title">🔀 v0.6.0 추론 방식 정리 — 언제 무엇을</h2>
+    <p class="section-lead">공식 문서 기준으로 정리한 세 가지 실행 방식입니다. 모두 lerobot-rollout의 전략(base·dagger)과 조합 가능합니다.</p>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-header" style="background: linear-gradient(135deg,#7C2D12,#EA580C)">
+          <span class="compare-icon">🐢</span>
+          <h4>동기 (기본값)</h4>
+        </div>
+        <div class="compare-body">
+          <div class="compare-item"><span class="compare-label">플래그</span><span class="compare-value">없음 (기본)</span></div>
+          <div class="compare-item"><span class="compare-label">구조</span><span class="compare-value">틱마다 1회 호출<br>계산 끝날 때까지 대기</span></div>
+          <div class="compare-item"><span class="compare-label">멈춤</span><span class="compare-value" style="color:var(--color-danger)">있음 (idle)</span></div>
+          <div class="compare-item"><span class="compare-label">적합</span><span class="compare-value">빠른 정책 (ACT)</span></div>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-header" style="background: linear-gradient(135deg,#065F46,#10B981)">
+          <span class="compare-icon">⚡</span>
+          <h4>🅰️ 내장 비동기 (RTC)</h4>
+        </div>
+        <div class="compare-body">
+          <div class="compare-item"><span class="compare-label">플래그</span><span class="compare-value">--inference.type=rtc</span></div>
+          <div class="compare-item"><span class="compare-label">구조</span><span class="compare-value">백그라운드 스레드가<br>병렬로 청크 계산</span></div>
+          <div class="compare-item"><span class="compare-label">멈춤</span><span class="compare-value" style="color:var(--color-success)">없음 + 이음새 블렌딩</span></div>
+          <div class="compare-item"><span class="compare-label">적합</span><span class="compare-value">느린 VLA (SmolVLA·π0)<br><strong>같은 PC · 수업 권장</strong></span></div>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-header" style="background: linear-gradient(135deg,#1E3A8A,#3B82F6)">
+          <span class="compare-icon">🌐</span>
+          <h4>🅱️ 분산 비동기</h4>
+        </div>
+        <div class="compare-body">
+          <div class="compare-item"><span class="compare-label">실행</span><span class="compare-value">policy_server<br>+ robot_client</span></div>
+          <div class="compare-item"><span class="compare-label">구조</span><span class="compare-value">gRPC로 관측↔청크<br>스트리밍</span></div>
+          <div class="compare-item"><span class="compare-label">멈춤</span><span class="compare-value" style="color:var(--color-success)">없음</span></div>
+          <div class="compare-item"><span class="compare-label">적합</span><span class="compare-value">원격 GPU 활용<br>로봇 PC가 약할 때</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-info">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-content">
+        <strong>용어 정리:</strong> v0.6.0에서 <code>lerobot-rollout</code>의 내장 비동기 백엔드 이름이 <strong>RTC(Real-Time Chunking)</strong>입니다.
+        "백그라운드 스레드가 비동기로 청크를 만들고 + 청크 경계를 블렌딩해 튐을 방지"까지 한 번에 해줍니다.
+        분산 비동기(서버-클라이언트)는 별도 모듈(<code>lerobot.async_inference</code>)로, 원격 GPU가 필요할 때만 쓰면 됩니다.
+        수업에서는 <strong>🅰️ 내장 방식(플래그 1줄)</strong>을 기본으로 권장합니다.
+      </div>
+    </div>
+    <div class="callout callout-warning">
+      <div class="callout-icon">⌨️</div>
+      <div class="callout-content">
+        <strong>키보드 컨트롤 보충 (공식 문서):</strong> DAgger 전략에서 Space·Tab 외에도
+        <strong>Enter</strong>(corrections-only 모드에서 데이터셋 Hub 업로드), <strong>ESC</strong>(세션 종료)가 있습니다.
+        양손이 리더 암에 있을 때는 <code>--strategy.input_device=pedal</code>로 <strong>USB 풋페달</strong>을 쓸 수 있습니다.
+      </div>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="container">
+    <h2 class="section-title">✅ 한 줄 요약</h2>
+    <div class="analogy-box" style="background: var(--color-success-light); border-left-color: var(--color-success);">
+      <div class="analogy-icon">🎯</div>
+      <div class="analogy-content">
+        <p class="analogy-text">
+          <strong>rollout</strong>으로 정책을 실행하고, 실수할 때
+          <strong>Space(정지) → Tab(교정) → Tab(교정끝) → Space(재개)</strong> 순서로 사람이 개입해
+          <strong>더 나은 데이터를 계속 쌓는 것</strong> — 이것이 DAgger의 핵심입니다.
+        </p>
+        <p class="analogy-real" style="border-top-color: var(--color-success);">
+          🏁 <strong>v6 확정 방침</strong> — <strong>기본 DAgger 모드</strong>(record_autonomous 없이)를 씁니다.
+          <strong>Tab이 저장 키</strong>이고, <strong>교정을 태스크 완료까지 마무리한 뒤 Tab</strong>을 눌러야
+          "실패→회복→완료"가 담긴 <strong>온전한 에피소드(동영상)</strong>가 저장됩니다.
+          재녹화 키는 없으니(episodic 전용), 나쁜 에피소드는 <code>lerobot-edit-dataset</code>로 사후 삭제합니다.
+        </p>
+        <p class="analogy-real" style="border-top-color: var(--color-muted); color: var(--color-muted);">
+          🆕 <strong>참고(v5)</strong> — "집기→넣기" 자율 구간 인과까지 통째로 담고 싶을 때만 <code>--strategy.record_autonomous=true</code>(전체 저장)를 검토합니다.
+          수집 후 <code>check_dagger_dataset.py</code>로 <code>intervention</code> 태그·개입 비율(~30%)을 검증하고, 기존 수집분과 합쳐 재학습하세요.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
